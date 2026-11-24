@@ -19,14 +19,26 @@ export interface PublicSiteSettingsRecord {
   contact: { address: string; phone: string; email: string; officeHours: string };
   social: { facebook: string; instagram: string; linkedin: string; x: string; youtube: string };
   announcement: { isActive: boolean; text: string; linkUrl: string };
+  mapUrl: string;
+  impactNumbers: { label: string; value: number }[];
+  admissionsOpen: boolean;
+  scholarshipsOpen: boolean;
 }
 
-/** The settings the public layout shows, or null before the settings document exists. */
+/** The settings the public site shows, or null before the settings document exists. */
 export async function findPublicSiteSettings(): Promise<PublicSiteSettingsRecord | null> {
   await connectDb();
   const settings = await SiteSettingsModel.findOne(
     { key: SITE_SETTINGS_KEY },
-    { contact: 1, social: 1, announcement: 1 },
+    {
+      contact: 1,
+      social: 1,
+      announcement: 1,
+      mapUrl: 1,
+      impactNumbers: 1,
+      admissionsOpen: 1,
+      scholarshipsOpen: 1,
+    },
   ).lean();
   if (!settings) {
     return null;
@@ -50,5 +62,9 @@ export async function findPublicSiteSettings(): Promise<PublicSiteSettingsRecord
       text: settings.announcement.text,
       linkUrl: settings.announcement.linkUrl,
     },
+    mapUrl: settings.mapUrl,
+    impactNumbers: settings.impactNumbers.map(({ label, value }) => ({ label, value })),
+    admissionsOpen: settings.admissionsOpen,
+    scholarshipsOpen: settings.scholarshipsOpen,
   };
 }

@@ -1,17 +1,7 @@
-import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { ADMIN_STATE_FILE } from "./auth-state";
-
-const SERIOUS_IMPACTS = ["serious", "critical"];
-
-async function expectNoSeriousAccessibilityIssues(page: Page) {
-  const results = await new AxeBuilder({ page }).analyze();
-  const serious = results.violations.filter(
-    (violation) => violation.impact && SERIOUS_IMPACTS.includes(violation.impact),
-  );
-  expect(serious).toEqual([]);
-}
+import { expectNoSeriousAccessibilityIssues } from "./axe";
 
 test.describe("public layout", () => {
   test("home page has the header, footer and no serious accessibility issues", async ({ page }) => {

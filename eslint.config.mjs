@@ -36,10 +36,10 @@ export default defineConfig([
     },
   },
   {
-    files: ["src/server/db/models/**/*.ts"],
+    files: ["src/server/db/models/**/*.ts", "src/server/repositories/*.test.ts"],
     rules: {
       // Mongoose types schema field options as a class, but schema definitions are plain object
-      // literals by design, so this rule only produces noise here.
+      // literals by design, so this rule only produces noise here (and in tests that create documents).
       "@typescript-eslint/no-unsafe-class-instance-assignment": "off",
     },
   },

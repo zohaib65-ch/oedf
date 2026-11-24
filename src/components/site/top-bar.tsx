@@ -5,6 +5,21 @@ import { connection } from "next/server";
 import { Container } from "@/components/shared/container";
 import { getPublicSiteSettings } from "@/server/services/site-settings.service";
 
+const TOP_BAR_CLASSES =
+  "hidden border-b border-gold/20 bg-linear-to-r from-navy-deep/90 via-topbar-mid to-topbar-end text-xs text-white/90 md:block";
+
+/**
+ * Holds the bar's place while its content loads, so the header does not jump when the bar appears.
+ * It matches the bar's height (one row of text plus its padding).
+ */
+export function TopBarFallback() {
+  return (
+    <div className={TOP_BAR_CLASSES} aria-hidden="true">
+      <div className="min-h-8.25" />
+    </div>
+  );
+}
+
 /**
  * The bar above the header: contact details, plus an optional announcement (text and link managed in
  * portal Settings). It shows whenever Settings has a phone number or an email address.
@@ -19,7 +34,7 @@ export async function TopBar() {
   const hasAnnouncement = announcement.isActive && announcement.text !== "";
 
   return (
-    <div className="hidden border-b border-gold/20 bg-linear-to-r from-navy-deep/90 via-topbar-mid to-topbar-end text-xs text-white/90 md:block">
+    <div className={TOP_BAR_CLASSES}>
       <Container className="flex min-h-8.25 items-center justify-between gap-6 py-1">
         {hasAnnouncement ? (
           <p className="flex items-center gap-2 font-medium text-gold">
