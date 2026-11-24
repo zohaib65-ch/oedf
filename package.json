@@ -18,9 +18,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "db:indexes": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/sync-indexes.ts",
-    "db:seed": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/seed.ts",
-    "db:seed:sample": "tsx --env-file-if-exists=.env.local --conditions=react-server scripts/seed-sample.ts",
+    "db:indexes": "tsx --env-file-if-exists=.env --conditions=react-server scripts/sync-indexes.ts",
+    "db:seed": "tsx --env-file-if-exists=.env --conditions=react-server scripts/seed.ts",
+    "db:seed:sample": "tsx --env-file-if-exists=.env --conditions=react-server scripts/seed-sample.ts",
     "check": "npm run lint && npm run typecheck && npm run knip && npm run test",
     "prepare": "husky"
   },

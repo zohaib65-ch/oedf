@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { actAsNewVisitor } from "./visitor";
 
-// These tests upload real files to the Cloudinary account in `.env.local` (into the `oedf-dev`
+// These tests upload real files to the Cloudinary account in `.env` (into the `oedf-dev`
 // folder) and read the confirmation emails from Mailpit, so they only run when asked:
 //   E2E_REAL_UPLOADS=1 npm run test:e2e
 // The uploaded files stay in Cloudinary: delete the `oedf-dev` folder when you want them gone.

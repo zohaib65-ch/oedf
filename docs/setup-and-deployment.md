@@ -6,7 +6,7 @@ Prerequisites: Node.js 24+, npm, Docker (or a free MongoDB Atlas cluster, which 
 
 ```bash
 npm install
-cp .env.example .env.local      # then fill in the four values
+cp .env.example .env            # then fill in the four values
 docker compose up -d            # local MongoDB replica set and Mailpit (inbox at http://localhost:8025)
 npm run db:indexes              # create the indexes
 npm run db:seed                 # offices, settings; asks once for the first Super Admin's email and password
@@ -21,13 +21,13 @@ npm run dev                     # http://localhost:3000
 | `npm run format` / `format:check`     | Prettier write / check                                         |
 | `npm run test` / `test:watch`         | Vitest with an in-memory MongoDB replica set                   |
 | `npm run test:e2e`                    | Playwright (needs MongoDB and a built app)                     |
-| `npm run db:indexes` / `db:seed`      | Sync indexes from the schemas / seed (both read `.env.local`)  |
+| `npm run db:indexes` / `db:seed`      | Sync indexes from the schemas / seed (both read `.env`)        |
 | `npm run db:seed:sample`              | Development sample content (never in production)               |
 | `npm run check`                       | `lint`, `typecheck`, `knip` and `test` in sequence             |
 
 ## Environment variables
 
-Validated by `src/env.ts` and checked on every start and build; the error names the variable and never prints its value. Copy `.env.example` to `.env.local` and never commit it. **Local development needs three lines** (a fourth, `CLOUDINARY_URL`, to try uploads). Everything else has a development default and becomes required only on a real deployment (a site URL that is not `localhost`).
+Validated by `src/env.ts` and checked on every start and build; the error names the variable and never prints its value. Copy `.env.example` to `.env` and never commit it. **Local development needs three lines** (a fourth, `CLOUDINARY_URL`, to try uploads). Everything else has a development default and becomes required only on a real deployment (a site URL that is not `localhost`).
 
 | Variable                                                 | Where                                                     | Purpose                                                                                                   |
 | -------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -47,14 +47,14 @@ Derived, so not variables: the log level (debug in development, info in producti
 A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e` pass.
 
 - **Unit and integration (Vitest):** tests sit next to the code (`*.test.ts`). `tests/global-setup.ts` starts one in-memory MongoDB replica set; `tests/setup.ts` gives each test file its own empty database and stubs `server-only`. Mongoose is never mocked. Tests in one file share its database, so clear collections in `beforeEach` when a test needs a clean state. Test variables are in `vitest.config.ts`. Target: 80% or more of lines in `src/server/services/` and `src/lib/validations/` (`npx vitest run --coverage`). Every service function gets the success path, a permission failure and each business-rule failure.
-- **End to end (Playwright):** specs in `tests/e2e/`, run in a desktop and a mobile (Pixel 7) profile, with `@axe-core/playwright` failing on serious or critical issues. `playwright.config.ts` starts `npm run start` (port 3000, or `PORT`; an already-running server on that port is reused), so run `npm run build` first with MongoDB running and the `.env.local` variables set. The public-page tests need `npm run db:seed:sample`. Axe checks every page; the fixed header is checked without the color-contrast rule because axe cannot read the gradient behind its glass background. The signed-in portal test runs only when `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` are set in the shell to the Super Admin you created with `db:seed`. Locally the tests use the installed Google Chrome; CI installs Playwright's Chromium.
+- **End to end (Playwright):** specs in `tests/e2e/`, run in a desktop and a mobile (Pixel 7) profile, with `@axe-core/playwright` failing on serious or critical issues. `playwright.config.ts` starts `npm run start` (port 3000, or `PORT`; an already-running server on that port is reused), so run `npm run build` first with MongoDB running and the `.env` variables set. The public-page tests need `npm run db:seed:sample`. Axe checks every page; the fixed header is checked without the color-contrast rule because axe cannot read the gradient behind its glass background. The signed-in portal test runs only when `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` are set in the shell to the Super Admin you created with `db:seed`. Locally the tests use the installed Google Chrome; CI installs Playwright's Chromium.
 - **CI** (`.github/workflows/ci.yml`): `npm ci`, format check, lint, typecheck, Knip, tests, build and `npm audit --audit-level=high`; then an e2e job that starts a MongoDB replica set and Mailpit and seeds a CI-only admin (`--email`/`--password` flags) and the sample content.
 
 ## Uploads, email and the cleanup job
 
 - **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
 - **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
-- **Real-upload tests:** `E2E_REAL_UPLOADS=1 npm run test:e2e` uploads real files to the Cloudinary account in `.env.local` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
+- **Real-upload tests:** `E2E_REAL_UPLOADS=1 npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
 - **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
 
 ## Deployment (planned, Phase 7)

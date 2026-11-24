@@ -92,7 +92,7 @@ need review (`/privacy-policy`, `/terms`).
 
 ## E. Accounts and keys needed later
 
-Never paste these into chat. They go into `.env.local` (see `docs/setup-and-deployment.md`):
+Never paste these into chat. They go into `.env` (see `docs/setup-and-deployment.md`):
 
 - MongoDB Atlas connection string (a local single-node replica set is used for development)
 - Cloudinary cloud name, API key and API secret

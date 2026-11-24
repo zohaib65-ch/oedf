@@ -12,7 +12,7 @@ const DEV_EMAIL_FROM = "OEDF <no-reply@localhost>";
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const MIN_SECRET_LENGTH = 32;
 
-/** A variable left empty in `.env.local` counts as not set. */
+/** A variable left empty in `.env` counts as not set. */
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((value) => (value === "" ? undefined : value), schema.optional());
 
