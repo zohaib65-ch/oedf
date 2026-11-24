@@ -214,7 +214,16 @@ test.describe("invited staff", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Access denied" })).toBeVisible();
     await expectNoSeriousAccessibilityIssues(page);
 
-    for (const path of ["/users", "/settings", "/audit-logs"]) {
+    await page.goto("/portal/applications");
+    await expect(page.getByRole("heading", { level: 1, name: "Access denied" })).toBeVisible();
+
+    for (const path of [
+      "/users",
+      "/settings",
+      "/audit-logs",
+      "/applications",
+      "/scholarship-awards",
+    ]) {
       expect(
         (await staffContext.request.get(`${baseURL ?? ""}/api/v1${path}`)).status(),
         path,

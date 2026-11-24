@@ -47,25 +47,32 @@ async function getUserCollection() {
 
 const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
+export interface UserListOptions {
+  q?: string | undefined;
+  role?: Role | undefined;
+  sort: { field: "name" | "email" | "role" | "createdAt"; direction: "asc" | "desc" };
+  page: number;
+  pageSize: number;
+}
+
 export async function listUsers(
-  filter: { q?: string | undefined; role?: Role | undefined },
-  paging: { page: number; pageSize: number },
+  options: UserListOptions,
 ): Promise<{ items: UserRecord[]; total: number }> {
   const collection = await getUserCollection();
   const query: mongoose.mongo.Filter<UserDocument> = {};
-  if (filter.role) {
-    query.role = filter.role;
+  if (options.role) {
+    query.role = options.role;
   }
-  if (filter.q) {
-    const pattern = new RegExp(escapeRegExp(filter.q), "i");
+  if (options.q) {
+    const pattern = new RegExp(escapeRegExp(options.q), "i");
     query.$or = [{ name: pattern }, { email: pattern }];
   }
   const [rows, total] = await Promise.all([
     collection
       .find(query)
-      .sort({ createdAt: -1, _id: -1 })
-      .skip((paging.page - 1) * paging.pageSize)
-      .limit(paging.pageSize)
+      .sort({ [options.sort.field]: options.sort.direction === "asc" ? 1 : -1, _id: -1 })
+      .skip((options.page - 1) * options.pageSize)
+      .limit(options.pageSize)
       .toArray(),
     collection.countDocuments(query),
   ]);

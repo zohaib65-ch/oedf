@@ -73,9 +73,70 @@ const MAX_QUERY_LENGTH = 100;
 /** A 24-character hexadecimal ID, as MongoDB and Better Auth store them. */
 export const objectIdText = z.string().regex(/^[0-9a-f]{24}$/, "Choose a valid option");
 
-/** The paging and search every portal list accepts: `page`, `pageSize` (at most 100) and `q`. */
+const MAX_PAGE = 10_000;
+
+/**
+ * The paging and search every portal list accepts: `page`, `pageSize` (at most 100) and `q`. A bad
+ * value falls back to the default instead of failing, so an edited or old link still opens.
+ */
 export const listQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
-  q: z.string().trim().max(MAX_QUERY_LENGTH).optional(),
+  page: z.coerce.number().int().min(1).max(MAX_PAGE).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).catch(DEFAULT_PAGE_SIZE),
+  q: z
+    .string()
+    .trim()
+    .max(MAX_QUERY_LENGTH)
+    .transform((value) => value || undefined)
+    .optional()
+    .catch(undefined),
 });
+
+/** The "All" choice of a filter select. It means no filter and never reaches a query. */
+export const ALL_FILTER_VALUE = "ALL";
+
+/** A filter picked from a fixed list. "All", an empty value or an unknown value mean no filter. */
+export const filterEnum = <const T extends readonly [string, ...string[]]>(values: T) =>
+  z
+    .preprocess(
+      (value) => (value === ALL_FILTER_VALUE || value === "" ? undefined : value),
+      z.enum(values).optional(),
+    )
+    .catch(undefined);
+
+/** A filter that is free text, such as a city. Empty means no filter. */
+export const filterText = z
+  .string()
+  .trim()
+  .max(MAX_QUERY_LENGTH)
+  .transform((value) => value || undefined)
+  .optional()
+  .catch(undefined);
+
+/** A day typed in a date filter (YYYY-MM-DD). Anything else means no filter. */
+export const filterDate = z.iso.date().optional().catch(undefined);
+
+/** `field` sorts ascending, `-field` descending. */
+export type SortValue<T extends string> = T | `-${T}`;
+
+/**
+ * The `sort` parameter of a list: one of the given fields, optionally with a leading minus for
+ * newest or largest first. Anything else falls back to the list's default order.
+ */
+export function sortParam<const T extends string>(fields: readonly T[], fallback: SortValue<T>) {
+  const allowed = new Set<string>(fields.flatMap((field) => [field, `-${field}`]));
+  return z
+    .unknown()
+    .optional()
+    .transform((value): SortValue<T> =>
+      typeof value === "string" && allowed.has(value) ? (value as SortValue<T>) : fallback,
+    );
+}
+
+/** Splits a sort value into its field and direction. */
+export function parseSort<T extends string>(
+  sort: SortValue<T>,
+): { field: T; direction: "asc" | "desc" } {
+  return sort.startsWith("-")
+    ? { field: sort.slice(1) as T, direction: "desc" }
+    : { field: sort as T, direction: "asc" };
+}

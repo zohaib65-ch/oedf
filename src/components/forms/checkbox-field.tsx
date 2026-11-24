@@ -9,6 +9,7 @@ interface CheckboxFieldProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
   children: ReactNode;
+  isDisabled?: boolean;
 }
 
 /** A single checkbox with its sentence, for a declaration. */
@@ -16,6 +17,7 @@ export function CheckboxField<T extends FieldValues>({
   control,
   name,
   children,
+  isDisabled = false,
 }: CheckboxFieldProps<T>) {
   return (
     <Controller
@@ -28,6 +30,7 @@ export function CheckboxField<T extends FieldValues>({
             name={field.name}
             ref={field.ref}
             checked={field.value === true}
+            disabled={isDisabled}
             onCheckedChange={(checked) => {
               field.onChange(checked === true);
             }}

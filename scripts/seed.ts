@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { z } from "zod";
 
 import { DEPARTMENTS } from "@/lib/constants/departments";
+import { MIN_PASSWORD_LENGTH } from "@/lib/validations/auth";
 import { getAuth } from "@/server/auth/auth";
 import { connectDb } from "@/server/db/connection";
 import {
@@ -39,7 +40,9 @@ const DEFAULT_SETTINGS = {
 
 const credentialsSchema = z.object({
   email: z.email("Enter a valid email address"),
-  password: z.string().min(12, "The password needs at least 12 characters"),
+  password: z
+    .string()
+    .min(MIN_PASSWORD_LENGTH, `The password needs at least ${MIN_PASSWORD_LENGTH} characters`),
 });
 
 /**
@@ -60,7 +63,8 @@ async function readCredentials(): Promise<z.infer<typeof credentialsSchema>> {
   return credentialsSchema.parse({
     email: values.email ?? (await ask("Email: ")),
     password:
-      values.password ?? (await ask("Password (12+ characters, hidden): ", { isHidden: true })),
+      values.password ??
+      (await ask(`Password (${MIN_PASSWORD_LENGTH}+ characters, hidden): `, { isHidden: true })),
   });
 }
 

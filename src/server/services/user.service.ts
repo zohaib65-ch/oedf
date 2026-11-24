@@ -1,5 +1,6 @@
 import "server-only";
 
+import { parseSort } from "@/lib/validations/common";
 import type { CreateUserInput, ListUsersQuery, UpdateUserInput } from "@/lib/validations/user";
 import type { StaffContext } from "@/server/auth/api-session";
 import { AppError } from "@/server/http/errors";
@@ -22,10 +23,13 @@ const RESET_PATH = "/portal/reset-password";
 export async function getUsers(
   query: ListUsersQuery,
 ): Promise<{ items: UserRecord[]; total: number }> {
-  return listUsers(
-    { q: query.q, role: query.role },
-    { page: query.page, pageSize: query.pageSize },
-  );
+  return listUsers({
+    q: query.q,
+    role: query.role,
+    sort: parseSort(query.sort),
+    page: query.page,
+    pageSize: query.pageSize,
+  });
 }
 
 async function requireDepartment(departmentId: string): Promise<void> {

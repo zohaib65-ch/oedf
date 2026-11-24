@@ -2,8 +2,11 @@ import { z } from "zod";
 
 import { emailText } from "@/lib/validations/common";
 
-/** The same minimum Better Auth enforces on the server. */
-export const MIN_PASSWORD_LENGTH = 12;
+/**
+ * The one password minimum: forms, the seed script and Better Auth all use it. 9 is the client's
+ * decision (the brief asked for 12; docs/open-questions.md, D31).
+ */
+export const MIN_PASSWORD_LENGTH = 9;
 const MAX_PASSWORD_LENGTH = 128;
 
 const newPassword = z

@@ -10,3 +10,13 @@ describe("listUsersQuerySchema", () => {
     expect(listUsersQuerySchema.parse({ role: "DIRECTOR" }).role).toBe("DIRECTOR");
   });
 });
+
+describe("the sort parameter", () => {
+  it("accepts a known field in either direction and falls back for anything else", () => {
+    expect(listUsersQuerySchema.parse({}).sort).toBe("-createdAt");
+    expect(listUsersQuerySchema.parse({ sort: "name" }).sort).toBe("name");
+    expect(listUsersQuerySchema.parse({ sort: "-email" }).sort).toBe("-email");
+    expect(listUsersQuerySchema.parse({ sort: "password" }).sort).toBe("-createdAt");
+    expect(listUsersQuerySchema.parse({ sort: ["name"] }).sort).toBe("-createdAt");
+  });
+});

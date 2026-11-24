@@ -1,4 +1,8 @@
 import type {
+  APPLICATION_STATUSES,
+  APPLICATION_TYPES,
+  AWARD_PERIODS,
+  AWARD_STATUSES,
   DOCUMENT_KINDS,
   EMPLOYMENT_TYPES,
   GENDERS,
@@ -83,4 +87,38 @@ export const GENDER_LABELS = {
 } satisfies Record<(typeof GENDERS)[number], string>;
 
 /** The roles as `{ value, label }` pairs, for selects and filters. */
-export const ROLE_OPTIONS = Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label }));
+export const ROLE_OPTIONS = toOptions(ROLE_LABELS);
+
+/** Status names for staff. The public status page uses its own gentler wording. */
+export const APPLICATION_STATUS_LABELS = {
+  SUBMITTED: "Submitted",
+  UNDER_REVIEW: "Under review",
+  INCOMPLETE: "Incomplete",
+  VERIFIED: "Verified",
+  RECOMMENDED: "Recommended",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
+  WITHDRAWN: "Withdrawn",
+} satisfies Record<(typeof APPLICATION_STATUSES)[number], string>;
+
+export const APPLICATION_TYPE_LABELS = {
+  ADMISSION: "Admission",
+  SCHOLARSHIP: "Scholarship",
+} satisfies Record<(typeof APPLICATION_TYPES)[number], string>;
+
+export const AWARD_STATUS_LABELS = {
+  ACTIVE: "Active",
+  ON_HOLD: "On hold",
+  ENDED: "Ended",
+} satisfies Record<(typeof AWARD_STATUSES)[number], string>;
+
+export const AWARD_PERIOD_LABELS = {
+  MONTHLY: "Monthly",
+  PER_TERM: "Per term",
+  ANNUAL: "Annual",
+} satisfies Record<(typeof AWARD_PERIODS)[number], string>;
+
+/** `{ value, label }` pairs for a select, in the order the labels are written. */
+export function toOptions(labels: Record<string, string>): { value: string; label: string }[] {
+  return Object.entries(labels).map(([value, label]) => ({ value, label }));
+}

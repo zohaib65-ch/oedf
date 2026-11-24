@@ -1,7 +1,9 @@
 import "server-only";
 
 import type { AuditLogQuery } from "@/lib/validations/audit-log";
+import { parseSort } from "@/lib/validations/common";
 import type { StaffContext } from "@/server/auth/api-session";
+import { toDayRange } from "@/server/lib/day-range";
 import {
   createAuditEntry,
   listAuditEntries,
@@ -26,8 +28,6 @@ export async function recordAudit(staff: StaffContext, event: AuditEvent): Promi
   });
 }
 
-const DAY_MS = 86_400_000;
-
 export async function getAuditLog(
   query: AuditLogQuery,
 ): Promise<{ items: AuditLogRecord[]; total: number }> {
@@ -35,12 +35,8 @@ export async function getAuditLog(
     {
       ...(query.entityType ? { entityType: query.entityType } : {}),
       ...(query.action ? { action: query.action } : {}),
-      ...(query.from ? { from: new Date(`${query.from}T00:00:00+05:00`) } : {}),
-      // The chosen end day is included, so the bound is the start of the next day.
-      ...(query.to
-        ? { to: new Date(new Date(`${query.to}T00:00:00+05:00`).getTime() + DAY_MS) }
-        : {}),
+      ...toDayRange(query.from, query.to),
     },
-    { page: query.page, pageSize: query.pageSize },
+    { page: query.page, pageSize: query.pageSize, direction: parseSort(query.sort).direction },
   );
 }

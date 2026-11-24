@@ -12,10 +12,16 @@ import {
 } from "@/components/ui/breadcrumb";
 import { PORTAL_HOME_PATH, PORTAL_NAV, PORTAL_PROFILE_LINK } from "@/lib/constants/navigation";
 
-/** Portal › current page. The page name comes from the portal navigation config. */
+/**
+ * Portal › module › details. The module comes from the portal navigation; a page below a module
+ * (an application, an award) links back to its list.
+ */
 export function PortalBreadcrumbs() {
   const pathname = usePathname();
-  const current = [...PORTAL_NAV, PORTAL_PROFILE_LINK].find((item) => item.href === pathname);
+  const current = [...PORTAL_NAV, PORTAL_PROFILE_LINK]
+    .filter((item) => item.href !== PORTAL_HOME_PATH)
+    .find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
+  const isDetail = current !== undefined && pathname !== current.href;
 
   return (
     <Breadcrumb>
@@ -23,11 +29,23 @@ export function PortalBreadcrumbs() {
         <BreadcrumbItem>
           <BreadcrumbLink href={PORTAL_HOME_PATH}>Portal</BreadcrumbLink>
         </BreadcrumbItem>
-        {current && current.href !== PORTAL_HOME_PATH ? (
+        {current ? (
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{current.label}</BreadcrumbPage>
+              {isDetail ? (
+                <BreadcrumbLink href={current.href}>{current.label}</BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage>{current.label}</BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
+          </>
+        ) : null}
+        {isDetail ? (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Details</BreadcrumbPage>
             </BreadcrumbItem>
           </>
         ) : null}

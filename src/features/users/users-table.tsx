@@ -3,7 +3,11 @@
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 
-import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
+import {
+  DataTable,
+  type DataTableColumn,
+  type DataTableSorting,
+} from "@/components/portal/data-table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,9 +37,10 @@ interface UsersTableProps {
   users: UserRecord[];
   departments: readonly { value: string; label: string }[];
   currentUserId: string;
+  sorting: DataTableSorting;
 }
 
-export function UsersTable({ users, departments, currentUserId }: UsersTableProps) {
+export function UsersTable({ users, departments, currentUserId, sorting }: UsersTableProps) {
   const [pendingDeactivation, setPendingDeactivation] = useState<UserRecord | null>(null);
   const update = useUpdateUser();
   const sendReset = useSendPasswordReset();
@@ -46,9 +51,9 @@ export function UsersTable({ users, departments, currentUserId }: UsersTableProp
   };
 
   const columns: DataTableColumn<UserRecord>[] = [
-    { id: "name", header: "Name", cell: (user) => user.name },
-    { id: "email", header: "Email", cell: (user) => user.email },
-    { id: "role", header: "Role", cell: (user) => getRoleLabel(user.role) },
+    { id: "name", header: "Name", sortKey: "name", cell: (user) => user.name },
+    { id: "email", header: "Email", sortKey: "email", cell: (user) => user.email },
+    { id: "role", header: "Role", sortKey: "role", cell: (user) => getRoleLabel(user.role) },
     {
       id: "office",
       header: "Office",
@@ -63,7 +68,12 @@ export function UsersTable({ users, departments, currentUserId }: UsersTableProp
         </Badge>
       ),
     },
-    { id: "created", header: "Created", cell: (user) => formatDateTime(user.createdAt) },
+    {
+      id: "created",
+      header: "Created",
+      sortKey: "createdAt",
+      cell: (user) => formatDateTime(user.createdAt),
+    },
     {
       id: "actions",
       header: "Actions",
@@ -127,6 +137,7 @@ export function UsersTable({ users, departments, currentUserId }: UsersTableProp
         columns={columns}
         rows={users}
         getRowId={(user) => user.id}
+        sorting={sorting}
       />
       <AlertDialog
         open={pendingDeactivation !== null}

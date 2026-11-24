@@ -1,16 +1,15 @@
-import { z } from "zod";
+import type { z } from "zod";
 
-import { isoDateText, listQuerySchema } from "@/lib/validations/common";
+import { filterDate, filterText, listQuerySchema, sortParam } from "@/lib/validations/common";
 
-const MAX_FILTER_LENGTH = 80;
-const filterText = z.string().trim().min(1).max(MAX_FILTER_LENGTH).optional().catch(undefined);
-const filterDate = isoDateText.optional().catch(undefined);
+const AUDIT_LOG_SORT_FIELDS = ["createdAt"] as const;
 
 export const auditLogQuerySchema = listQuerySchema.omit({ q: true }).extend({
   entityType: filterText,
   action: filterText,
   from: filterDate,
   to: filterDate,
+  sort: sortParam(AUDIT_LOG_SORT_FIELDS, "-createdAt"),
 });
 
 export type AuditLogQuery = z.infer<typeof auditLogQuerySchema>;

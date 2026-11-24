@@ -126,13 +126,13 @@ tests/                        e2e/, global-setup.ts (one in-memory replica set),
 
 Staff sign in with email and password; Better Auth serves `/api/auth/*`. Public sign-up is disabled.
 
-| Setting             | Value                                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Minimum password    | 12 characters, also on admin-created accounts (a before-hook adds this: the admin `createUser` only checks the maximum) |
-| Sign-in rate limit  | 5 attempts per minute, then `429`                                                                                       |
-| Session cookie      | `HttpOnly`, `SameSite=Lax`, `Secure` in production, 7 days                                                              |
-| Cross-site requests | A request with a session cookie from another origin gets `403`                                                          |
-| Accounts            | Created by Super Admin only; deactivated (banned), never deleted                                                        |
+| Setting             | Value                                                                                                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Minimum password    | 9 characters (`MIN_PASSWORD_LENGTH`; the client's decision, open-questions D31), also on admin-created accounts (a before-hook adds this: the admin `createUser` only checks the maximum) |
+| Sign-in rate limit  | 5 attempts per minute, then `429`                                                                                                                                                         |
+| Session cookie      | `HttpOnly`, `SameSite=Lax`, `Secure` in production, 7 days                                                                                                                                |
+| Cross-site requests | A request with a session cookie from another origin gets `403`                                                                                                                            |
+| Accounts            | Created by Super Admin only; deactivated (banned), never deleted                                                                                                                          |
 
 The cookie is `Secure` in production, so over plain `http://localhost` use Chrome or Firefox (Safari rejects it).
 
@@ -145,8 +145,14 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 
 - Each user has one role and one office (`departmentId`). Roles are defined once in `ROLES` (`src/lib/constants/enums.ts`); `auth.ts` registers all four with Better Auth's admin plugin (a compile-time check catches a missing one). Only `SUPER_ADMIN` gets the plugin's admin rights. The seeded Super Admin belongs to the Chief Executive Office.
 - **Permissions:** strings such as `applications:review`, `vacancies:publish`, `directives:issue` live in `src/lib/constants/permissions.ts`. One role-to-permission map (`ROLE_PERMISSIONS`) is used by the sidebar, the buttons and the server. A module owned by one office (applications, vacancies, institutions, publications) works only inside that office for Director and Staff; Super Admin and the CEO Office are not tied to an office. Only the Research & Policy Institute may issue directives. Every protected route handler calls `requireApiPermission(request, permission)` and every portal page calls `checkPagePermission(permission)`; a missing permission is a `403` from the API and an in-page "Access denied" view from a page (Next's `forbidden()` is still experimental, so it is not used). `src/proxy.ts` only redirects signed-out visitors away from `/portal` (it looks for the session cookie) and is never a security layer.
-- **Portal screens.** Everything is built from shadcn/ui, with no other UI or table library (no TanStack). Lists (users, audit log) are Server Components that read paging and filters from the URL and render the shared `DataTable`, a shadcn Table with server-side paging and filters and a Columns menu to hide columns. Saves go through `/api/v1` with `apiPost` / `apiPatch` (`useApiAction` shows the pending state), then a toast and a page refresh. Column sorting is not built yet: the lists are newest first (listed in `open-questions.md`).
+- **Portal screens.** Everything is built from shadcn/ui, with no other UI or table library (no TanStack). Lists are Server Components that read paging, filters and `sort` from the URL and render the shared `DataTable` (a shadcn Table with a Columns menu to hide columns). A sortable column header is a link to the new order (`sort=field` or `sort=-field`, back to page 1) with `aria-sort`; filters are a plain GET form (`FilterBar`, `FilterSelect`, `FilterInput` in `components/portal/list-filters.tsx`) whose "All" choice means no filter. List schemas share `listQuerySchema`, `filterEnum`, `filterText`, `filterDate` and `sortParam` (`src/lib/validations/common.ts`); a bad value falls back to the default, so an edited link still opens. Short forms (a status change with its reason, a note) open in a Dialog; saves go through `/api/v1` with `apiPost` / `apiPatch`, then a toast and a page refresh. A record that does not exist shows the portal's not-found view (`orNotFound`).
 - **Account actions** (sign-in, password change, name change, session revoke, password reset) are Better Auth's own endpoints; an after-hook writes each to the audit log. Invitations and resets are one flow (`requestPasswordReset`, link valid 24 hours, sessions revoked on reset); the invitation creates the account with a random password nobody knows, so no administrator ever chooses or sees a password.
+
+## Application review
+
+- **One status map** (`APPLICATION_TRANSITIONS`, `src/lib/constants/application-workflow.ts`) decides where an application can go; `permissionForStatus` says that Approved and Rejected need `applications:decide` and every other move `applications:review`. The detail page shows only the moves this person may make; the service checks the same rules again before writing.
+- **A move is one conditional write**: it matches the status the page showed (and, for Verified, a complete checklist), so two people acting at once cannot both succeed; the second gets `409`. It records who, when and why in `statusHistory` and the audit log (`application.status_changed`, with from, to and reason). Approving a scholarship creates its award in the same transaction.
+- **Privacy:** lists project only the last four CNIC digits in the database query (`$substrCP`), so the full number never leaves MongoDB for a list. The detail page shows it to people who may read applications. Emails to applicants never include staff's internal reason.
 
 ## Coding standards
 

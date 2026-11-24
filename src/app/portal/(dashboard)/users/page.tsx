@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { UserFormDialog } from "@/features/users/user-form-dialog";
 import { UsersFilter } from "@/features/users/users-filter";
 import { UsersTable } from "@/features/users/users-table";
+import { buildHref } from "@/lib/query-string";
 import { listUsersQuerySchema } from "@/lib/validations/user";
 import { checkPagePermission } from "@/server/auth/session";
 import { getDepartmentsForStaff } from "@/server/services/settings.service";
@@ -31,13 +32,9 @@ export default async function UsersPage({ searchParams }: PageProps<"/portal/use
     label: department.name,
   }));
   const pageCount = Math.max(1, Math.ceil(total / query.pageSize));
-  const getHref = (page: number) => {
-    const params = new URLSearchParams();
-    if (query.q) params.set("q", query.q);
-    if (query.role) params.set("role", query.role);
-    params.set("page", String(page));
-    return `/portal/users?${params.toString()}`;
-  };
+  const params = { q: query.q, role: query.role };
+  const getHref = (page: number) =>
+    buildHref("/portal/users", { ...params, sort: query.sort, page });
 
   return (
     <>
@@ -53,7 +50,7 @@ export default async function UsersPage({ searchParams }: PageProps<"/portal/use
           </UserFormDialog>
         }
       />
-      <UsersFilter q={query.q} role={query.role} />
+      <UsersFilter query={query} />
       {items.length === 0 ? (
         <EmptyState
           icon={UsersIcon}
@@ -61,7 +58,12 @@ export default async function UsersPage({ searchParams }: PageProps<"/portal/use
           description="Try a different search, or add a user."
         />
       ) : (
-        <UsersTable users={items} departments={departmentOptions} currentUserId={access.staff.id} />
+        <UsersTable
+          users={items}
+          departments={departmentOptions}
+          currentUserId={access.staff.id}
+          sorting={{ basePath: "/portal/users", sort: query.sort, params }}
+        />
       )}
       <Pagination page={query.page} pageCount={pageCount} getHref={getHref} className="mt-4" />
     </>

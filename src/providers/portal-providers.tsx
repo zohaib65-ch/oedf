@@ -9,7 +9,7 @@ export function PortalProviders({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="top-right" closeButton />
     </>
   );
 }

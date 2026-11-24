@@ -4,10 +4,11 @@ import { cacheLife, cacheTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import type { ProgramFilters } from "@/lib/validations/list-params";
 import {
+  type ApplicationProgramOption,
   findPublishedProgramBySlug,
+  listProgramOptions,
   listProgramsAcceptingApplications,
   listPublishedPrograms,
-  type ApplicationProgramOption,
   type ProgramDetail,
   type ProgramSummary,
 } from "@/server/repositories/program.repository";
@@ -37,4 +38,9 @@ export async function getApplicationPrograms(): Promise<ApplicationProgramOption
   cacheTag(CACHE_TAGS.programs);
   cacheLife("hours");
   return listProgramsAcceptingApplications();
+}
+
+/** Every program for a staff filter. Staff data is never cached. */
+export function getProgramOptions(): Promise<{ id: string; title: string }[]> {
+  return listProgramOptions();
 }
