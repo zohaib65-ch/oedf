@@ -173,7 +173,7 @@ export async function submitMissingDocuments(
   input: MissingDocumentsInput,
 ): Promise<PublicApplicationStatus> {
   const application = await findOwnedApplication(input);
-  if (application.status !== "INCOMPLETE") {
+  if (application.status !== "INCOMPLETE" || application.isArchived) {
     throw new AppError("CONFLICT", "This application is not asking for documents right now.");
   }
 

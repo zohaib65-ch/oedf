@@ -22,5 +22,6 @@ const vacancySchema = new Schema(
 
 vacancySchema.index({ status: 1, deadline: 1 });
 vacancySchema.index({ departmentId: 1, status: 1 });
+vacancySchema.index({ createdAt: -1 });
 
 export const VacancyModel = defineModel("Vacancy", vacancySchema);

@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { expect, test as setup } from "@playwright/test";
@@ -6,16 +6,10 @@ import { expect, test as setup } from "@playwright/test";
 import { ADMIN_STATE_FILE } from "./auth-state";
 
 // Signing in is rate limited (5 per minute), so it happens once and every test reuses the session.
-setup("sign in as the seeded Super Admin", async ({ request, baseURL }) => {
+// The account is the throwaway Super Admin the global setup created for this run.
+setup("sign in as the test Super Admin", async ({ request, baseURL }) => {
   mkdirSync(dirname(ADMIN_STATE_FILE), { recursive: true });
-  const { E2E_ADMIN_EMAIL, E2E_ADMIN_PASSWORD } = process.env;
-
-  if (!E2E_ADMIN_EMAIL || !E2E_ADMIN_PASSWORD) {
-    // Tests that need the session skip themselves; an empty state file keeps the others working.
-    writeFileSync(ADMIN_STATE_FILE, JSON.stringify({ cookies: [], origins: [] }));
-    setup.skip(true, "Needs E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD.");
-    return;
-  }
+  const { E2E_ADMIN_EMAIL = "", E2E_ADMIN_PASSWORD = "" } = process.env;
 
   const response = await request.post("/api/auth/sign-in/email", {
     headers: { origin: baseURL ?? "" },

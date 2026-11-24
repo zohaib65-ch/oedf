@@ -4,9 +4,9 @@ import { connection } from "next/server";
 
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
+import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ProseBlock } from "@/components/shared/prose-block";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { INSTITUTION_TYPE_LABELS } from "@/lib/constants/labels";
@@ -47,7 +47,7 @@ export async function InstitutionDetail({ params }: { params: Promise<{ slug: st
       >
         {institution.description ? (
           <ProseBlock title="About">
-            <PlainTextContent text={institution.description} />
+            <FormattedText text={institution.description} />
           </ProseBlock>
         ) : null}
         {institution.programs.length > 0 ? (

@@ -87,6 +87,7 @@ const applicationSchema = new Schema(
     checklist: { type: checklistSchema, default: () => ({}) },
     missingItems: { type: [String], default: [] },
     decision: decisionSchema,
+    archivedAt: { type: Date },
     notes: { type: [noteSchema], default: [] },
     statusHistory: { type: [createStatusHistorySchema(APPLICATION_STATUSES)], default: [] },
   },

@@ -17,6 +17,9 @@ const browserChannel = isCi ? undefined : "chrome";
 
 export default defineConfig({
   testDir: "tests/e2e",
+  // Refuses a production database, then creates (and afterwards removes) a throwaway Super Admin.
+  globalSetup: "./tests/e2e/global-setup.ts",
+  globalTeardown: "./tests/e2e/global-teardown.ts",
   fullyParallel: true,
   forbidOnly: isCi,
   retries: isCi ? 2 : 0,

@@ -12,6 +12,8 @@ import { ApplicationModel } from "@/server/db/models/application.model";
 import { FileAssetModel } from "@/server/db/models/file-asset.model";
 import { ProgramModel } from "@/server/db/models/program.model";
 import { ScholarshipAwardModel } from "@/server/db/models/scholarship-award.model";
+import { escapeRegExp } from "@/server/lib/escape-regexp";
+import { buildTimeline, type TimelineEntry } from "@/server/lib/timeline";
 
 type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 type ApplicationType = (typeof APPLICATION_TYPES)[number];
@@ -34,6 +36,8 @@ export interface ApplicationListOptions {
   city?: string | undefined;
   from?: Date | undefined;
   to?: Date | undefined;
+  /** Archived applications only, or (by default) the ones still in use. */
+  isArchived: boolean;
   sort: { field: keyof typeof SORT_PATHS; direction: "asc" | "desc" };
   page: number;
   pageSize: number;
@@ -52,8 +56,6 @@ export interface ApplicationListItem {
   createdAt: string;
 }
 
-const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-
 /**
  * The search box finds a CNIC (13 digits, with or without dashes) exactly, and otherwise matches
  * part of the applicant's name or reference number.
@@ -68,8 +70,12 @@ function searchCondition(q: string): Record<string, unknown> {
 }
 
 // Built only from validated values (enums, an ObjectId, dates and escaped text), never raw input.
+// Operator objects are marked trusted: the global `sanitizeFilter` would otherwise rewrite them, in
+// place, as soon as the count query is created.
 function toMatch(options: ApplicationListOptions): Record<string, unknown> {
-  const match: Record<string, unknown> = {};
+  const match: Record<string, unknown> = {
+    archivedAt: mongoose.trusted({ $exists: options.isArchived }),
+  };
   if (options.type) {
     match.type = options.type;
   }
@@ -83,10 +89,10 @@ function toMatch(options: ApplicationListOptions): Record<string, unknown> {
     match["applicant.city"] = new RegExp(`^${escapeRegExp(options.city)}$`, "i");
   }
   if (options.from || options.to) {
-    match.createdAt = {
+    match.createdAt = mongoose.trusted({
       ...(options.from ? { $gte: options.from } : {}),
       ...(options.to ? { $lt: options.to } : {}),
-    };
+    });
   }
   return options.q ? { $and: [match, searchCondition(options.q)] } : match;
 }
@@ -138,7 +144,7 @@ export async function listApplicationsForReview(
       cnicLast4: string;
       programTitle?: string;
     }>(pipeline),
-    ApplicationModel.countDocuments(match).setOptions({ sanitizeFilter: false }),
+    ApplicationModel.countDocuments(match),
   ]);
   return {
     total,
@@ -162,16 +168,6 @@ export interface ApplicationDocumentRecord {
   originalName: string;
   format: string;
   bytes: number;
-}
-
-interface ApplicationTimelineEntry {
-  kind: "STATUS" | "NOTE";
-  at: string;
-  actorName: string;
-  /** For a status change: the move; for a note: empty. */
-  from?: ApplicationStatus | undefined;
-  to?: ApplicationStatus | undefined;
-  text: string;
 }
 
 /** Everything staff see on an application's page. Only for people allowed to read applications. */
@@ -212,39 +208,9 @@ export interface ApplicationDetail {
   missingItems: string[];
   decision: { reason: string; decidedByName: string; decidedAt: string } | null;
   awardId: string | null;
-  timeline: ApplicationTimelineEntry[];
+  archivedAt: string | null;
+  timeline: TimelineEntry<ApplicationStatus>[];
   createdAt: string;
-}
-
-function toTimeline(
-  statusHistory: readonly {
-    from?: string | null;
-    to: string;
-    reason: string;
-    actorName: string;
-    at: Date;
-  }[],
-  notes: readonly { authorName: string; body: string; createdAt: Date }[],
-): ApplicationTimelineEntry[] {
-  const entries: ApplicationTimelineEntry[] = [
-    ...statusHistory.map((entry) => ({
-      kind: "STATUS" as const,
-      at: entry.at.toISOString(),
-      actorName: entry.actorName,
-      // The schema only accepts the application statuses, so these casts cannot widen anything.
-      from: (entry.from ?? undefined) as ApplicationStatus | undefined,
-      to: entry.to as ApplicationStatus,
-      text: entry.reason,
-    })),
-    ...notes.map((note) => ({
-      kind: "NOTE" as const,
-      at: note.createdAt.toISOString(),
-      actorName: note.authorName,
-      text: note.body,
-    })),
-  ];
-  // Newest first, so the latest change is at the top of the page.
-  return entries.sort((a, b) => b.at.localeCompare(a.at));
 }
 
 export async function findApplicationDetail(id: string): Promise<ApplicationDetail | null> {
@@ -299,7 +265,8 @@ export async function findApplicationDetail(id: string): Promise<ApplicationDeta
         }
       : null,
     awardId: award ? award._id.toString() : null,
-    timeline: toTimeline(application.statusHistory, application.notes),
+    archivedAt: application.archivedAt ? application.archivedAt.toISOString() : null,
+    timeline: buildTimeline<ApplicationStatus>(application.statusHistory, application.notes),
     createdAt: application.createdAt.toISOString(),
   };
 }
@@ -308,6 +275,8 @@ interface Actor {
   id: string;
   name: string;
 }
+
+const NOT_ARCHIVED = { archivedAt: mongoose.trusted({ $exists: false }) };
 
 /**
  * Saves the checklist, only while the application is in one of the given statuses. Returns false
@@ -320,7 +289,7 @@ export async function saveChecklist(
 ): Promise<boolean> {
   await connectDb();
   const result = await ApplicationModel.updateOne(
-    { _id: id, status: mongoose.trusted({ $in: editableStatuses }) },
+    { _id: id, status: mongoose.trusted({ $in: editableStatuses }), ...NOT_ARCHIVED },
     { $set: { checklist } },
   );
   return result.matchedCount === 1;
@@ -347,7 +316,7 @@ export async function changeApplicationStatus(
   change: StatusChange,
   session: ClientSession,
 ): Promise<boolean> {
-  const filter: Record<string, unknown> = { _id: id, status: change.from };
+  const filter: Record<string, unknown> = { _id: id, status: change.from, ...NOT_ARCHIVED };
   if (change.requiresCompleteChecklist) {
     Object.assign(filter, {
       "checklist.identity": true,
@@ -389,16 +358,26 @@ export async function changeApplicationStatus(
   return result.modifiedCount === 1;
 }
 
-/** Adds an internal note. Returns false when there is no such application. */
+/** Adds an internal note. Returns false when there is no such application, or it is archived. */
 export async function addApplicationNote(id: string, actor: Actor, body: string): Promise<boolean> {
   await connectDb();
   const result = await ApplicationModel.updateOne(
-    { _id: id },
+    { _id: id, ...NOT_ARCHIVED },
     {
       $push: {
         notes: { authorId: new mongoose.Types.ObjectId(actor.id), authorName: actor.name, body },
       },
     },
+  );
+  return result.matchedCount === 1;
+}
+
+/** Archives the application, or restores it. Nothing is ever deleted. */
+export async function setApplicationArchived(id: string, isArchived: boolean): Promise<boolean> {
+  await connectDb();
+  const result = await ApplicationModel.updateOne(
+    { _id: id },
+    isArchived ? { $set: { archivedAt: new Date() } } : { $unset: { archivedAt: 1 } },
   );
   return result.matchedCount === 1;
 }

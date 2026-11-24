@@ -14,7 +14,7 @@ import { PORTAL_HOME_PATH, PORTAL_NAV, PORTAL_PROFILE_LINK } from "@/lib/constan
 
 /**
  * Portal › module › details. The module comes from the portal navigation; a page below a module
- * (an application, an award) links back to its list.
+ * (an application, an award, a new vacancy) links back to its list.
  */
 export function PortalBreadcrumbs() {
   const pathname = usePathname();
@@ -45,7 +45,7 @@ export function PortalBreadcrumbs() {
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Details</BreadcrumbPage>
+              <BreadcrumbPage>{pathname.endsWith("/new") ? "New" : "Details"}</BreadcrumbPage>
             </BreadcrumbItem>
           </>
         ) : null}

@@ -15,7 +15,7 @@ One Next.js application: public website, staff portal (`/portal`) and REST API (
 | Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky, Vitest, Playwright + axe | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
 | Logging    | pino                                                                                          | Server only; never logs secrets or personal documents                                                                                                                          |
 
-Later phases add Cloudinary, Nodemailer with React Email, Tiptap, React Hook Form and Turnstile (see the project brief).
+Later phases add Cloudinary, Nodemailer with React Email, React Hook Form and Turnstile (see the project brief). There is no rich text editor: long text is plain text in a shadcn Textarea, shown by `FormattedText` (open-questions D13).
 
 Decisions with consequences:
 
@@ -153,6 +153,13 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **One status map** (`APPLICATION_TRANSITIONS`, `src/lib/constants/application-workflow.ts`) decides where an application can go; `permissionForStatus` says that Approved and Rejected need `applications:decide` and every other move `applications:review`. The detail page shows only the moves this person may make; the service checks the same rules again before writing.
 - **A move is one conditional write**: it matches the status the page showed (and, for Verified, a complete checklist), so two people acting at once cannot both succeed; the second gets `409`. It records who, when and why in `statusHistory` and the audit log (`application.status_changed`, with from, to and reason). Approving a scholarship creates its award in the same transaction.
 - **Privacy:** lists project only the last four CNIC digits in the database query (`$substrCP`), so the full number never leaves MongoDB for a list. The detail page shows it to people who may read applications. Emails to applicants never include staff's internal reason.
+
+## Vacancies and job applications
+
+- **Vacancies:** Staff write drafts; publishing, closing, reopening and editing a published vacancy need `vacancies:publish` (a Director). A long form gets its own page (`/portal/vacancies/new`, and the form on the detail page). The deadline is a day; it is stored as the last moment of that day in Pakistan time, so the public pages and `effectiveVacancyStatus` close it on time without a job. Every change to a published vacancy expires the `vacancies` cache tag. Description and requirements are plain text shown by `FormattedText`.
+- **Archiving:** applications and job applications are never deleted. `PATCH /{resource}/{id}` with `{ isArchived }` (the shared `ArchiveButton`) hides one from the default list (`view=ARCHIVED` shows them) and makes it read-only: status moves, the checklist, notes, the interview time and the applicant's document upload are refused with `409` until it is restored. Each archive and restore is audit-logged.
+- **Job applications** follow `JOB_APPLICATION_TRANSITIONS` with the same conditional write as applications (`409` when someone changed it first). They are archived, never deleted; an archived one is hidden from the default list and read-only until restored. The CV opens like any private file (`PrivateFileLink`, 5-minute link, audit-logged).
+- **Shared portal pieces** added here: `ConfirmButton` (an Alert Dialog before publishing, closing, archiving or deleting), `PrivateFileLink`, `apiDelete`, `buildTimeline` (`src/server/lib/timeline.ts`) for every status-and-notes history, and `escapeRegExp` (`src/server/lib/escape-regexp.ts`) for search text.
 
 ## Coding standards
 

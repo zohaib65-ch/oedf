@@ -17,7 +17,6 @@ import {
 } from "@/lib/validations/common";
 
 const MAX_REASON_LENGTH = 1000;
-const MAX_NOTE_LENGTH = 2000;
 const MAX_MISSING_ITEMS = 20;
 const MAX_ITEM_LENGTH = 200;
 // A ceiling against typing mistakes: no single payment period should come near ten million rupees.
@@ -32,8 +31,13 @@ export const listApplicationsQuerySchema = listQuerySchema.extend({
   city: filterText,
   from: filterDate,
   to: filterDate,
+  /** Archived applications are hidden unless this asks for them. */
+  view: filterEnum(["ARCHIVED"]),
   sort: sortParam(APPLICATION_SORT_FIELDS, "-createdAt"),
 });
+
+/** Archives an application (it is never deleted), or restores it. */
+export const applicationUpdateSchema = z.object({ isArchived: z.boolean() });
 
 export const checklistSchema = z.object({
   identity: z.boolean(),
@@ -107,14 +111,6 @@ export const applicationStatusChangeSchema = z
     error: "List what the applicant must send",
   });
 
-export const noteInputSchema = z.object({
-  body: z
-    .string()
-    .trim()
-    .min(1, "Write a note")
-    .max(MAX_NOTE_LENGTH, "Keep the note under 2,000 characters"),
-});
-
 const AWARD_SORT_FIELDS = ["studentName", "amountPkr", "startDate", "renewalDate"] as const;
 
 export const listAwardsQuerySchema = listQuerySchema.extend({
@@ -130,6 +126,7 @@ export const awardFormSchema = z
   .refine(renewalAfterStart, RENEWAL_RULE);
 
 export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
+export type ApplicationUpdateInput = z.infer<typeof applicationUpdateSchema>;
 export type ChecklistInput = z.infer<typeof checklistSchema>;
 export type ApplicationStatusChangeInput = z.infer<typeof applicationStatusChangeSchema>;
 export type ApplicationStatusChangeFormValues = z.input<typeof applicationStatusChangeSchema>;

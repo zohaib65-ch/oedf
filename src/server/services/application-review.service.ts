@@ -9,6 +9,7 @@ import { APPLICATION_STATUS_LABELS } from "@/lib/constants/labels";
 import { hasPermission } from "@/lib/constants/permissions";
 import type {
   ApplicationStatusChangeInput,
+  ApplicationUpdateInput,
   ChecklistInput,
   ListApplicationsQuery,
 } from "@/lib/validations/application-review";
@@ -27,6 +28,7 @@ import {
   findApplicationDetail,
   listApplicationsForReview,
   saveChecklist,
+  setApplicationArchived,
   type ApplicationDetail,
   type ApplicationListItem,
 } from "@/server/repositories/application-review.repository";
@@ -36,6 +38,14 @@ import { recordAudit } from "@/server/services/audit-log.service";
 const ENTITY_TYPE = "Application";
 const STALE_MESSAGE =
   "This application was changed by someone else. Reload the page and try again.";
+const ARCHIVED_MESSAGE = "Restore this application before changing it.";
+
+/** An archived application is read-only until it is restored. */
+function assertNotArchived(application: ApplicationDetail): void {
+  if (application.archivedAt) {
+    throw new AppError("CONFLICT", ARCHIVED_MESSAGE);
+  }
+}
 
 export async function getApplications(
   query: ListApplicationsQuery,
@@ -46,6 +56,7 @@ export async function getApplications(
     status: query.status,
     programId: query.programId,
     city: query.city,
+    isArchived: query.view === "ARCHIVED",
     ...toDayRange(query.from, query.to),
     sort: parseSort(query.sort),
     page: query.page,
@@ -68,6 +79,7 @@ export async function updateChecklist(
   checklist: ChecklistInput,
 ): Promise<ApplicationDetail> {
   const application = await getApplicationDetail(id);
+  assertNotArchived(application);
   if (!CHECKLIST_EDITABLE_STATUSES.includes(application.status)) {
     throw new AppError("CONFLICT", "The checklist cannot change once the application is verified.");
   }
@@ -173,6 +185,7 @@ export async function changeStatus(
     throw new AppError("FORBIDDEN", "You do not have permission to change applications.");
   }
   const application = await getApplicationDetail(id);
+  assertNotArchived(application);
   assertMoveAllowed(staff, application, input);
 
   const isDecision = input.status === "APPROVED" || input.status === "REJECTED";
@@ -226,14 +239,39 @@ export async function addNote(
   id: string,
   body: string,
 ): Promise<ApplicationDetail> {
-  const isAdded =
-    /^[0-9a-f]{24}$/.test(id) &&
-    (await addApplicationNote(id, { id: staff.id, name: staff.name }, body));
-  if (!isAdded) {
-    throw new AppError("NOT_FOUND", "This application could not be found.");
+  assertNotArchived(await getApplicationDetail(id));
+  if (!(await addApplicationNote(id, { id: staff.id, name: staff.name }, body))) {
+    throw new AppError("CONFLICT", STALE_MESSAGE);
   }
   await recordAudit(staff, {
     action: "application.note_added",
+    entityType: ENTITY_TYPE,
+    entityId: id,
+  });
+  return getApplicationDetail(id);
+}
+
+/**
+ * Archives an application, or restores it. Applications are never deleted; an archived one is
+ * hidden from the default list and read-only until it is restored.
+ */
+export async function updateApplication(
+  staff: StaffContext,
+  id: string,
+  input: ApplicationUpdateInput,
+): Promise<ApplicationDetail> {
+  if (!hasPermission(staff, "applications:review")) {
+    throw new AppError("FORBIDDEN", "You do not have permission to archive applications.");
+  }
+  const application = await getApplicationDetail(id);
+  if (input.isArchived === (application.archivedAt !== null)) {
+    return application;
+  }
+  if (!(await setApplicationArchived(id, input.isArchived))) {
+    throw new AppError("NOT_FOUND", "This application could not be found.");
+  }
+  await recordAudit(staff, {
+    action: input.isArchived ? "application.archived" : "application.restored",
     entityType: ENTITY_TYPE,
     entityId: id,
   });

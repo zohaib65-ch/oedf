@@ -35,5 +35,7 @@ const jobApplicationSchema = new Schema(
 );
 
 jobApplicationSchema.index({ vacancyId: 1, status: 1 });
+jobApplicationSchema.index({ createdAt: -1 });
+jobApplicationSchema.index({ "candidate.cnic": 1 });
 
 export const JobApplicationModel = defineModel("JobApplication", jobApplicationSchema);

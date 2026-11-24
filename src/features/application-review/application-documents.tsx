@@ -1,6 +1,6 @@
-import { ExternalLinkIcon, FileTextIcon } from "lucide-react";
+import { FileTextIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { PrivateFileLink } from "@/components/portal/private-file-link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DOCUMENT_KIND_LABELS } from "@/lib/constants/labels";
 import { formatBytes } from "@/lib/format";
@@ -40,20 +40,10 @@ export function ApplicationDocuments({ documents }: { documents: ApplicationDocu
                     </p>
                   </div>
                 </div>
-                <Button asChild variant="outline" size="sm">
-                  <a
-                    href={`/api/v1/files/${document.fileId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Open
-                    <ExternalLinkIcon aria-hidden="true" />
-                    <span className="sr-only">
-                      {" "}
-                      {DOCUMENT_KIND_LABELS[document.kind]} (opens in a new tab)
-                    </span>
-                  </a>
-                </Button>
+                <PrivateFileLink
+                  fileId={document.fileId}
+                  name={DOCUMENT_KIND_LABELS[document.kind]}
+                />
               </li>
             ))}
           </ul>

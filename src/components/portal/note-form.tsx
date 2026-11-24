@@ -9,7 +9,7 @@ import { TextareaField } from "@/components/forms/textarea-field";
 import { SaveButton } from "@/components/portal/save-button";
 import { apiPost } from "@/lib/api/client";
 import { toastApiError } from "@/lib/api/use-api-action";
-import { noteInputSchema } from "@/lib/validations/application-review";
+import { noteInputSchema } from "@/lib/validations/common";
 
 interface NoteFormProps {
   /** The API path that takes the note, for example `/applications/{id}/notes`. */

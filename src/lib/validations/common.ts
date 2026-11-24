@@ -140,3 +140,14 @@ export function parseSort<T extends string>(
     ? { field: sort.slice(1) as T, direction: "desc" }
     : { field: sort as T, direction: "asc" };
 }
+
+const MAX_NOTE_LENGTH = 2000;
+
+/** An internal note or progress update on any record's timeline. */
+export const noteInputSchema = z.object({
+  body: z
+    .string()
+    .trim()
+    .min(1, "Write a note")
+    .max(MAX_NOTE_LENGTH, "Keep the note under 2,000 characters"),
+});

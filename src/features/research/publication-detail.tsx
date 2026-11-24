@@ -3,9 +3,9 @@ import { connection } from "next/server";
 
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
+import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ProseBlock } from "@/components/shared/prose-block";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { PUBLICATION_TYPE_LABELS } from "@/lib/constants/labels";
@@ -50,7 +50,7 @@ export async function PublicationDetail({ params }: { params: Promise<{ slug: st
         aside={<FactsCard title="Publication details" facts={facts} />}
       >
         <ProseBlock title="Summary">
-          <PlainTextContent text={publication.summary} />
+          <FormattedText text={publication.summary} />
         </ProseBlock>
       </DetailSection>
       <ClosingCta />

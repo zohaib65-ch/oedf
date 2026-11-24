@@ -22,13 +22,18 @@ interface ErrorBody {
   error?: { code?: string; message?: string; details?: { fieldErrors?: Record<string, string[]> } };
 }
 
-async function apiSend<T>(method: "POST" | "PATCH", path: string, body: unknown): Promise<T> {
+async function apiSend<T>(
+  method: "POST" | "PATCH" | "DELETE",
+  path: string,
+  body?: unknown,
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api/v1${path}`, {
       method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      ...(body === undefined
+        ? {}
+        : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
     });
   } catch {
     throw new ApiError(
@@ -58,4 +63,9 @@ export function apiPost<T>(path: string, body: unknown): Promise<T> {
 /** Like `apiPost`, for a partial update. */
 export function apiPatch<T>(path: string, body: unknown): Promise<T> {
   return apiSend("PATCH", path, body);
+}
+
+/** Deletes the record at `path`. Throws an `ApiError` when the server refuses. */
+export async function apiDelete(path: string): Promise<void> {
+  await apiSend("DELETE", path);
 }

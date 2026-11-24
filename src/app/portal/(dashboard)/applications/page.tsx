@@ -37,8 +37,10 @@ export default async function ApplicationsPage({
     city: query.city,
     from: query.from,
     to: query.to,
+    view: query.view,
   };
   const pageCount = Math.max(1, Math.ceil(total / query.pageSize));
+  const noun = query.view === "ARCHIVED" ? "archived application" : "application";
 
   return (
     <>
@@ -51,7 +53,7 @@ export default async function ApplicationsPage({
         programs={programs.map((program) => ({ value: program.id, label: program.title }))}
       />
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {total === 1 ? "1 application" : `${total} applications`}
+        {total === 1 ? `1 ${noun}` : `${String(total)} ${noun}s`}
       </p>
       {items.length === 0 ? (
         <EmptyState
