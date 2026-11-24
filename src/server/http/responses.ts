@@ -3,8 +3,8 @@ import "server-only";
 import type { AppError } from "@/server/http/errors";
 
 /** Standard success response: `{ "data": … }`. */
-export function ok(data: unknown): Response {
-  return Response.json({ data });
+export function ok(data: unknown, status = 200): Response {
+  return Response.json({ data }, { status });
 }
 
 /** Standard error response: `{ "error": { "code", "message", "details" } }`. */

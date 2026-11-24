@@ -84,3 +84,36 @@ export async function findDepartmentBySlug(slug: string): Promise<DepartmentReco
   const department = await DepartmentModel.findOne({ slug }, PUBLIC_DEPARTMENT_FIELDS).lean();
   return department ? toDepartmentRecord(department) : null;
 }
+
+export interface DepartmentContact {
+  id: string;
+  name: string;
+  /** Empty until a director sets it in the portal. */
+  notificationEmail: string;
+}
+
+export async function findDepartmentContact(
+  code: (typeof DEPARTMENT_CODES)[number],
+): Promise<DepartmentContact | null> {
+  await connectDb();
+  const department = await DepartmentModel.findOne(
+    { code },
+    { name: 1, notificationEmail: 1 },
+  ).lean();
+  return department
+    ? {
+        id: department._id.toString(),
+        name: department.name,
+        notificationEmail: department.notificationEmail,
+      }
+    : null;
+}
+
+/** The code of the office with this ID, or null. Used to decide which files a staff member may open. */
+export async function findDepartmentCodeById(
+  id: string,
+): Promise<(typeof DEPARTMENT_CODES)[number] | null> {
+  await connectDb();
+  const department = await DepartmentModel.findById(id, { code: 1 }).lean();
+  return department?.code ?? null;
+}

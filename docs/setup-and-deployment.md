@@ -50,6 +50,13 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 - **End to end (Playwright):** specs in `tests/e2e/`, run in a desktop and a mobile (Pixel 7) profile, with `@axe-core/playwright` failing on serious or critical issues. `playwright.config.ts` starts `npm run start` (port 3000, or `PORT`; an already-running server on that port is reused), so run `npm run build` first with MongoDB running and the `.env.local` variables set. The public-page tests need `npm run db:seed:sample`. Axe checks every page; the fixed header is checked without the color-contrast rule because axe cannot read the gradient behind its glass background. The signed-in portal test runs only when `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` are set in the shell to the Super Admin you created with `db:seed`. Locally the tests use the installed Google Chrome; CI installs Playwright's Chromium.
 - **CI** (`.github/workflows/ci.yml`): `npm ci`, format check, lint, typecheck, Knip, tests, build and `npm audit --audit-level=high`; then an e2e job that starts a MongoDB replica set and Mailpit and seeds a CI-only admin (`--email`/`--password` flags) and the sample content.
 
+## Uploads, email and the cleanup job
+
+- **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
+- **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
+- **Real-upload tests:** `E2E_REAL_UPLOADS=1 npm run test:e2e` uploads real files to the Cloudinary account in `.env.local` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
+- **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
+
 ## Deployment (planned, Phase 7)
 
 Default host: Vercel with MongoDB Atlas and Cloudinary. To be confirmed with the client and written up step by step in Phase 7. Checklist:

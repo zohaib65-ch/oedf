@@ -1,4 +1,4 @@
-import type { DEPARTMENT_CODES } from "@/lib/constants/enums";
+import type { DEPARTMENT_CODES, MESSAGE_SUBJECTS } from "@/lib/constants/enums";
 
 interface DepartmentSeed {
   code: (typeof DEPARTMENT_CODES)[number];
@@ -103,3 +103,13 @@ export const DEPARTMENT_RELATED_PAGES: Record<
   ],
   RESEARCH_POLICY: [{ label: "Research and publications", href: "/research" }],
 };
+
+/** The office a contact message goes to, by its subject. */
+export const SUBJECT_DEPARTMENT_CODE = {
+  GENERAL: "CEO_OFFICE",
+  ADMISSIONS: "ADMISSIONS_SCHOLARSHIPS",
+  SCHOLARSHIPS: "ADMISSIONS_SCHOLARSHIPS",
+  CAREERS: "HR_TEACHER_MANAGEMENT",
+  PARTNERSHIPS: "INSTITUTIONAL_DEVELOPMENT",
+  OTHER: "CEO_OFFICE",
+} satisfies Record<(typeof MESSAGE_SUBJECTS)[number], DepartmentSeed["code"]>;

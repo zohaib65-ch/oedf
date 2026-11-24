@@ -5,7 +5,9 @@ import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import type { ProgramFilters } from "@/lib/validations/list-params";
 import {
   findPublishedProgramBySlug,
+  listProgramsAcceptingApplications,
   listPublishedPrograms,
+  type ApplicationProgramOption,
   type ProgramDetail,
   type ProgramSummary,
 } from "@/server/repositories/program.repository";
@@ -27,4 +29,12 @@ export async function getProgram(slug: string): Promise<ProgramDetail | null> {
   cacheTag(CACHE_TAGS.programs, CACHE_TAGS.institutions);
   cacheLife("hours");
   return findPublishedProgramBySlug(slug);
+}
+
+/** Programs the application form offers: published and accepting applications. */
+export async function getApplicationPrograms(): Promise<ApplicationProgramOption[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.programs);
+  cacheLife("hours");
+  return listProgramsAcceptingApplications();
 }

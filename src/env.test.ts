@@ -48,6 +48,7 @@ describe("getServerEnv", () => {
     expect(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY).toBeUndefined();
     expect(env.CRON_SECRET).toBeUndefined();
     expect(env.CLOUDINARY_URL).toBeUndefined();
+    expect(env.IS_DEPLOYMENT).toBe(false);
   });
 
   it("treats a variable left empty as not set", async () => {
@@ -94,6 +95,7 @@ describe("getServerEnv", () => {
     const env = (await loadFreshEnvModule()).getServerEnv();
     expect(env.SMTP_URL).toBe("smtps://user:pass@mail.example.org:465");
     expect(env.TURNSTILE_SECRET_KEY).toBe("secret-key");
+    expect(env.IS_DEPLOYMENT).toBe(true);
   });
 
   it("is available in the test environment", () => {

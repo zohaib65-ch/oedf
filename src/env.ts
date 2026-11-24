@@ -96,6 +96,8 @@ function resolveServerEnv(source: unknown) {
   }
   return {
     ...env,
+    /** True when the site URL is not localhost. A local production build is not a deployment. */
+    IS_DEPLOYMENT: !isLocalSite(env.NEXT_PUBLIC_SITE_URL),
     SMTP_URL: env.SMTP_URL ?? DEV_SMTP_URL,
     EMAIL_FROM: env.EMAIL_FROM ?? DEV_EMAIL_FROM,
     /** Undefined in development: uploads report that Cloudinary is not configured. */

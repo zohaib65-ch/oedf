@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { absoluteUrl } from "@/lib/seo";
 import { getSitemapRecords } from "@/server/services/sitemap.service";
 
-// Pages that always exist. The application forms and status lookup are added when they are built.
+// Pages that always exist. The status lookup is left out: it has nothing for a search to find.
 const STATIC_PATHS = [
   "/",
   "/about",
@@ -13,7 +13,9 @@ const STATIC_PATHS = [
   "/programs",
   "/institutions",
   "/admissions",
+  "/admissions/apply",
   "/scholarships",
+  "/scholarships/apply",
   "/careers",
   "/research",
   "/news",
