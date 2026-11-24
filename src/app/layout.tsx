@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
 import { publicEnv } from "@/env";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants/site";
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <body>{children}</body>
