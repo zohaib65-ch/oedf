@@ -65,6 +65,8 @@ jobs:
           until docker exec mongo mongosh --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 1; done
       - run: npm ci
       - run: npm run db:seed
+      # The public-page tests read the clearly labelled sample content.
+      - run: npm run db:seed:sample
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e

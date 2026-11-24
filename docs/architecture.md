@@ -73,6 +73,7 @@ sequenceDiagram
 
 - **Connection:** one Mongoose connection cached on `globalThis` (no new connection per hot reload), `sanitizeFilter` on (request input can never inject query operators), `autoIndex` off in production.
 - **Caching:** public service reads use `"use cache"` with `cacheLife` and `cacheTag` (settings: tag `settings`, hours), invalidated after writes. A component that reads them calls `await connection()` first and sits in a `<Suspense>`, so the data is fetched at request time and `npm run build` never needs a database. Portal data is per-user and never cached on the server.
+- **Public pages:** a page is a static shell (banner, header, footer) plus content components that call `await connection()` and a cached service, inside `<Suspense>`. Filters and paging come from URL search params, parsed by `src/lib/validations/list-params.ts` (bad values are ignored). An unknown slug renders the not-found page with `noindex` and status 200, because the shell has already been sent. The header navigation is part of the shell; the highlighted item is a style rule streamed in by `ActiveNavStyle`, because reading the path inside the nav would stream the whole nav after the footer.
 - **Environment:** `src/env.ts` validates variables with Zod; `next.config.ts` runs it on every start and build, so the app refuses to run with a bad variable.
 
 ## Folder structure
@@ -85,10 +86,11 @@ public/brand/                 OEDF logos only
 scripts/                      seed.ts, sync-indexes.ts
 src/
   app/                        (site)/ (layout, home, error), portal/(dashboard)/, api/auth/[...all], api/v1/health, not-found, global-error, layout, globals.css, icons
-  components/                 ui/ (shadcn), shared/, site/, portal/
+  components/                 ui/ (shadcn), shared/, site/ (header, footer, cards), portal/
+  features/                   one folder per public page group: home, about, governance, departments, programs, institutions, careers, research, news, faqs, contact, admissions, legal
+  content/                    typed draft copy (home, about, governance, admissions, legal)
   hooks/                      use-mobile.ts (shadcn)
-  lib/                        constants/ (enums, departments, site, navigation, labels), auth-client.ts
-  lib/constants/              (see above)
+  lib/                        constants/ (enums, departments, site, navigation, labels, cache-tags), validations/ (list-params), seo, structured-data, og-image, format, query-string, auth-client
   server/
     auth/                     auth.ts (Better Auth), session.ts (requireSession)
     db/                       connection.ts, define-model.ts, models/ (one per collection, all-models.ts, shared.schema.ts)
@@ -99,10 +101,10 @@ src/
 tests/                        e2e/, global-setup.ts (one in-memory replica set), setup.ts (per-file database)
 ```
 
-- Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/`. `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
+- Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/` (generic) or `src/components/site/` (public-site specific, such as cards). `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
 - Route files stay short: load data, compose components. Unit tests sit next to the file they test. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script and its test, not a barrel).
 - Only `src/server/storage/cloudinary.ts` will talk to the Cloudinary SDK.
-- Planned: `src/features/` and `src/content/` (Phase 3 on), `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
+- Planned: `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
 - `globals.css` imports `tw-animate-css` and `shadcn/tailwind.css` (dev dependencies) for the animated shadcn components. The shared gold button is `CtaButton`, a variant wrapper in `shared/`.
 
 ## Auth and permissions

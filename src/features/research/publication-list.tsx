@@ -36,7 +36,7 @@ export async function PublicationList({ searchParams }: { searchParams: Promise<
           name="q"
           defaultValue={filters.q}
           maxLength={100}
-          placeholder="Search reports and papers"
+          placeholder="Search research"
           aria-label="Search research"
           className="h-11"
         />
