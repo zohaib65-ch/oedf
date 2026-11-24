@@ -1,0 +1,87 @@
+# Open Questions and Placeholders
+
+Every placeholder and unanswered question lives here, with the page or file it affects. Update this file in the same commit as the code that adds a placeholder.
+
+**Last updated:** 24 November 2026 (end of Phase 1)
+
+## A. Design decisions
+
+Full explanation in [design-system.md](design-system.md), section 2. Answered on 24 November 2026.
+
+| #   | Decision                                                                                                                                                                          | Status                                    | Affects                                                               |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| A1  | Gold buttons use navy text instead of white (passes contrast).                                                                                                                    | Approved                                  | Every gold button                                                     |
+| A2  | Logo sits on a white rounded plate on dark surfaces until a white or transparent logo is supplied.                                                                                | Approved                                  | Header, footer, banners, portal sidebar, emails                       |
+| A3  | Favicon and app icon: a plain placeholder (solid navy square, no mark) and the full logo meanwhile. The seal is **not** used.                                                     | Approved, changed from the recommendation | `src/app/icon.png`, `apple-icon.png`, `favicon.ico`, Open Graph image |
+| A4  | One light theme plus a `surface-dark` scope for dark sections. No light/dark toggle (the reference has none).                                                                     | Approved                                  | `globals.css`                                                         |
+| A5  | Portal is light with a navy sidebar and gold active state.                                                                                                                        | Approved                                  | `/portal`                                                             |
+| A6  | Full navigation from 1280 px up; mobile menu below that.                                                                                                                          | Approved                                  | Header                                                                |
+| A7  | Logo teal (`#0599a7`) used as the 5th chart color.                                                                                                                                | Approved                                  | Portal dashboard charts                                               |
+| A8  | **Not built until you confirm:** the entry pop-up ("Important Notice"), the floating WhatsApp button, the floating call button, and the "Important notice" card on the home page. | Waiting for confirmation                  | Site layout, home page                                                |
+| A9  | Keep npm, do not switch to pnpm. The project is converted in place to `src/`, and `package-lock.json` is the committed lockfile.                                                  | Approved, changed from the recommendation | Whole repository                                                      |
+
+## B. Brand assets
+
+| #   | Item                                                                                                                                                                                                                                                                           | Status                                                    | Affects                                          |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------------------------------------------------ |
+| B1  | **SVG or transparent PNG logo.** Only JPEG files were supplied (`logo-full.jpeg`; the seal is held back, see B4). The brief asks for SVG, or PNG if no SVG exists.                                                                                                             | Missing                                                   | Logo component, emails, favicon quality          |
+| B2  | **White version of the logo** for dark surfaces.                                                                                                                                                                                                                               | Missing                                                   | Header, footer, banners (plate used meanwhile)   |
+| B3  | **Icon-only mark** (book, sun and bird without the "OEDF" lettering) for the favicon and app icon.                                                                                                                                                                             | Missing. A plain navy placeholder icon is used meanwhile. | Icons, Open Graph image                          |
+| B4  | The seal reads "Reg: 0361535 / Authorized". **Not used anywhere public** (favicon, Open Graph image, footer, governance page) until the client confirms it may be published. The file is kept in `docs/reference/seal.jpeg`, outside `public/`, so the site does not serve it. | Waiting for client                                        | Footer, governance page, icons, Open Graph image |
+| B5  | A regulator logo (for example SECP) for the trust block.                                                                                                                                                                                                                       | Not supplied. Not used.                                   | Home, governance                                 |
+| B6  | Photos for hero, departments, programs, institutions, news and the CEO.                                                                                                                                                                                                        | Not supplied. Neutral placeholders will be used.          | See section D                                    |
+
+## C. Details to confirm (brief, section 18)
+
+"Seen on letterhead" means the value appears on `docs/reference/letterhead.jpeg`. It is shown here for confirmation and is not final until you approve it.
+
+| #   | Item                                                            | Value or default used                                                                                                          | Source             | Affects                                                                    |
+| --- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------------------------------------------------------------------------- |
+| C1  | Domain                                                          | `https://www.oed-foundation.org` (note the spelling: "oed", not "oedf"). **Unconfirmed**, used in seeded Settings.             | Seen on letterhead | `NEXT_PUBLIC_SITE_URL`, metadata, sitemap, emails                          |
+| C2  | Address                                                         | House No R200, Street No 2, Wasli Chowk, near Almakka Karyana, College Town, Vehari. **Unconfirmed**, used in seeded Settings. | Seen on letterhead | Footer, Contact page, seeded Settings, JSON-LD                             |
+| C3  | Phone                                                           | 0311 0046225. **Unconfirmed**, used in seeded Settings.                                                                        | Seen on letterhead | Top bar, footer, Contact page. The floating call button is not built (A8). |
+| C4  | Email addresses                                                 | None known. Needed: a general address and a notification address for each of the five offices.                                 | Not supplied       | Contact form routing, all emails                                           |
+| C5  | Office hours                                                    | Placeholder                                                                                                                    | Not supplied       | Contact page, Settings                                                     |
+| C6  | Map location                                                    | Placeholder (to be set from the address once confirmed)                                                                        | Not supplied       | Contact page                                                               |
+| C7  | Social media links                                              | None. Icons hidden until links are added.                                                                                      | Not supplied       | Footer                                                                     |
+| C8  | CEO message and photo                                           | Placeholder text and image                                                                                                     | Not supplied       | `/about`, home                                                             |
+| C9  | Department director names                                       | "To be appointed"                                                                                                              | Not supplied       | Department pages, governance, leadership section                           |
+| C10 | Programs, institutions, publications, FAQs                      | Sample content in development only; empty states in production                                                                 | Not supplied       | Home, list pages                                                           |
+| C11 | Scholarship types, amounts, eligibility, renewal rules          | Placeholder text                                                                                                               | Not supplied       | `/scholarships`                                                            |
+| C12 | Admission intake sessions and dates                             | Placeholder text                                                                                                               | Not supplied       | `/admissions`, application form                                            |
+| C13 | Who makes final application decisions                           | Director of Admissions & Scholarships, or the CEO Office                                                                       | Default            | Permissions, workflows                                                     |
+| C14 | Accepted uploads                                                | Documents: PDF, JPG, PNG up to 5 MB. CVs: PDF, DOCX up to 5 MB.                                                                | Default            | Upload rules, forms                                                        |
+| C15 | Hosting                                                         | Vercel, MongoDB Atlas and Cloudinary                                                                                           | Default            | Deployment docs, cron config                                               |
+| C16 | SMTP provider                                                   | Placeholder settings                                                                                                           | Not supplied       | Emails                                                                     |
+| C17 | Languages                                                       | English only                                                                                                                   | Default            | All pages                                                                  |
+| C18 | Online donations                                                | Not included                                                                                                                   | Default            | n/a                                                                        |
+| C19 | Analytics                                                       | None                                                                                                                           | Default            | n/a                                                                        |
+| C20 | Applicant document retention period                             | Keep until you set a policy                                                                                                    | Default            | Privacy policy, cleanup rules                                              |
+| C21 | HR personnel records, funding-request and fund-release workflow | Not in this build unless you confirm                                                                                           | Default            | Scope                                                                      |
+| C22 | Reference screenshots                                           | Not attached. I captured the reference site myself from the live site (desktop and mobile).                                    | n/a                | Phase 0                                                                    |
+| C23 | Announcement bar text and link                                  | Empty (bar hidden) until set in Settings                                                                                       | Not supplied       | Header                                                                     |
+| C25 | Department purposes and responsibilities                        | Short drafts written from the module ownership in the brief, seeded into the offices. Client to confirm or replace.            | Drafted            | Seed, department pages                                                     |
+| C26 | Which office the technical Super Admin account belongs to       | Chief Executive Office (default)                                                                                               | Default            | Seed, portal sidebar                                                       |
+| C24 | "Important notice" card on the home page                        | Not built until confirmed (A8)                                                                                                 | Not supplied       | Home                                                                       |
+
+## D. Placeholders in the interface
+
+| #   | Placeholder                                                                               | Where                                               | Replaced when                               |
+| --- | ----------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |
+| D1  | Holding home page ("Our new website is on its way.")                                      | `src/app/(site)/page.tsx`                           | Phase 3 builds the real home page           |
+| D2  | Plain solid-navy favicon and app icons (no mark)                                          | `src/app/favicon.ico`, `icon.png`, `apple-icon.png` | The client supplies the icon-only mark (B3) |
+| D3  | Contact address and phone in the seeded settings, from the letterhead and **unconfirmed** | `scripts/seed.ts` (stored in `siteSettings`)        | The client confirms C2 and C3               |
+| D4  | Draft office purposes and responsibilities                                                | `src/lib/constants/departments.ts`                  | The client confirms C25                     |
+
+Later phases add their placeholders here with the file they live in, for example
+`public/images/placeholders/hero.webp`, placeholder copy in `src/content/`, and the legal pages that
+need review (`/privacy-policy`, `/terms`).
+
+## E. Accounts and keys needed later
+
+Never paste these into chat. They go into `.env.local` (see `docs/setup-and-deployment.md`):
+
+- MongoDB Atlas connection string (a local single-node replica set is used for development)
+- Cloudinary cloud name, API key and API secret
+- Cloudflare Turnstile site key and secret (official test keys in development)
+- SMTP host, port, user and password (Mailpit locally)
