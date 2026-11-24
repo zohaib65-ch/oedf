@@ -56,8 +56,8 @@ test.describe("portal", () => {
 
     test("staff see the portal shell and can open the user menu", async ({ page }) => {
       test.skip(
-        !process.env.SEED_ADMIN_EMAIL,
-        "Needs the seeded Super Admin (SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD).",
+        !process.env.E2E_ADMIN_EMAIL,
+        "Needs the Super Admin (E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD).",
       );
 
       await page.goto("/portal");

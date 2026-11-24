@@ -14,10 +14,10 @@ env:
   NEXT_PUBLIC_SITE_URL: http://localhost:3000
   MONGODB_URI: mongodb://localhost:27017/oedf-ci?replicaSet=rs0
   BETTER_AUTH_SECRET: ci-only-secret-that-is-at-least-32-characters
-  BETTER_AUTH_URL: http://localhost:3000
-  LOG_LEVEL: warn
-  SEED_ADMIN_EMAIL: ci-admin@example.org
-  SEED_ADMIN_PASSWORD: ci-only-password-123
+  CLOUDINARY_URL: cloudinary://123456789012345:ci-only-secret@ci-cloud
+  # Used by the e2e job to create the first Super Admin and to sign in as them.
+  E2E_ADMIN_EMAIL: ci-admin@example.org
+  E2E_ADMIN_PASSWORD: ci-only-password-123
 
 jobs:
   quality:
@@ -64,7 +64,7 @@ jobs:
           docker exec mongo mongosh --quiet --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"
           until docker exec mongo mongosh --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 1; done
       - run: npm ci
-      - run: npm run db:seed
+      - run: npm run db:seed -- --email "$E2E_ADMIN_EMAIL" --password "$E2E_ADMIN_PASSWORD"
       # The public-page tests read the clearly labelled sample content.
       - run: npm run db:seed:sample
       - run: npx playwright install --with-deps chromium

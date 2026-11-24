@@ -12,7 +12,7 @@ npm run check          # lint + typecheck + knip + test (must pass before a phas
 npm run build          # production build (must pass)
 npm run test:e2e       # Playwright (needs MongoDB; run `npm run build` first)
 npm run db:indexes     # sync MongoDB indexes
-npm run db:seed        # offices, settings, first Super Admin
+npm run db:seed        # offices, settings, first Super Admin (asks once)
 npm run format         # Prettier
 ```
 

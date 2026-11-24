@@ -2,7 +2,6 @@ import { setTimeout as delay } from "node:timers/promises";
 
 import mongoose from "mongoose";
 
-import { getSeedEnv } from "@/env";
 import { getAuth } from "@/server/auth/auth";
 import { connectDb } from "@/server/db/connection";
 import {
@@ -192,13 +191,15 @@ async function seedSample(): Promise<void> {
     throw new Error("Sample content is for development only and is never added in production.");
   }
   await connectDb();
-  const { SEED_ADMIN_EMAIL } = getSeedEnv();
   const context = await (await getAuth()).$context;
-  const admin = await context.internalAdapter.findUserByEmail(SEED_ADMIN_EMAIL);
+  const admin = await context.adapter.findOne<{ id: string; name: string }>({
+    model: "user",
+    where: [{ field: "role", value: "SUPER_ADMIN" }],
+  });
   if (!admin) {
     throw new Error("Run `npm run db:seed` first: the sample news posts need an author.");
   }
-  await ensureSampleContent(buildSample(admin.user.id, admin.user.name));
+  await ensureSampleContent(buildSample(admin.id, admin.name));
   console.info("Sample content added (existing records were left as they are).");
 }
 
