@@ -75,7 +75,7 @@ Full explanation in [design-system.md](design-system.md), section 2. Answered on
 | D5  | Footer and metadata description reuse a drafted one-line description of the foundation                | `src/lib/constants/site.ts`                                  | The client supplies its mission statement   |
 | D6  | Wording of the navigation dropdown descriptions and of the home page "Ready to apply?" call to action | `src/lib/constants/navigation.ts`, `src/app/(site)/page.tsx` | Phase 3 builds the real pages and copy      |
 | D7  | Header and footer links point at pages that do not exist yet (they show the 404 page)                 | `src/lib/constants/navigation.ts`                            | Phase 3 builds the pages                    |
-| D8  | Announcement bar is hidden until an announcement is switched on in Settings (C23)                     | `siteSettings`                                               | The client supplies the text                |
+| D8  | Top bar shows the contact details; its announcement text is optional (Settings, C23)                  | `siteSettings`                                               | The client supplies the text                |
 
 Later phases add their placeholders here with the file they live in, for example
 `public/images/placeholders/hero.webp`, placeholder copy in `src/content/`, and the legal pages that

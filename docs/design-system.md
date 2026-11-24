@@ -210,18 +210,18 @@ Inner pages: About, Governance (banner, alternating light sections); Departments
 
 ## Shared components
 
-**Built in Phase 2:** `Logo` (full logo only; `isOnDark` adds the white plate), `Container`, `Section`, `PageHero`, `CtaButton` (gold and light variants), `EmptyState`, the site `Header`, `MainNav`, `MobileNav`, `AnnouncementBar`, `Footer`, `CtaBand` and `SiteShell`, and the portal `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu` and `PortalShell`. **The rest are built in the phase whose screens use them** (an unused component fails Knip). Install a shadcn component only when a screen uses it, and use theme tokens only.
+**Built in Phase 2:** `Logo` (full logo only; `isOnDark` adds the white plate), `Container`, `Section`, `PageHero`, `CtaButton` (gold and light variants), `EmptyState`, the site `Header`, `MainNav`, `MobileNav`, `TopBar`, `Footer`, `CtaBand` and `SiteShell`, and the portal `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu` and `PortalShell`. **The rest are built in the phase whose screens use them** (an unused component fails Knip). Install a shadcn component only when a screen uses it, and use theme tokens only.
 
-| Component                                                                      | Purpose                                                                                  |
-| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `Logo`                                                                         | Every logo placement (variants full, mark, white; plate rule above)                      |
-| `Container`, `Section`, `PageHero`                                             | Page width, vertical rhythm, inner-page banner                                           |
-| `DataTable` set                                                                | Server-side paging, sorting, filters synced to URL params                                |
-| Form fields (`TextField`, `SelectField`, `DateField`, `FileField`, …)          | React Hook Form bound to shadcn Field with label, description, error                     |
-| `FileUpload`                                                                   | Signed upload straight to Cloudinary with progress and checks                            |
-| `RichTextEditor`, `RichTextContent`                                            | Tiptap editor (portal) and sanitized renderer                                            |
-| `StatusBadge`, `ConfirmDialog`, `EmptyState`, `SearchInput`, `Turnstile`       | Status to label and color; destructive confirm; empty list; debounced search; spam check |
-| Site: `Header`, `MainNav`, `MobileNav`, `Footer`, `AnnouncementBar`, `CtaBand` | Public layout                                                                            |
-| Portal: `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu`, `StatCard`           | Staff layout                                                                             |
+| Component                                                                | Purpose                                                                                  |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `Logo`                                                                   | Every logo placement (variants full, mark, white; plate rule above)                      |
+| `Container`, `Section`, `PageHero`                                       | Page width, vertical rhythm, inner-page banner                                           |
+| `DataTable` set                                                          | Server-side paging, sorting, filters synced to URL params                                |
+| Form fields (`TextField`, `SelectField`, `DateField`, `FileField`, …)    | React Hook Form bound to shadcn Field with label, description, error                     |
+| `FileUpload`                                                             | Signed upload straight to Cloudinary with progress and checks                            |
+| `RichTextEditor`, `RichTextContent`                                      | Tiptap editor (portal) and sanitized renderer                                            |
+| `StatusBadge`, `ConfirmDialog`, `EmptyState`, `SearchInput`, `Turnstile` | Status to label and color; destructive confirm; empty list; debounced search; spam check |
+| Site: `Header`, `MainNav`, `MobileNav`, `Footer`, `TopBar`, `CtaBand`    | Public layout                                                                            |
+| Portal: `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu`, `StatCard`     | Staff layout                                                                             |
 
 Reuse rules: search before creating; extend with props or `cva` variants; navigation is defined once in `src/lib/constants/`; icons only from `lucide-react`; `next/image` with explicit sizes and real alt text.
