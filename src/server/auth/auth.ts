@@ -48,7 +48,7 @@ async function createAuth() {
   const isProduction = env.NODE_ENV === "production";
 
   return betterAuth({
-    baseURL: env.BETTER_AUTH_URL,
+    baseURL: env.NEXT_PUBLIC_SITE_URL,
     secret: env.BETTER_AUTH_SECRET,
     // Reusing the Mongoose client lets the adapter run its writes in transactions.
     database: mongodbAdapter(client.db(connection.name), { client }),
