@@ -46,7 +46,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
   const handleSubmit = form.handleSubmit(async (values) => {
     setFormError(undefined);
     try {
-      await save.mutateAsync(values);
+      await save.run(values);
     } catch (error: unknown) {
       setFormError(applyApiErrors(error, form.setError, knownFields));
     }

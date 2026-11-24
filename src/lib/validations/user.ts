@@ -22,8 +22,16 @@ export const updateUserSchema = z
   .partial()
   .refine((value) => Object.keys(value).length > 0, "Nothing to change");
 
+/** The role filter's "All roles" choice. It means no filter, and never reaches a query. */
+export const ALL_ROLES = "ALL";
+
 export const listUsersQuerySchema = listQuerySchema.extend({
-  role: z.enum(ROLES).optional().catch(undefined),
+  role: z
+    .preprocess(
+      (value) => (value === ALL_ROLES || value === "" ? undefined : value),
+      z.enum(ROLES).optional(),
+    )
+    .catch(undefined),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;

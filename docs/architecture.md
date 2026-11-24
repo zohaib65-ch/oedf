@@ -15,7 +15,7 @@ One Next.js application: public website, staff portal (`/portal`) and REST API (
 | Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky, Vitest, Playwright + axe | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
 | Logging    | pino                                                                                          | Server only; never logs secrets or personal documents                                                                                                                          |
 
-Later phases add Cloudinary, Nodemailer with React Email, Tiptap, TanStack Query and Table, React Hook Form and Turnstile (see the project brief).
+Later phases add Cloudinary, Nodemailer with React Email, Tiptap, React Hook Form and Turnstile (see the project brief).
 
 Decisions with consequences:
 
@@ -28,7 +28,7 @@ Decisions with consequences:
 
 ```text
 Client components (portal screens, public forms)
-   │  typed API client + TanStack Query            (portal saves)
+   │  typed API client (apiPost, apiPatch)          (portal saves)
    ▼
 Route handlers   src/app/api/v1/**/route.ts        parse → authenticate → authorize → call service → respond
    ▼
@@ -145,7 +145,7 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 
 - Each user has one role and one office (`departmentId`). Roles are defined once in `ROLES` (`src/lib/constants/enums.ts`); `auth.ts` registers all four with Better Auth's admin plugin (a compile-time check catches a missing one). Only `SUPER_ADMIN` gets the plugin's admin rights. The seeded Super Admin belongs to the Chief Executive Office.
 - **Permissions:** strings such as `applications:review`, `vacancies:publish`, `directives:issue` live in `src/lib/constants/permissions.ts`. One role-to-permission map (`ROLE_PERMISSIONS`) is used by the sidebar, the buttons and the server. A module owned by one office (applications, vacancies, institutions, publications) works only inside that office for Director and Staff; Super Admin and the CEO Office are not tied to an office. Only the Research & Policy Institute may issue directives. Every protected route handler calls `requireApiPermission(request, permission)` and every portal page calls `checkPagePermission(permission)`; a missing permission is a `403` from the API and an in-page "Access denied" view from a page (Next's `forbidden()` is still experimental, so it is not used). `src/proxy.ts` only redirects signed-out visitors away from `/portal` (it looks for the session cookie) and is never a security layer.
-- **Portal screens.** Lists (users, audit log) are Server Components that read paging and filters from the URL and render the shared `DataTable` (TanStack Table v8, server-side paging and filters, column visibility). Saves go through `/api/v1` with TanStack Query `useMutation`, show a toast and refresh the page. Reads of the user's own sessions use `useQuery`. Column sorting is not built yet: the lists are newest first (listed in `open-questions.md`).
+- **Portal screens.** Everything is built from shadcn/ui, with no other UI or table library (no TanStack). Lists (users, audit log) are Server Components that read paging and filters from the URL and render the shared `DataTable`, a shadcn Table with server-side paging and filters and a Columns menu to hide columns. Saves go through `/api/v1` with `apiPost` / `apiPatch` (`useApiAction` shows the pending state), then a toast and a page refresh. Column sorting is not built yet: the lists are newest first (listed in `open-questions.md`).
 - **Account actions** (sign-in, password change, name change, session revoke, password reset) are Better Auth's own endpoints; an after-hook writes each to the audit log. Invitations and resets are one flow (`requestPasswordReset`, link valid 24 hours, sessions revoked on reset); the invitation creates the account with a random password nobody knows, so no administrator ever chooses or sees a password.
 
 ## Coding standards

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { PortalLoading, PortalShell } from "@/components/portal/portal-shell";
-import { PortalProviders } from "@/providers/query-provider";
+import { PortalProviders } from "@/providers/portal-providers";
 
 export const metadata: Metadata = {
   title: "Portal",

@@ -30,7 +30,7 @@ function OfficeForm({ office }: { office: StaffDepartmentRecord }) {
   const handleSubmit = form.handleSubmit(async (values) => {
     setFormError(undefined);
     try {
-      await save.mutateAsync({ id: office.id, changes: values });
+      await save.run(office.id, values);
     } catch (error: unknown) {
       setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
     }

@@ -10,6 +10,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { MonthlyApplications } from "@/server/repositories/dashboard.repository";
 
 const chartConfig = {
@@ -41,25 +49,26 @@ export function ApplicationsChart({ data }: { data: MonthlyApplications[] }) {
           <Bar dataKey="scholarships" fill="var(--color-scholarships)" radius={4} />
         </BarChart>
       </ChartContainer>
-      <table className="sr-only">
-        <caption>Applications received per month, last 12 months</caption>
-        <thead>
-          <tr>
-            <th scope="col">Month</th>
-            <th scope="col">Admissions</th>
-            <th scope="col">Scholarships</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.month}>
-              <th scope="row">{row.label}</th>
-              <td>{row.admissions}</td>
-              <td>{row.scholarships}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="sr-only">
+        <Table aria-label="Applications received per month, last 12 months" isScrollRegion={false}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">Month</TableHead>
+              <TableHead scope="col">Admissions</TableHead>
+              <TableHead scope="col">Scholarships</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.month}>
+                <TableHead scope="row">{row.label}</TableHead>
+                <TableCell>{row.admissions}</TableCell>
+                <TableCell>{row.scholarships}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </>
   );
 }

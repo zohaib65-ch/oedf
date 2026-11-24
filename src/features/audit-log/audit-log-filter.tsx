@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { AuditLogQuery } from "@/lib/validations/audit-log";
 
 const fields = [
@@ -20,9 +21,7 @@ export function AuditLogFilter({ query }: { query: AuditLogQuery }) {
     >
       {fields.map((field) => (
         <div key={field.name} className="space-y-1">
-          <label htmlFor={`audit-${field.name}`} className="block text-sm font-medium">
-            {field.label}
-          </label>
+          <Label htmlFor={`audit-${field.name}`}>{field.label}</Label>
           <Input
             id={`audit-${field.name}`}
             name={field.name}
@@ -34,9 +33,7 @@ export function AuditLogFilter({ query }: { query: AuditLogQuery }) {
       ))}
       {(["from", "to"] as const).map((name) => (
         <div key={name} className="space-y-1">
-          <label htmlFor={`audit-${name}`} className="block text-sm font-medium">
-            {name === "from" ? "From" : "To"}
-          </label>
+          <Label htmlFor={`audit-${name}`}>{name === "from" ? "From" : "To"}</Label>
           <Input id={`audit-${name}`} name={name} type="date" defaultValue={query[name]} />
         </div>
       ))}

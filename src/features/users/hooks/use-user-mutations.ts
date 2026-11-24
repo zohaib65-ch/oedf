@@ -1,56 +1,33 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { ApiError, apiPatch, apiPost } from "@/lib/api/client";
+import { apiPatch, apiPost } from "@/lib/api/client";
+import { useApiAction } from "@/lib/api/use-api-action";
 import type { CreateUserInput, UpdateUserInput } from "@/lib/validations/user";
 
-/** After a save the list is read again from the server, and a toast says what happened. */
-function useRefreshAfterSave() {
-  const router = useRouter();
-  return (message: string) => {
-    toast.success(message);
-    router.refresh();
-  };
-}
-
-const describeError = (error: Error): string =>
-  error instanceof ApiError ? error.message : "Something went wrong. Please try again.";
-
 export function useCreateUser() {
-  const onSaved = useRefreshAfterSave();
-  return useMutation({
-    mutationFn: (input: CreateUserInput) => apiPost("/users", input),
-    onSuccess: () => {
-      onSaved("User created. An invitation email was sent.");
-    },
+  const router = useRouter();
+  return useApiAction(async (input: CreateUserInput) => {
+    await apiPost("/users", input);
+    toast.success("User created. An invitation email was sent.");
+    router.refresh();
   });
 }
 
 export function useUpdateUser() {
-  const onSaved = useRefreshAfterSave();
-  return useMutation({
-    mutationFn: ({ id, changes }: { id: string; changes: UpdateUserInput }) =>
-      apiPatch(`/users/${id}`, changes),
-    onSuccess: () => {
-      onSaved("User updated.");
-    },
-    onError: (error) => {
-      toast.error(describeError(error));
-    },
+  const router = useRouter();
+  return useApiAction(async (id: string, changes: UpdateUserInput) => {
+    await apiPatch(`/users/${id}`, changes);
+    toast.success("User updated.");
+    router.refresh();
   });
 }
 
 export function useSendPasswordReset() {
-  return useMutation({
-    mutationFn: (id: string) => apiPost(`/users/${id}/reset-password`, {}),
-    onSuccess: () => {
-      toast.success("A password reset email was sent.");
-    },
-    onError: (error) => {
-      toast.error(describeError(error));
-    },
+  return useApiAction(async (id: string) => {
+    await apiPost(`/users/${id}/reset-password`, {});
+    toast.success("A password reset email was sent.");
   });
 }

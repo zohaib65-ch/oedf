@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { formatDateTime } from "@/lib/format";
-
-const SESSIONS_KEY = ["auth", "sessions"] as const;
 
 /** Where a session was opened from, in words: the user agent is long and unreadable as it is. */
 function describeDevice(userAgent: string | null | undefined): string {
@@ -40,34 +38,52 @@ function describeDevice(userAgent: string | null | undefined): string {
   return system ? `${browser} on ${system}` : browser;
 }
 
+interface SessionItem {
+  id: string;
+  token: string;
+  userAgent?: string | null;
+  ipAddress?: string | null;
+  createdAt: Date | string;
+}
+
 export function SessionsList() {
-  const queryClient = useQueryClient();
   const current = authClient.useSession();
-  const sessions = useQuery({
-    queryKey: SESSIONS_KEY,
-    queryFn: async () => {
+  const [sessions, setSessions] = useState<SessionItem[] | undefined>();
+  const [hasFailed, setHasFailed] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
       const { data, error } = await authClient.listSessions();
-      if (error) {
-        throw new Error("Could not load sessions");
-      }
-      return data;
-    },
-  });
-  const revoke = useMutation({
-    mutationFn: async (token: string) => {
+      setHasFailed(Boolean(error));
+      setSessions((data as SessionItem[] | null) ?? undefined);
+    } catch {
+      // The request itself failed (offline, for example), not just the answer.
+      setHasFailed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Loading from the server on first render is the point of this effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
+
+  const revoke = async (token: string) => {
+    setIsRevoking(true);
+    try {
       const { error } = await authClient.revokeSession({ token });
       if (error) {
-        throw new Error("Could not sign the device out");
+        throw new Error("Revoking the session failed");
       }
-    },
-    onSuccess: async () => {
       toast.success("That device was signed out.");
-      await queryClient.invalidateQueries({ queryKey: SESSIONS_KEY });
-    },
-    onError: () => {
+      await load();
+    } catch {
       toast.error("We could not sign that device out. Please try again.");
-    },
-  });
+    } finally {
+      setIsRevoking(false);
+    }
+  };
   const currentToken = current.data?.session.token;
 
   return (
@@ -79,14 +95,14 @@ export function SessionsList() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {sessions.isPending ? <Skeleton className="h-20 w-full" /> : null}
-        {sessions.isError ? (
+        {sessions === undefined && !hasFailed ? <Skeleton className="h-20 w-full" /> : null}
+        {hasFailed ? (
           <p role="alert" className="text-destructive">
             We could not load your sessions.
           </p>
         ) : null}
         <ul className="divide-y">
-          {sessions.data?.map((session) => (
+          {sessions?.map((session) => (
             <li key={session.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div>
                 <p className="font-medium">
@@ -106,9 +122,9 @@ export function SessionsList() {
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={revoke.isPending}
+                  disabled={isRevoking}
                   onClick={() => {
-                    revoke.mutate(session.token);
+                    void revoke(session.token);
                   }}
                 >
                   Sign out

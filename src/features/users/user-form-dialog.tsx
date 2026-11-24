@@ -56,12 +56,13 @@ export function UserFormDialog({ user, departments, children }: UserFormDialogPr
     setFormError(undefined);
     try {
       if (isEditing) {
-        await update.mutateAsync({
-          id: user.id,
-          changes: { name: values.name, role: values.role, departmentId: values.departmentId },
+        await update.run(user.id, {
+          name: values.name,
+          role: values.role,
+          departmentId: values.departmentId,
         });
       } else {
-        await create.mutateAsync(values);
+        await create.run(values);
         form.reset();
       }
       setIsOpen(false);

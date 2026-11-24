@@ -1,38 +1,36 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
-
-import { DataTable } from "@/components/portal/data-table";
+import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
 import { formatDateTime } from "@/lib/format";
 import type { AuditLogRecord } from "@/server/repositories/audit-log.repository";
 
-const columns: ColumnDef<AuditLogRecord>[] = [
-  { id: "when", header: "When", cell: ({ row }) => formatDateTime(row.original.createdAt) },
-  { accessorKey: "actorName", header: "Who" },
+const columns: DataTableColumn<AuditLogRecord>[] = [
+  { id: "when", header: "When", cell: (entry) => formatDateTime(entry.createdAt) },
+  { id: "who", header: "Who", cell: (entry) => entry.actorName },
   {
-    accessorKey: "action",
+    id: "action",
     header: "Action",
-    cell: ({ row }) => <code className="text-xs">{row.original.action}</code>,
+    cell: (entry) => <code className="text-xs">{entry.action}</code>,
   },
   {
     id: "record",
     header: "Record",
-    cell: ({ row }) => (
+    cell: (entry) => (
       <span>
-        {row.original.entityType}
-        <span className="block text-xs text-muted-foreground">{row.original.entityId}</span>
+        {entry.entityType}
+        <span className="block text-xs text-muted-foreground">{entry.entityId}</span>
       </span>
     ),
   },
   {
     id: "details",
     header: "Details",
-    cell: ({ row }) =>
-      Object.entries(row.original.metadata)
+    cell: (entry) =>
+      Object.entries(entry.metadata)
         .map(([key, value]) => `${key}: ${value}`)
         .join("; ") || "None",
   },
-  { accessorKey: "ipAddress", header: "IP address" },
+  { id: "ip", header: "IP address", cell: (entry) => entry.ipAddress },
 ];
 
 export function AuditLogTable({ entries }: { entries: AuditLogRecord[] }) {

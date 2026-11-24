@@ -3,15 +3,26 @@
 import * as React from "react";
 import { cn } from "cn";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+interface TableProps extends React.ComponentProps<"table"> {
+  /**
+   * A wide table scrolls sideways on a phone, so its scrolling area is a named, keyboard-reachable
+   * region. Turn this off for a table that is never seen, such as a screen-reader-only one.
+   */
+  isScrollRegion?: boolean;
+}
+
+function Table({ className, isScrollRegion = true, ...props }: TableProps) {
   return (
-    // A wide table scrolls sideways on a phone, so the scrolling area must be reachable by keyboard.
     <div
       data-slot="table-container"
-      role="region"
-      aria-label={props["aria-label"]}
-      tabIndex={0}
-      className="relative w-full overflow-x-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      role={isScrollRegion ? "region" : undefined}
+      aria-label={isScrollRegion ? props["aria-label"] : undefined}
+      tabIndex={isScrollRegion ? 0 : undefined}
+      className={cn(
+        "relative w-full",
+        isScrollRegion &&
+          "overflow-x-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+      )}
     >
       <table
         data-slot="table"
