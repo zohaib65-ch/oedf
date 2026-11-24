@@ -34,7 +34,7 @@ export async function ContactDetails() {
   ].filter((row) => row.value !== "");
 
   return (
-    <div className="mx-auto max-w-2xl rounded-xl border border-border bg-white p-8 shadow-card md:p-10">
+    <div className="rounded-xl border border-border bg-white p-8 shadow-card md:p-10">
       <ul className="space-y-6">
         {rows.map(({ icon: Icon, label, value, href }) => (
           <li key={label} className="flex gap-4">

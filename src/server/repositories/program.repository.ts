@@ -93,3 +93,32 @@ export async function findPublishedProgramBySlug(slug: string): Promise<ProgramD
     })),
   };
 }
+
+export interface ApplicationProgramOption {
+  id: string;
+  title: string;
+  category: (typeof PROGRAM_CATEGORIES)[number];
+}
+
+/** Published programs that accept applications, for the form's program choice. */
+export async function listProgramsAcceptingApplications(): Promise<ApplicationProgramOption[]> {
+  await connectDb();
+  const programs = await ProgramModel.find(
+    { status: "PUBLISHED", acceptsApplications: true },
+    { title: 1, category: 1 },
+  )
+    .sort({ title: 1 })
+    .lean();
+  return programs.map((program) => ({
+    id: program._id.toString(),
+    title: program.title,
+    category: program.category,
+  }));
+}
+
+export async function isProgramAcceptingApplications(id: string): Promise<boolean> {
+  await connectDb();
+  return Boolean(
+    await ProgramModel.exists({ _id: id, status: "PUBLISHED", acceptsApplications: true }),
+  );
+}

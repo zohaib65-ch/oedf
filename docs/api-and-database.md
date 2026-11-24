@@ -16,6 +16,23 @@ Endpoints are added, with request and response examples, in the phase that build
 | GET    | `/api/auth/get-session`   | Public  | Current session and user, or `null`                   |
 | POST   | `/api/auth/sign-up/email` | n/a     | Always refused (`EMAIL_PASSWORD_SIGN_UP_DISABLED`)    |
 
+**Public forms and files (Phase 4).** Every `POST` needs the site's `Origin` (else `403`). Public submissions send `turnstileToken` (checked by Cloudflare; skipped when no secret key is set locally) and the honeypot field `faxNumber` (any value gives `400`), and are limited to 5 per 10 minutes per IP per form (`429`). Field errors come back by dotted path, for example `applicant.email`.
+
+| Method | Path                                     | Access                              | Purpose                                                                                                                             |
+| ------ | ---------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | `/api/v1/uploads`                        | Public, 30 per 10 min per IP        | Body `{ purpose, fileName, bytes }`. Checks format and 5 MB, returns signed Cloudinary parameters and a random public ID            |
+| POST   | `/api/v1/applications`                   | Public                              | Admission or scholarship application. `201 { referenceNumber }` such as `OEDF-ADM-2026-000123`. `409` while closed in Settings      |
+| POST   | `/api/v1/applications/status-lookup`     | Public, 10 per 10 min per IP        | `{ referenceNumber, email }`. Returns status, label, next step and (only when Incomplete) the missing items. `404` for any mismatch |
+| POST   | `/api/v1/applications/missing-documents` | Public                              | Uploads the requested documents; Incomplete returns to Under review. `409` otherwise                                                |
+| POST   | `/api/v1/job-applications`               | Public                              | `{ vacancySlug, …, cv }`. `201 { referenceNumber }` such as `OEDF-JOB-2026-000045`. `409` after the deadline                        |
+| POST   | `/api/v1/contact-messages`               | Public                              | Saved to the inbox of the office its subject belongs to; emailed to that office                                                     |
+| GET    | `/api/v1/files/{id}`                     | Staff session                       | `302` to a link that expires after 5 minutes; audit-logged. Interim rule below                                                      |
+| POST   | `/api/v1/internal/cleanup-uploads`       | `Authorization: Bearer CRON_SECRET` | Deletes uploads still `pending` after 24 hours. Also answers `GET`, for hosts whose cron can only send GET                          |
+
+**Upload flow.** (1) The browser asks `/uploads`; the server checks purpose, extension and size and signs the upload with a random public ID in `<CLOUDINARY_FOLDER>/<applications or cv>/`, type `authenticated`, tag `pending`. (2) The browser uploads straight to Cloudinary with progress. (3) The form submits the public IDs; the server looks each file up again (folder, private, still pending, format, size), saves `fileAssets` and the record in one transaction, and only then removes the `pending` tag. (4) A file is deleted only when it is ours, still pending and fails the format or size check; a file that is saved or not ours is refused untouched. (5) The cleanup job never deletes a file the database has saved. Reference numbers come from the `counters` collection (`ADM-2026`, `SCH-2026`, `JOB-2026`) inside the same transaction.
+
+**Interim file access (until the Phase 5 permission map):** Super Admin and CEO Office open any file; Director and Staff open files of their own office's records (Admissions & Scholarships for applications, HR for CVs). Everyone else gets `403`.
+
 `GET /api/v1/health` returns `200 { "data": { "status": "ok" } }`, or `500 INTERNAL_ERROR` when MongoDB cannot be reached. Better Auth also serves password reset and change and session management under `/api/auth/*`; it is not part of `/api/v1`.
 
 ## Database
@@ -70,16 +87,17 @@ Every status change records who, when and why. Applications, job applications an
 | Job application   | Received, Shortlisted, Interview, Selected, Rejected, On hold. Selection records a recommendation only                                                                                                                                                                                                       | HR & Teacher Management                                                                                        |
 | Directive         | Per target office: Pending acknowledgement → Acknowledged → In progress → Completed. An office may request clarification with a reason (law, constitutional documents, Board resolution, donor restriction, operational impossibility), which escalates to the CEO Office, who resolves it (reopen or close) | Research & Policy Institute issues; each office's Director acknowledges, assigns, responds; Staff post updates |
 
-## Emails (planned)
+## Emails
 
-React Email templates with the OEDF logo and a plain-text version, sent through Nodemailer (SMTP).
+React Email templates with the OEDF logo and a plain-text version, sent through Nodemailer (SMTP, `SMTP_URL`). A failed send is logged (subject only, never the address) and never fails the submission. A contact message goes to the office's `notificationEmail`, else the general email in Settings; with neither it is only saved to the inbox.
 
-| Email                                                     | To                                       | Phase |
-| --------------------------------------------------------- | ---------------------------------------- | ----- |
-| Application received, documents missing (lists the items) | Applicant                                | 4, 6  |
-| Application approved, application rejected                | Applicant                                | 6     |
-| Job application received                                  | Candidate                                | 4     |
-| New contact message                                       | The matching office's notification email | 4     |
-| Staff invitation (set-password link), password reset      | Staff                                    | 5     |
-| Directive issued                                          | Directors of the target offices          | 6     |
-| Clarification requested                                   | CEO Office                               | 6     |
+| Email                                                | To                                       | Phase |
+| ---------------------------------------------------- | ---------------------------------------- | ----- |
+| Application received (reference number, status link) | Applicant                                | 4     |
+| Documents missing (lists the items)                  | Applicant                                | 6     |
+| Application approved, application rejected           | Applicant                                | 6     |
+| Job application received                             | Candidate                                | 4     |
+| New contact message                                  | The matching office's notification email | 4     |
+| Staff invitation (set-password link), password reset | Staff                                    | 5     |
+| Directive issued                                     | Directors of the target offices          | 6     |
+| Clarification requested                              | CEO Office                               | 6     |

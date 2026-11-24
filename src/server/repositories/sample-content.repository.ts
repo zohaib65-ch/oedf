@@ -170,6 +170,12 @@ export async function ensureSampleContent(sample: SampleContent): Promise<void> 
     })),
   );
 
+  // Applications are open in development, so the forms can be tried.
+  await SiteSettingsModel.updateOne(
+    { key: SITE_SETTINGS_KEY },
+    { $set: { admissionsOpen: true, scholarshipsOpen: true } },
+  );
+
   // Impact numbers are only filled in while the list is empty, so numbers entered in the portal are kept.
   await SiteSettingsModel.updateOne(
     { key: SITE_SETTINGS_KEY, "impactNumbers.0": mongoose.trusted({ $exists: false }) },

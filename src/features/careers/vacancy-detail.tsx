@@ -8,6 +8,8 @@ import { PageHero } from "@/components/shared/page-hero";
 import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ProseBlock } from "@/components/shared/prose-block";
 import { ClosingCta } from "@/components/site/closing-cta";
+import { publicEnv } from "@/env";
+import { JobApplicationForm } from "@/features/careers/job-application-form";
 import { EMPLOYMENT_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDate, hasPassed } from "@/lib/format";
 import { breadcrumbJsonLd, jobPostingJsonLd } from "@/lib/structured-data";
@@ -66,6 +68,18 @@ export async function VacancyDetail({ params }: { params: Promise<{ slug: string
             <PlainTextContent text={vacancy.requirements} />
           </ProseBlock>
         ) : null}
+        {isClosed ? null : (
+          <div id="apply" className="scroll-mt-28">
+            <ProseBlock title="Apply for this vacancy">
+              <div className="rounded-xl border border-border bg-white p-8 shadow-card">
+                <JobApplicationForm
+                  vacancySlug={vacancy.slug}
+                  turnstileSiteKey={publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                />
+              </div>
+            </ProseBlock>
+          </div>
+        )}
       </DetailSection>
       <ClosingCta />
     </>

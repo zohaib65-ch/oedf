@@ -1,6 +1,9 @@
 import type {
+  DOCUMENT_KINDS,
   EMPLOYMENT_TYPES,
+  GENDERS,
   INSTITUTION_TYPES,
+  MESSAGE_SUBJECTS,
   NEWS_TYPES,
   PROGRAM_CATEGORIES,
   PUBLICATION_TYPES,
@@ -55,3 +58,26 @@ export const NEWS_TYPE_LABELS = {
   NEWS: "News",
   EVENT: "Event",
 } satisfies Record<(typeof NEWS_TYPES)[number], string>;
+
+export const MESSAGE_SUBJECT_LABELS = {
+  GENERAL: "General",
+  ADMISSIONS: "Admissions",
+  SCHOLARSHIPS: "Scholarships",
+  CAREERS: "Careers",
+  PARTNERSHIPS: "Partnerships",
+  OTHER: "Other",
+} satisfies Record<(typeof MESSAGE_SUBJECTS)[number], string>;
+
+export const DOCUMENT_KIND_LABELS = {
+  PHOTO: "Photograph",
+  IDENTITY: "CNIC or B-Form copy",
+  RESULT_CARD: "Latest result card",
+  INCOME_PROOF: "Proof of income",
+  OTHER: "Other document",
+} satisfies Record<(typeof DOCUMENT_KINDS)[number], string>;
+
+export const GENDER_LABELS = {
+  MALE: "Male",
+  FEMALE: "Female",
+  OTHER: "Other",
+} satisfies Record<(typeof GENDERS)[number], string>;

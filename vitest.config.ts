@@ -14,7 +14,9 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
       BETTER_AUTH_SECRET: "test-secret-that-is-at-least-32-characters-long",
+      CLOUDINARY_FOLDER: "oedf-dev",
       CLOUDINARY_URL: "cloudinary://123456789012345:test-secret@test-cloud",
+      CRON_SECRET: "test-cron-secret-with-at-least-32-characters",
     },
     coverage: {
       provider: "v8",

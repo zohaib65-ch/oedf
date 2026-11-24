@@ -15,18 +15,36 @@ type HandlerFunction<TContext> = (
   context: TContext,
 ) => Response | Promise<Response>;
 
+/** Messages by the field's dotted path, for example `applicant.email`, so nested form fields can show them. */
+function toFieldErrors(error: z.ZodError): Record<string, string[]> {
+  const fieldErrors: Record<string, string[]> = {};
+  for (const issue of error.issues) {
+    const key = issue.path.join(".");
+    fieldErrors[key] = [...(fieldErrors[key] ?? []), issue.message];
+  }
+  return fieldErrors;
+}
+
 function toAppError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error;
   }
   if (error instanceof z.ZodError) {
     return new AppError("VALIDATION_ERROR", "Some fields are not valid.", {
-      fieldErrors: z.flattenError(error).fieldErrors,
+      fieldErrors: toFieldErrors(error),
     });
   }
   // The real cause goes to the log only. Callers never see stack traces or internal messages.
   logger.error({ err: error }, "Unexpected error in route handler");
   return new AppError("INTERNAL_ERROR", "Something went wrong. Please try again.");
+}
+
+interface HandlerOptions {
+  /**
+   * Turn the same-origin check off for a caller that is not a browser, such as the host's cron job.
+   * That route must authenticate in another way (a secret).
+   */
+  isServerToServer?: boolean;
 }
 
 /**
@@ -35,11 +53,12 @@ function toAppError(error: unknown): AppError {
  */
 export function withApiHandler<TContext>(
   handler: HandlerFunction<TContext>,
+  { isServerToServer = false }: HandlerOptions = {},
 ): RouteHandler<TContext> {
   return async (request, context) => {
     try {
       const isStateChanging = STATE_CHANGING_METHODS.has(request.method);
-      if (isStateChanging && request.headers.get("origin") !== SITE_ORIGIN) {
+      if (isStateChanging && !isServerToServer && request.headers.get("origin") !== SITE_ORIGIN) {
         throw new AppError("FORBIDDEN", "This request is not allowed from this origin.");
       }
       return await handler(request, context);

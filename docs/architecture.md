@@ -103,7 +103,23 @@ tests/                        e2e/, global-setup.ts (one in-memory replica set),
 
 - Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/` (generic) or `src/components/site/` (public-site specific, such as cards). `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
 - Route files stay short: load data, compose components. Unit tests sit next to the file they test. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script and its test, not a barrel).
-- Only `src/server/storage/cloudinary.ts` will talk to the Cloudinary SDK.
+- Only `src/server/storage/cloudinary.ts` talks to the Cloudinary SDK.
+
+## Public forms and security
+
+- **Layers for a form:** the browser validates with the same Zod schema as the API (`src/lib/validations/`), sends JSON through `src/lib/api/client.ts`, and shows server field errors next to the fields. The route handler parses the body, runs the guard, then calls one service function.
+- **Guard** (`src/server/security/public-form-guard.ts`): honeypot first, then a per-IP fixed-window rate limit stored in `rateLimits` (the IP only as a hash, a TTL index removes old buckets), then Turnstile. No Turnstile secret key (local development) skips the spam check; a real deployment must set both keys.
+- **Email** (`src/server/email/`): Nodemailer plus React Email templates. Sending never throws into the caller.
+- **Forms** (`src/components/forms/`): fields built on shadcn `Field` with the description and error linked by `aria-describedby`, an error summary that takes focus and links to each field (react-hook-form's own focus is off), and a hidden honeypot. The multi-step application keeps one form instance, so answers survive Back.
+- **Not yet built:** security headers and the Content-Security-Policy (Phase 7).
+
+## Files (Cloudinary)
+
+- **Two kinds of asset.** Public images (news covers, program images) are `upload` assets, delivered through `next/image` with a Cloudinary loader that requests resized copies. Personal documents (CNIC or B-Form copies, result cards, income proof, CVs) are `authenticated` assets: neither the original nor any resized copy can be fetched without a signed link.
+- **Staff access** to a personal document uses `private_download_url` with `expires_at` five minutes ahead, created per request after the permission check. `cloudinary.url()` is never used for these files, because its signed URLs do not expire.
+- **Strict Transformations is off on purpose.** It would block the resized public images the `next/image` loader requests, and it is not needed to protect personal documents, since authenticated assets already need a signature for every delivery, original or resized. Do not turn it on without changing the image loader.
+- **Uploads are always signed.** The server signs each upload with a random public ID and the allowed formats; the size limit (5 MB) is checked before signing and again after the upload; there is no unsigned preset. The folder comes only from `CLOUDINARY_FOLDER` (`oedf-dev` locally, `oedf-preview` on previews, `oedf` in production), so a preview or local build never writes to the production folder.
+- **Deleting is restricted.** Public IDs come from the browser, so the server deletes a file only if it is in the folder it signed, still `pending`, and fails the format or size check.
 - Planned: `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
 - `globals.css` imports `tw-animate-css` and `shadcn/tailwind.css` (dev dependencies) for the animated shadcn components. The shared gold button is `CtaButton`, a variant wrapper in `shared/`.
 
