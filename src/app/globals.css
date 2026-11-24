@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/*
+ * OEDF theme tokens. Values come from docs/design-system.md (approved 24 November 2026).
+ * One light theme: the reference has no dark mode toggle, only dark sections (.surface-dark).
+ */
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Only the small radii derive from --radius; xl, 2xl and 3xl keep Tailwind's 12, 16 and 24 px. */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+}
+
+@theme {
+  --color-navy: #0b1120;
+  --color-navy-deep: #08111f;
+  --color-navy-darkest: #050816;
+  --color-ink: #111827;
+  --color-gold: #c9a355;
+  --color-gold-light: #ebdfa7;
+  --color-gold-text: #846932;
+  --color-gold-from: #d4af37;
+  --color-gold-to: #b38c26;
+  --color-page: #f9fafb;
+  --color-warm: #f8f6f1;
+
+  --shadow-soft: 0 4px 20px -2px rgb(0 0 0 / 0.05);
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-button: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  --shadow-gold-glow: 0 16px 35px rgb(201 163 85 / 0.28);
+  --shadow-header: 0 16px 42px rgb(2 6 23 / 0.26);
+  --shadow-band: 0 24px 70px rgb(11 17 32 / 0.24);
+
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #c9a355;
+  --primary-foreground: #0b1120;
+  --secondary: #0b1120;
+  --secondary-foreground: #ffffff;
+  --muted: #f3f4f6;
+  --muted-foreground: #646b79;
+  --accent: #f8f6f1;
+  --accent-foreground: #111827;
+  --destructive: #e7000b;
+  --border: #e5e7eb;
+  --input: #868e9b;
+  --ring: #0b1120;
+  --radius: 0.5rem;
+  --chart-1: #c9a355;
+  --chart-2: #0b1120;
+  --chart-3: #846932;
+  --chart-4: #6a7282;
+  --chart-5: #0599a7;
+  --sidebar: #0b1120;
+  --sidebar-foreground: #e5e7eb;
+  --sidebar-primary: #c9a355;
+  --sidebar-primary-foreground: #0b1120;
+  --sidebar-accent: #161c2a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1e2939;
+  --sidebar-ring: #c9a355;
+}
+
+/* Dark sections (hero, banners, leadership, call-to-action band, footer). Not a mode switch. */
+.surface-dark {
+  --background: #0b1120;
+  --foreground: #ffffff;
+  --card: #161c2a;
+  --card-foreground: #ffffff;
+  --muted: #1a1f2d;
+  --muted-foreground: #99a1af;
+  --accent: #1f2432;
+  --accent-foreground: #ffffff;
+  --border: #232936;
+  --ring: #c9a355;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

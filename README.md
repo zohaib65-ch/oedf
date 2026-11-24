@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Omar Education Development Foundation (OEDF) Website
 
-## Getting Started
+The official website, staff portal and REST API of the Omar Education Development Foundation, a non-profit education foundation in Pakistan (SECP Registration No. 0361535). One Next.js application: frontend and backend in the same codebase.
 
-First, run the development server:
+**Status:** Phase 1 (foundation) is complete. Public pages, forms and the portal arrive in the next phases.
+
+## Quick start
+
+Needs Node.js 24+, npm and Docker (or a MongoDB Atlas cluster).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local      # then fill in the values
+docker compose up -d            # local MongoDB replica set and Mailpit
+npm run db:indexes
+npm run db:seed
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run check` runs lint, typecheck, Knip and the tests. All scripts are listed in the setup doc.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Document                                                     | Covers                                                                             |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [docs/architecture.md](docs/architecture.md)                 | Stack, layers, folder structure, auth and permissions, coding standards, decisions |
+| [docs/design-system.md](docs/design-system.md)               | Tokens, section mapping, shared components                                         |
+| [docs/api-and-database.md](docs/api-and-database.md)         | Endpoints, collections and indexes, status workflows, emails                       |
+| [docs/setup-and-deployment.md](docs/setup-and-deployment.md) | Local setup, environment variables, testing, deployment                            |
+| [docs/open-questions.md](docs/open-questions.md)             | Every placeholder and unanswered question                                          |
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Rules for working on this codebase (and for AI assistants) are in [CLAUDE.md](CLAUDE.md).

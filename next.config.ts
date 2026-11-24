@@ -1,17 +1,13 @@
 import type { NextConfig } from "next";
 
+import { getServerEnv } from "./src/env";
+
+// The app refuses to start (and to build) when an environment variable is missing or malformed.
+getServerEnv();
+
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;
