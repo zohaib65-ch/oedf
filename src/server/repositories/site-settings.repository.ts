@@ -68,3 +68,16 @@ export async function findPublicSiteSettings(): Promise<PublicSiteSettingsRecord
     scholarshipsOpen: settings.scholarshipsOpen,
   };
 }
+
+/** Replaces the editable settings and returns which sections changed, for the audit log. */
+export async function saveSiteSettings(next: PublicSiteSettingsRecord): Promise<string[]> {
+  await connectDb();
+  const before = await findPublicSiteSettings();
+  await SiteSettingsModel.updateOne({ key: SITE_SETTINGS_KEY }, { $set: next }, { upsert: true });
+  if (!before) {
+    return Object.keys(next);
+  }
+  return (Object.keys(next) as (keyof PublicSiteSettingsRecord)[]).filter(
+    (section) => JSON.stringify(before[section]) !== JSON.stringify(next[section]),
+  );
+}

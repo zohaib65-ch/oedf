@@ -1,5 +1,7 @@
 import "server-only";
 
+import mongoose from "mongoose";
+
 import { connectDb } from "@/server/db/connection";
 import { AuditLogModel } from "@/server/db/models/audit-log.model";
 
@@ -17,4 +19,75 @@ export interface NewAuditEntry {
 export async function createAuditEntry(entry: NewAuditEntry): Promise<void> {
   await connectDb();
   await AuditLogModel.create(entry);
+}
+
+export interface AuditLogFilter {
+  actorId?: string;
+  entityType?: string;
+  action?: string;
+  from?: Date;
+  /** Exclusive upper bound. */
+  to?: Date;
+}
+
+export interface AuditLogRecord {
+  id: string;
+  actorName: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  metadata: Record<string, string>;
+  ipAddress: string;
+  createdAt: string;
+}
+
+function toQuery(filter: AuditLogFilter) {
+  const query: Record<string, unknown> = {};
+  if (filter.actorId) {
+    query.actorId = filter.actorId;
+  }
+  if (filter.entityType) {
+    query.entityType = filter.entityType;
+  }
+  if (filter.action) {
+    query.action = filter.action;
+  }
+  if (filter.from || filter.to) {
+    // Built from validated dates only, so the operators are not request input.
+    query.createdAt = mongoose.trusted({
+      ...(filter.from ? { $gte: filter.from } : {}),
+      ...(filter.to ? { $lt: filter.to } : {}),
+    });
+  }
+  return query;
+}
+
+/** One page of the audit log, newest first. The user agent is not part of the list. */
+export async function listAuditEntries(
+  filter: AuditLogFilter,
+  paging: { page: number; pageSize: number },
+): Promise<{ items: AuditLogRecord[]; total: number }> {
+  await connectDb();
+  const query = toQuery(filter);
+  const [rows, total] = await Promise.all([
+    AuditLogModel.find(query, { userAgent: 0 })
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((paging.page - 1) * paging.pageSize)
+      .limit(paging.pageSize)
+      .lean(),
+    AuditLogModel.countDocuments(query),
+  ]);
+  return {
+    total,
+    items: rows.map((row) => ({
+      id: row._id.toString(),
+      actorName: row.actorName,
+      action: row.action,
+      entityType: row.entityType,
+      entityId: row.entityId,
+      metadata: (row.metadata ?? {}) as Record<string, string>,
+      ipAddress: row.ipAddress,
+      createdAt: row.createdAt.toISOString(),
+    })),
+  };
 }

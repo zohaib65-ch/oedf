@@ -22,7 +22,8 @@ npm run format         # Prettier
 - **Style:** theme tokens only (no hex in components), icons only from `lucide-react`, Server Components by default, kebab-case files, enums defined once in `src/lib/constants/enums.ts`. No `any`, `@ts-ignore`, `console.log`, `TODO` or unused code. Open items go in `docs/open-questions.md`.
 - **Data:** money is whole rupees in `...Pkr` fields; dates are UTC. CNIC numbers and financial details never appear in list queries or logs.
 - **Docs:** there are exactly five files in `docs/` (see [README.md](README.md)). **Never add another docs file without asking.** Update the matching doc in the same commit as the code; do not repeat content across docs.
-- **Git:** you may make local git changes (commit, merge, create branches). Never push, force-push, or change git remotes; the user does that. `.claude/settings.json` denies `git push`.
+- **Git:** never commit, stage (`git add`), push, force-push, merge, branch or change git remotes unless the user explicitly asks for that exact action in that message. Leave changes in the working tree. Read-only git is fine. `.claude/settings.json` denies `git push`.
+- **UI:** use shadcn/ui components for everything (Table, Select, Input, Label, Textarea, Checkbox, Dialog, Button, …). Never use a native `<select>`, `<table>`, `<input>`, `<label>`, `<textarea>` or `<button>` in app code, and add no UI library beside shadcn (no TanStack Table or Query).
 - **Env:** one file, `.env` (git-ignored); `.env.example` is the committed template. Do not create `.env.local`. Never print values.
 - **Done means:** `npm run check`, `npm run build` and `npm run test:e2e` pass, Knip reports nothing, and every placeholder is listed in `docs/open-questions.md`. Conventional Commits, one branch per build phase.
 

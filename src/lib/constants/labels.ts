@@ -81,3 +81,6 @@ export const GENDER_LABELS = {
   FEMALE: "Female",
   OTHER: "Other",
 } satisfies Record<(typeof GENDERS)[number], string>;
+
+/** The roles as `{ value, label }` pairs, for selects and filters. */
+export const ROLE_OPTIONS = Object.entries(ROLE_LABELS).map(([value, label]) => ({ value, label }));

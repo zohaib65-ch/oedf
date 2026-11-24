@@ -10,3 +10,14 @@ export function hasPassed(date: Date): boolean {
 export function formatDate(date: Date): string {
   return dateFormat.format(date);
 }
+
+const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Asia/Karachi",
+});
+
+/** A moment such as "24 Nov 2026, 14:05", in Pakistan time. Takes the ISO string the API returns. */
+export function formatDateTime(iso: string): string {
+  return dateTimeFormat.format(new Date(iso));
+}

@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_rethrow } from "next/navigation";
 import { z } from "zod";
 
 import { publicEnv } from "@/env";
@@ -63,6 +64,8 @@ export function withApiHandler<TContext>(
       }
       return await handler(request, context);
     } catch (error: unknown) {
+      // Next.js uses thrown errors to control rendering (for example while the build checks which routes can be static). They are not failures.
+      unstable_rethrow(error);
       return errorResponse(toAppError(error));
     }
   };

@@ -7,6 +7,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getRoleLabel } from "@/lib/constants/labels";
+import { PORTAL_NAV } from "@/lib/constants/navigation";
+import { hasPermission } from "@/lib/constants/permissions";
 import { requireSession } from "@/server/auth/session";
 
 // The shadcn sidebar remembers whether it was collapsed in this cookie.
@@ -14,17 +16,21 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state";
 
 /** The portal frame. Signed-out visitors are sent to the sign-in page before anything is shown. */
 export async function PortalShell({ children }: { children: ReactNode }) {
-  const { user } = await requireSession();
+  const staff = await requireSession();
   const cookieStore = await cookies();
   const isSidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
 
   return (
     <TooltipProvider>
       <SidebarProvider defaultOpen={isSidebarOpen}>
-        <AppSidebar />
+        <AppSidebar
+          allowedHrefs={PORTAL_NAV.filter((item) => hasPermission(staff, item.permission)).map(
+            (item) => item.href,
+          )}
+        />
         <SidebarInset>
           <Topbar
-            user={{ name: user.name, email: user.email, roleLabel: getRoleLabel(user.role) }}
+            user={{ name: staff.name, email: staff.email, roleLabel: getRoleLabel(staff.role) }}
           />
           <div className="flex-1 space-y-6 p-6">{children}</div>
         </SidebarInset>

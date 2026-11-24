@@ -29,8 +29,8 @@ export async function PublicationList({ searchParams }: { searchParams: Promise<
   return (
     <div className="space-y-10">
       <form action="/research" role="search" className="flex max-w-xl gap-3">
-        {filters.type ? <input type="hidden" name="type" value={filters.type} /> : null}
-        {filters.year ? <input type="hidden" name="year" value={filters.year} /> : null}
+        {filters.type ? <Input type="hidden" name="type" value={filters.type} /> : null}
+        {filters.year ? <Input type="hidden" name="year" value={filters.year} /> : null}
         <Input
           type="search"
           name="q"
