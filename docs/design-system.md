@@ -219,7 +219,7 @@ Inner pages: About, Governance (banner, alternating light sections); Departments
 | `DataTable` set                                                          | Server-side paging, sorting, filters synced to URL params                                |
 | Form fields (`TextField`, `SelectField`, `DateField`, `FileField`, …)    | React Hook Form bound to shadcn Field with label, description, error                     |
 | `FileUpload`                                                             | Signed upload straight to Cloudinary with progress and checks                            |
-| `RichTextEditor`, `RichTextContent`                                      | Tiptap editor (portal) and sanitized renderer                                            |
+| `FormattedText`                                                          | Long plain text: blank lines make paragraphs, "- " lines make bullets (no HTML stored)   |
 | `StatusBadge`, `ConfirmDialog`, `EmptyState`, `SearchInput`, `Turnstile` | Status to label and color; destructive confirm; empty list; debounced search; spam check |
 | Site: `Header`, `MainNav`, `MobileNav`, `Footer`, `TopBar`, `CtaBand`    | Public layout                                                                            |
 | Portal: `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu`, `StatCard`     | Staff layout                                                                             |

@@ -3,9 +3,9 @@ import { connection } from "next/server";
 
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
+import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ProseBlock } from "@/components/shared/prose-block";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { publicEnv } from "@/env";
@@ -61,11 +61,11 @@ export async function VacancyDetail({ params }: { params: Promise<{ slug: string
         }
       >
         <ProseBlock title="About the role">
-          <PlainTextContent text={vacancy.description} />
+          <FormattedText text={vacancy.description} />
         </ProseBlock>
         {vacancy.requirements ? (
           <ProseBlock title="Requirements">
-            <PlainTextContent text={vacancy.requirements} />
+            <FormattedText text={vacancy.requirements} />
           </ProseBlock>
         ) : null}
         {isClosed ? null : (

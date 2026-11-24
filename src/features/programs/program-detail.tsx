@@ -5,9 +5,9 @@ import { connection } from "next/server";
 import { CtaButton } from "@/components/shared/cta-button";
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
+import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ProseBlock } from "@/components/shared/prose-block";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { PROGRAM_CATEGORY_LABELS } from "@/lib/constants/labels";
@@ -59,12 +59,12 @@ export async function ProgramDetail({ params }: { params: Promise<{ slug: string
       >
         {program.description ? (
           <ProseBlock title="About this program">
-            <PlainTextContent text={program.description} />
+            <FormattedText text={program.description} />
           </ProseBlock>
         ) : null}
         {program.eligibility ? (
           <ProseBlock title="Eligibility">
-            <PlainTextContent text={program.eligibility} />
+            <FormattedText text={program.eligibility} />
           </ProseBlock>
         ) : null}
         {program.institutions.length > 0 ? (

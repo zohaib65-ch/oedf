@@ -20,6 +20,7 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
     query.city,
     query.from,
     query.to,
+    query.view,
   ].join("|");
   return (
     <FilterBar
@@ -85,6 +86,15 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         type="date"
         value={query.to}
         className="w-44"
+      />
+      <FilterSelect
+        id="applications-view"
+        name="view"
+        label="Show"
+        value={query.view}
+        options={[{ value: "ARCHIVED", label: "Archived" }]}
+        allLabel="In progress"
+        className="w-40"
       />
     </FilterBar>
   );

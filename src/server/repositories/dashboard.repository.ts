@@ -26,6 +26,7 @@ export async function countPendingVerification(): Promise<number> {
   await connectDb();
   return ApplicationModel.countDocuments({
     status: mongoose.trusted({ $in: ["SUBMITTED", "UNDER_REVIEW"] }),
+    archivedAt: mongoose.trusted({ $exists: false }),
   });
 }
 

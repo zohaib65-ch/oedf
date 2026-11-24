@@ -7,10 +7,6 @@ import { expectNoSeriousAccessibilityIssues } from "./axe";
 import { deleteTestApplication, insertTestApplication, type TestApplication } from "./db";
 
 test.use({ storageState: ADMIN_STATE_FILE });
-test.skip(
-  !process.env.E2E_ADMIN_EMAIL,
-  "Needs the Super Admin (E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD).",
-);
 
 const created: TestApplication[] = [];
 
@@ -50,6 +46,12 @@ test("the list finds an application by reference, sorts by a column header, and 
   await expect(page.getByRole("link", { name: application.referenceNumber })).toBeVisible();
   await expect(page.getByText("1 application")).toBeVisible();
   await expectNoSeriousAccessibilityIssues(page);
+
+  const today = new Date(Date.now() + 5 * 3_600_000).toISOString().slice(0, 10);
+  await page.goto(
+    `/portal/applications?q=${application.referenceNumber}&from=${today}&to=${today}`,
+  );
+  await expect(page.getByText("1 application")).toBeVisible();
 
   await page.getByRole("link", { name: /^Applicant.*sort ascending$/ }).click();
   await expect(page).toHaveURL(/sort=name/);
@@ -139,4 +141,26 @@ test("marking verified is refused until the checklist is complete", async ({ pag
   await dialog.getByLabel("Reason").fill("Trying too early");
   await dialog.getByRole("button", { name: "Mark verified", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("Complete the verification checklist");
+});
+
+test("an archived application is read-only until it is restored", async ({ page, isMobile }) => {
+  test.skip(isMobile, "The flow runs once; the screens are checked on a phone above.");
+  const application = await newApplication("ADMISSION");
+  await page.goto(`/portal/applications/${application.id}`);
+
+  await page.getByRole("button", { name: "Archive", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Archive" }).click();
+  await expect(page.getByText(/^Archived on/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start review" })).toHaveCount(0);
+  await expect(page.getByLabel("Internal note")).toHaveCount(0);
+
+  await page.goto(`/portal/applications?q=${application.referenceNumber}`);
+  await expect(page.getByText("No applications found")).toBeVisible();
+  await page.goto(`/portal/applications?q=${application.referenceNumber}&view=ARCHIVED`);
+  await expect(page.getByText("1 archived application")).toBeVisible();
+
+  await page.goto(`/portal/applications/${application.id}`);
+  await page.getByRole("button", { name: "Restore", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Restore" }).click();
+  await expect(page.getByRole("button", { name: "Start review" })).toBeVisible();
 });

@@ -7,11 +7,13 @@ import type {
   EMPLOYMENT_TYPES,
   GENDERS,
   INSTITUTION_TYPES,
+  JOB_APPLICATION_STATUSES,
   MESSAGE_SUBJECTS,
   NEWS_TYPES,
   PROGRAM_CATEGORIES,
   PUBLICATION_TYPES,
   ROLES,
+  VACANCY_STATUSES,
 } from "@/lib/constants/enums";
 
 const ROLE_LABELS = {
@@ -117,6 +119,21 @@ export const AWARD_PERIOD_LABELS = {
   PER_TERM: "Per term",
   ANNUAL: "Annual",
 } satisfies Record<(typeof AWARD_PERIODS)[number], string>;
+
+export const VACANCY_STATUS_LABELS = {
+  DRAFT: "Draft",
+  PUBLISHED: "Published",
+  CLOSED: "Closed",
+} satisfies Record<(typeof VACANCY_STATUSES)[number], string>;
+
+export const JOB_APPLICATION_STATUS_LABELS = {
+  RECEIVED: "Received",
+  SHORTLISTED: "Shortlisted",
+  INTERVIEW: "Interview",
+  SELECTED: "Selected",
+  REJECTED: "Rejected",
+  ON_HOLD: "On hold",
+} satisfies Record<(typeof JOB_APPLICATION_STATUSES)[number], string>;
 
 /** `{ value, label }` pairs for a select, in the order the labels are written. */
 export function toOptions(labels: Record<string, string>): { value: string; label: string }[] {

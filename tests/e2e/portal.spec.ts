@@ -7,7 +7,6 @@ import { expectNoSeriousAccessibilityIssues } from "./axe";
 
 const MAILPIT = process.env.MAILPIT_URL ?? "";
 const PASSWORD = "a-long-test-password-1";
-const hasAdmin = Boolean(process.env.E2E_ADMIN_EMAIL);
 
 /** Sign-in is limited to 5 a minute per address, so each test comes from its own address. */
 async function actAsNewAddress(context: BrowserContext): Promise<void> {
@@ -79,7 +78,6 @@ test.describe("sign in", () => {
   });
 
   test("the Super Admin signs in and reaches the overview", async ({ page }) => {
-    test.skip(!hasAdmin, "Needs the Super Admin (E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD).");
     await page.goto("/portal/sign-in");
     await page.getByLabel("Email").fill(process.env.E2E_ADMIN_EMAIL ?? "");
     await page.getByLabel("Password").fill(process.env.E2E_ADMIN_PASSWORD ?? "");
@@ -96,6 +94,8 @@ test.describe("the API refuses people it should", () => {
       "/audit-logs",
       "/dashboard/summary",
       "/departments",
+      "/vacancies",
+      "/job-applications",
     ]) {
       expect((await request.get(`/api/v1${path}`)).status(), path).toBe(401);
     }
@@ -104,7 +104,6 @@ test.describe("the API refuses people it should", () => {
 
 test.describe("signed in as Super Admin", () => {
   test.use({ storageState: ADMIN_STATE_FILE });
-  test.skip(!hasAdmin, "Needs the Super Admin (E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD).");
 
   for (const [path, heading] of [
     ["/portal", "Overview"],
@@ -112,6 +111,8 @@ test.describe("signed in as Super Admin", () => {
     ["/portal/settings", "Settings"],
     ["/portal/audit-log", "Audit log"],
     ["/portal/profile", "Profile"],
+    ["/portal/vacancies", "Vacancies"],
+    ["/portal/job-applications", "Job applications"],
   ] as const) {
     test(`${path} opens and has no serious accessibility problems`, async ({ page }) => {
       await page.goto(path);
@@ -124,7 +125,14 @@ test.describe("signed in as Super Admin", () => {
     test.skip(isMobile, "On a phone the sidebar is a drawer.");
     await page.goto("/portal");
     const sidebar = page.locator('[data-slot="sidebar"]');
-    for (const name of ["Overview", "Users", "Settings", "Audit log"]) {
+    for (const name of [
+      "Overview",
+      "Vacancies",
+      "Job applications",
+      "Users",
+      "Settings",
+      "Audit log",
+    ]) {
       await expect(sidebar.getByRole("link", { name })).toBeVisible();
     }
   });
@@ -167,7 +175,7 @@ test.describe("signed in as Super Admin", () => {
 });
 
 test.describe("invited staff", () => {
-  test.skip(!hasAdmin || !MAILPIT, "Needs the Super Admin and MAILPIT_URL.");
+  test.skip(!MAILPIT, "Needs MAILPIT_URL.");
 
   test("a Staff member is invited by email, sets a password, and is kept out of admin pages", async ({
     browser,
@@ -223,6 +231,8 @@ test.describe("invited staff", () => {
       "/audit-logs",
       "/applications",
       "/scholarship-awards",
+      "/vacancies",
+      "/job-applications",
     ]) {
       expect(
         (await staffContext.request.get(`${baseURL ?? ""}/api/v1${path}`)).status(),

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ArchiveButton } from "@/components/portal/archive-button";
 import { ForbiddenView } from "@/components/portal/forbidden-view";
 import { NoteForm } from "@/components/portal/note-form";
 import { PageHeader } from "@/components/portal/page-header";
 import { StatusBadge } from "@/components/portal/status-badge";
 import { Timeline, type TimelineItem } from "@/components/portal/timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApplicationDetails } from "@/features/application-review/application-details";
 import { ApplicationDocuments } from "@/features/application-review/application-documents";
@@ -53,8 +55,9 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
   const { staff } = access;
   const { id } = await params;
   const application = await orNotFound(getApplicationDetail(id));
-  const nextStatuses = allowedNextStatuses(staff, application.status);
   const canReview = hasPermission(staff, "applications:review");
+  const isArchived = application.archivedAt !== null;
+  const nextStatuses = isArchived ? [] : allowedNextStatuses(staff, application.status);
 
   return (
     <>
@@ -62,15 +65,18 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
         title={application.referenceNumber}
         description={`${APPLICATION_TYPE_LABELS[application.type]} application from ${application.applicant.fullName}, submitted ${formatDateTime(application.createdAt)}.`}
         actions={
-          <StatusBadge
-            label={APPLICATION_STATUS_LABELS[application.status]}
-            tone={applicationStatusTone(application.status)}
-          />
+          <>
+            {isArchived ? <Badge variant="outline">Archived</Badge> : null}
+            <StatusBadge
+              label={APPLICATION_STATUS_LABELS[application.status]}
+              tone={applicationStatusTone(application.status)}
+            />
+          </>
         }
       />
 
-      {nextStatuses.length > 0 ? (
-        <section aria-label="Status actions" className="flex flex-wrap gap-2">
+      {nextStatuses.length > 0 || canReview ? (
+        <section aria-label="Application actions" className="flex flex-wrap gap-2">
           {nextStatuses.map((target) => (
             <StatusChangeDialog
               key={target}
@@ -79,7 +85,19 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
               needsAwardTerms={target === "APPROVED" && application.type === "SCHOLARSHIP"}
             />
           ))}
+          {canReview ? (
+            <ArchiveButton endpoint={`/applications/${application.id}`} isArchived={isArchived} />
+          ) : null}
         </section>
+      ) : null}
+
+      {application.archivedAt ? (
+        <Alert>
+          <AlertTitle>Archived on {formatDateTime(application.archivedAt)}</AlertTitle>
+          <AlertDescription>
+            Restore it to change its status or checklist, or to add a note.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {application.status === "INCOMPLETE" ? (
@@ -132,7 +150,11 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
               <ChecklistForm
                 applicationId={application.id}
                 checklist={application.checklist}
-                isEditable={canReview && CHECKLIST_EDITABLE_STATUSES.includes(application.status)}
+                isEditable={
+                  canReview &&
+                  !isArchived &&
+                  CHECKLIST_EDITABLE_STATUSES.includes(application.status)
+                }
               />
             </CardContent>
           </Card>
@@ -142,7 +164,7 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
               <CardDescription>Internal. Applicants never see this.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {canReview ? (
+              {canReview && !isArchived ? (
                 <NoteForm
                   endpoint={`/applications/${application.id}/notes`}
                   label="Internal note"

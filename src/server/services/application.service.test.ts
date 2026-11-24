@@ -240,6 +240,19 @@ describe("submitMissingDocuments", () => {
     expect(inspectUpload).toHaveBeenCalledTimes(3);
   });
 
+  it("refuses while staff have archived the application", async () => {
+    const { referenceNumber } = await submitApplication(buildApplicationInput());
+    await ApplicationModel.updateOne(
+      { referenceNumber },
+      { status: "INCOMPLETE", archivedAt: new Date() },
+    );
+
+    await expect(
+      submitMissingDocuments({ ...lookup(referenceNumber), documents: [extra] }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    expect((await ApplicationModel.findOne({ referenceNumber }).lean())?.status).toBe("INCOMPLETE");
+  });
+
   it("refuses a wrong email", async () => {
     const { referenceNumber } = await submitApplication(buildApplicationInput());
     await ApplicationModel.updateOne({ referenceNumber }, { status: "INCOMPLETE" });

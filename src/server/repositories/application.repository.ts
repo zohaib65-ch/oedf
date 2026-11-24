@@ -1,5 +1,5 @@
 import "server-only";
-import type { ClientSession } from "mongoose";
+import mongoose, { type ClientSession } from "mongoose";
 
 import type {
   APPLICATION_STATUSES,
@@ -77,6 +77,8 @@ export interface ApplicationStatusRecord {
   /** The applicant's email as saved, used only to check the lookup. */
   email: string;
   missingItems: string[];
+  /** Archived by staff: read-only until restored, so it takes no documents either. */
+  isArchived: boolean;
 }
 
 export async function findApplicationForLookup(
@@ -85,7 +87,7 @@ export async function findApplicationForLookup(
   await connectDb();
   const application = await ApplicationModel.findOne(
     { referenceNumber },
-    { type: 1, status: 1, "applicant.email": 1, missingItems: 1 },
+    { type: 1, status: 1, "applicant.email": 1, missingItems: 1, archivedAt: 1 },
   ).lean();
   return application
     ? {
@@ -94,13 +96,14 @@ export async function findApplicationForLookup(
         status: application.status,
         email: application.applicant.email,
         missingItems: application.missingItems,
+        isArchived: application.archivedAt != null,
       }
     : null;
 }
 
 /**
  * Adds the requested documents and moves the application from Incomplete back to Under review.
- * Returns false when it was no longer Incomplete (so nothing changed).
+ * Returns false when it was no longer Incomplete or was archived (so nothing changed).
  */
 export async function addMissingDocuments(
   id: string,
@@ -108,7 +111,7 @@ export async function addMissingDocuments(
   session: ClientSession,
 ): Promise<boolean> {
   const result = await ApplicationModel.updateOne(
-    { _id: id, status: "INCOMPLETE" },
+    { _id: id, status: "INCOMPLETE", archivedAt: mongoose.trusted({ $exists: false }) },
     {
       $push: {
         documents: { $each: documents },

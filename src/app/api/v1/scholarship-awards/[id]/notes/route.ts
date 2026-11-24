@@ -1,4 +1,4 @@
-import { noteInputSchema } from "@/lib/validations/application-review";
+import { noteInputSchema } from "@/lib/validations/common";
 import { requireApiPermission } from "@/server/auth/api-session";
 import { withApiHandler } from "@/server/http/handler";
 import { readJson } from "@/server/http/request";

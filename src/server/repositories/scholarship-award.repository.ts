@@ -4,6 +4,7 @@ import mongoose, { type ClientSession } from "mongoose";
 import type { AWARD_PERIODS, AWARD_STATUSES } from "@/lib/constants/enums";
 import { connectDb } from "@/server/db/connection";
 import { ScholarshipAwardModel } from "@/server/db/models/scholarship-award.model";
+import { escapeRegExp } from "@/server/lib/escape-regexp";
 
 type AwardStatus = (typeof AWARD_STATUSES)[number];
 type AwardPeriod = (typeof AWARD_PERIODS)[number];
@@ -64,8 +65,6 @@ export interface AwardListOptions {
   page: number;
   pageSize: number;
 }
-
-const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 const toDay = (date: Date) => date.toISOString().slice(0, 10);
 

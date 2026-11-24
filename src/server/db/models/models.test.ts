@@ -36,13 +36,20 @@ beforeEach(async () => {
   await connectDb();
 });
 
+// Building every index one collection at a time can pass 5 seconds on a busy machine.
+const INDEX_BUILD_TIMEOUT_MS = 20_000;
+
 describe("models", () => {
-  it("registers all 17 collections and builds every declared index without errors", async () => {
-    expect(ALL_MODELS).toHaveLength(17);
-    for (const Model of ALL_MODELS) {
-      await expect(Model.syncIndexes()).resolves.toBeDefined();
-    }
-  });
+  it(
+    "registers all 17 collections and builds every declared index without errors",
+    async () => {
+      expect(ALL_MODELS).toHaveLength(17);
+      for (const Model of ALL_MODELS) {
+        await expect(Model.syncIndexes()).resolves.toBeDefined();
+      }
+    },
+    INDEX_BUILD_TIMEOUT_MS,
+  );
 
   it("stores timestamps, lowercases emails and defaults a new application to Submitted", async () => {
     const application = await ApplicationModel.create(validApplication("OEDF-ADM-2026-000001"));

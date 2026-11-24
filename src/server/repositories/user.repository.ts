@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import type { ROLES } from "@/lib/constants/enums";
 import { getAuth } from "@/server/auth/auth";
 import { connectDb } from "@/server/db/connection";
+import { escapeRegExp } from "@/server/lib/escape-regexp";
 
 type Role = (typeof ROLES)[number];
 
@@ -44,8 +45,6 @@ async function getUserCollection() {
   await connectDb();
   return mongoose.connection.collection<UserDocument>("user");
 }
-
-const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 export interface UserListOptions {
   q?: string | undefined;

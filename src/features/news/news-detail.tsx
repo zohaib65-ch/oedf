@@ -3,9 +3,9 @@ import { connection } from "next/server";
 
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
+import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { PlainTextContent } from "@/components/shared/plain-text-content";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { NEWS_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDate } from "@/lib/format";
@@ -46,7 +46,7 @@ export async function NewsDetail({ params }: { params: Promise<{ slug: string }>
         backLabel="All news and events"
         aside={<FactsCard title="Details" facts={facts} />}
       >
-        <PlainTextContent text={post.body} />
+        <FormattedText text={post.body} />
       </DetailSection>
       <ClosingCta />
     </>

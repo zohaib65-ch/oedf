@@ -17,8 +17,6 @@ env:
   CLOUDINARY_FOLDER: oedf-ci
   CLOUDINARY_URL: cloudinary://123456789012345:ci-only-secret@ci-cloud
   # Used by the e2e job to create the first Super Admin and to sign in as them.
-  E2E_ADMIN_EMAIL: ci-admin@example.org
-  E2E_ADMIN_PASSWORD: ci-only-password-123
 
 jobs:
   quality:
@@ -65,7 +63,8 @@ jobs:
           docker exec mongo mongosh --quiet --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"
           until docker exec mongo mongosh --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 1; done
       - run: npm ci
-      - run: npm run db:seed -- --email "$E2E_ADMIN_EMAIL" --password "$E2E_ADMIN_PASSWORD"
+      # The sample content needs an author; the tests create their own accounts.
+      - run: npm run db:seed -- --email ci-admin@example.org --password ci-only-password-123
       # The public-page tests read the clearly labelled sample content.
       - run: npm run db:seed:sample
       - run: npx playwright install --with-deps chromium

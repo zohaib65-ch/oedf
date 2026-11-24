@@ -55,11 +55,6 @@ test.describe("portal", () => {
     test.use({ storageState: ADMIN_STATE_FILE });
 
     test("staff see the portal shell and can open the user menu", async ({ page }) => {
-      test.skip(
-        !process.env.E2E_ADMIN_EMAIL,
-        "Needs the Super Admin (E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD).",
-      );
-
       await page.goto("/portal");
       await expect(page.getByRole("heading", { level: 1, name: "Overview" })).toBeVisible();
       // Scan before opening the menu: while it is open, Radix hides the rest of the page from assistive technology on purpose.

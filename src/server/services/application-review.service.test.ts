@@ -17,6 +17,7 @@ import {
   changeStatus,
   getApplicationDetail,
   getApplications,
+  updateApplication,
   updateChecklist,
 } from "@/server/services/application-review.service";
 import { submitApplication } from "@/server/services/application.service";
@@ -153,6 +154,16 @@ describe("getApplications", () => {
     expect((await getApplications({ ...listQuery, city: "vehari" })).total).toBe(2);
     expect((await getApplications({ ...listQuery, city: "Lahore" })).total).toBe(0);
     expect((await getApplications({ ...listQuery, sort: "name" })).items).toHaveLength(2);
+  });
+
+  it("filters by the day submitted, in Pakistan time", async () => {
+    await submit();
+    const today = new Date(Date.now() + 5 * 3_600_000).toISOString().slice(0, 10);
+
+    const sameDay = await getApplications({ ...listQuery, from: today, to: today });
+    expect([sameDay.total, sameDay.items.length]).toEqual([1, 1]);
+    expect((await getApplications({ ...listQuery, from: "2099-01-01" })).total).toBe(0);
+    expect((await getApplications({ ...listQuery, to: "2000-01-01" })).total).toBe(0);
   });
 });
 
@@ -304,5 +315,37 @@ describe("checklist and notes", () => {
       text: "Called the applicant about the photo.",
     });
     await expect(addNote(staff, "0".repeat(24), "x")).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+});
+
+describe("updateApplication", () => {
+  const listQuery = { page: 1, pageSize: 20, sort: "-createdAt" as const };
+
+  it("archives an application: hidden from the list, read-only until restored, never deleted", async () => {
+    const id = await submit();
+    await updateApplication(staff, id, { isArchived: true });
+
+    expect((await getApplications(listQuery)).total).toBe(0);
+    expect((await getApplications({ ...listQuery, view: "ARCHIVED" })).total).toBe(1);
+    await expect(changeStatus(director, id, move("UNDER_REVIEW"))).rejects.toMatchObject({
+      code: "CONFLICT",
+    });
+    await expect(updateChecklist(staff, id, FULL_CHECKLIST)).rejects.toMatchObject({
+      code: "CONFLICT",
+    });
+    await expect(addNote(staff, id, "A note")).rejects.toMatchObject({ code: "CONFLICT" });
+
+    const restored = await updateApplication(staff, id, { isArchived: false });
+    expect(restored.archivedAt).toBeNull();
+    expect((await changeStatus(director, id, move("UNDER_REVIEW"))).status).toBe("UNDER_REVIEW");
+    expect(await AuditLogModel.countDocuments({ action: "application.archived" })).toBe(1);
+    expect(await AuditLogModel.countDocuments({ action: "application.restored" })).toBe(1);
+  });
+
+  it("is refused to someone who may not review", async () => {
+    const id = await submit();
+    await expect(updateApplication(ceo, id, { isArchived: true })).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
   });
 });

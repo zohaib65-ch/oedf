@@ -1,6 +1,6 @@
 import { cn } from "cn";
 
-import { PlainTextContent } from "@/components/shared/plain-text-content";
+import { FormattedText } from "@/components/shared/formatted-text";
 import {
   Accordion,
   AccordionContent,
@@ -29,7 +29,7 @@ export function FaqAccordion({
             {faq.question}
           </AccordionTrigger>
           <AccordionContent>
-            <PlainTextContent text={faq.answer} />
+            <FormattedText text={faq.answer} />
           </AccordionContent>
         </AccordionItem>
       ))}

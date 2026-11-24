@@ -11,6 +11,9 @@ const SERIOUS_IMPACTS = ["serious", "critical"];
  * page it measures the nav text against the white page instead and reports a contrast failure
  * that is not there (screenshots and the design system's contrast table show white and gold on
  * navy, at least 7.9:1). Every other element gets the full check, color contrast included.
+ *
+ * Toasts stacked behind the newest one are left out: sonner dims them on purpose while they wait
+ * behind it. The newest toast is checked like everything else.
  */
 export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<void> {
   await page.evaluate(() =>
@@ -20,7 +23,10 @@ export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<vo
       document.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
-  const content = await new AxeBuilder({ page }).exclude("header").analyze();
+  const content = await new AxeBuilder({ page })
+    .exclude("header")
+    .exclude('[data-sonner-toast][data-front="false"]')
+    .analyze();
   // Pages without a header (the sign-in screens) have nothing to check here.
   const header =
     (await page.locator("header").count()) > 0
