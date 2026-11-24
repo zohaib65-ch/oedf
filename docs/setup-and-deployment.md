@@ -55,7 +55,7 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 Default host: Vercel with MongoDB Atlas and Cloudinary. To be confirmed with the client and written up step by step in Phase 7. Checklist:
 
 - **MongoDB Atlas:** cluster, database user, network access for the host, backups on; run `npm run db:indexes` on every deploy.
-- **Cloudinary:** Strict Transformations on (so private images cannot be requested transformed), PDF delivery allowed, folders per environment (`CLOUDINARY_FOLDER`), personal documents stored as private assets.
+- **Cloudinary:** PDF and ZIP delivery on; **no unsigned upload preset** (every upload is signed); **Strict Transformations off, on purpose** (see architecture.md, "Files"); one folder per environment, derived from `NODE_ENV` (`oedf` in production, `oedf-dev` otherwise); personal documents stored as authenticated assets.
 - **Upload cleanup:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `CRON_SECRET` (`vercel.json` when on Vercel).
 - **Turnstile and SMTP:** production keys and provider; **domain and SSL**; set every environment variable in the host.
 - **After deploy:** health probe on `/api/v1/health`, Super Admin can sign in, apply each monthly Next.js security release.

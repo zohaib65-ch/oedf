@@ -103,7 +103,14 @@ tests/                        e2e/, global-setup.ts (one in-memory replica set),
 
 - Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/` (generic) or `src/components/site/` (public-site specific, such as cards). `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
 - Route files stay short: load data, compose components. Unit tests sit next to the file they test. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script and its test, not a barrel).
-- Only `src/server/storage/cloudinary.ts` will talk to the Cloudinary SDK.
+- Only `src/server/storage/cloudinary.ts` talks to the Cloudinary SDK.
+
+## Files (Cloudinary)
+
+- **Two kinds of asset.** Public images (news covers, program images) are `upload` assets, delivered through `next/image` with a Cloudinary loader that requests resized copies. Personal documents (CNIC or B-Form copies, result cards, income proof, CVs) are `authenticated` assets: neither the original nor any resized copy can be fetched without a signed link.
+- **Staff access** to a personal document uses `private_download_url` with `expires_at` five minutes ahead, created per request after the permission check. `cloudinary.url()` is never used for these files, because its signed URLs do not expire.
+- **Strict Transformations is off on purpose.** It would block the resized public images the `next/image` loader requests, and it is not needed to protect personal documents, since authenticated assets already need a signature for every delivery, original or resized. Do not turn it on without changing the image loader.
+- **Uploads are always signed.** The server signs each upload with a size limit and allowed file types; there is no unsigned preset.
 - Planned: `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
 - `globals.css` imports `tw-animate-css` and `shadcn/tailwind.css` (dev dependencies) for the animated shadcn components. The shared gold button is `CtaButton`, a variant wrapper in `shared/`.
 
