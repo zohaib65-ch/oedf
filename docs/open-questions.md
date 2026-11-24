@@ -66,12 +66,16 @@ Full explanation in [design-system.md](design-system.md), section 2. Answered on
 
 ## D. Placeholders in the interface
 
-| #   | Placeholder                                                                               | Where                                               | Replaced when                               |
-| --- | ----------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |
-| D1  | Holding home page ("Our new website is on its way.")                                      | `src/app/(site)/page.tsx`                           | Phase 3 builds the real home page           |
-| D2  | Plain solid-navy favicon and app icons (no mark)                                          | `src/app/favicon.ico`, `icon.png`, `apple-icon.png` | The client supplies the icon-only mark (B3) |
-| D3  | Contact address and phone in the seeded settings, from the letterhead and **unconfirmed** | `scripts/seed.ts` (stored in `siteSettings`)        | The client confirms C2 and C3               |
-| D4  | Draft office purposes and responsibilities                                                | `src/lib/constants/departments.ts`                  | The client confirms C25                     |
+| #   | Placeholder                                                                                           | Where                                                        | Replaced when                               |
+| --- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------- |
+| D1  | Holding home page ("Our new website is on its way.")                                                  | `src/app/(site)/page.tsx`                                    | Phase 3 builds the real home page           |
+| D2  | Plain solid-navy favicon and app icons (no mark)                                                      | `src/app/favicon.ico`, `icon.png`, `apple-icon.png`          | The client supplies the icon-only mark (B3) |
+| D3  | Contact address and phone in the seeded settings, from the letterhead and **unconfirmed**             | `scripts/seed.ts` (stored in `siteSettings`)                 | The client confirms C2 and C3               |
+| D4  | Draft office purposes and responsibilities                                                            | `src/lib/constants/departments.ts`                           | The client confirms C25                     |
+| D5  | Footer and metadata description reuse a drafted one-line description of the foundation                | `src/lib/constants/site.ts`                                  | The client supplies its mission statement   |
+| D6  | Wording of the navigation dropdown descriptions and of the home page "Ready to apply?" call to action | `src/lib/constants/navigation.ts`, `src/app/(site)/page.tsx` | Phase 3 builds the real pages and copy      |
+| D7  | Header and footer links point at pages that do not exist yet (they show the 404 page)                 | `src/lib/constants/navigation.ts`                            | Phase 3 builds the pages                    |
+| D8  | Top bar shows the contact details; its announcement text is optional (Settings, C23)                  | `siteSettings`                                               | The client supplies the text                |
 
 Later phases add their placeholders here with the file they live in, for example
 `public/images/placeholders/hero.webp`, placeholder copy in `src/content/`, and the legal pages that
