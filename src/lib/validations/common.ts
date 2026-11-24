@@ -65,3 +65,17 @@ export const spamProtectionShape = {
   turnstileToken: z.string().max(2048).optional(),
   faxNumber: z.string().max(200).optional(),
 };
+
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
+const MAX_QUERY_LENGTH = 100;
+
+/** A 24-character hexadecimal ID, as MongoDB and Better Auth store them. */
+export const objectIdText = z.string().regex(/^[0-9a-f]{24}$/, "Choose a valid option");
+
+/** The paging and search every portal list accepts: `page`, `pageSize` (at most 100) and `q`. */
+export const listQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
+  q: z.string().trim().max(MAX_QUERY_LENGTH).optional(),
+});

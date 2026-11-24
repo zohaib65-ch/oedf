@@ -22,12 +22,11 @@ interface ErrorBody {
   error?: { code?: string; message?: string; details?: { fieldErrors?: Record<string, string[]> } };
 }
 
-/** Sends JSON to `/api/v1` and returns the `data` of the answer, or throws an `ApiError`. */
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+async function apiSend<T>(method: "POST" | "PATCH", path: string, body: unknown): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api/v1${path}`, {
-      method: "POST",
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
@@ -49,4 +48,14 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     );
   }
   return json.data as T;
+}
+
+/** Sends JSON to `/api/v1` and returns the `data` of the answer, or throws an `ApiError`. */
+export function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return apiSend("POST", path, body);
+}
+
+/** Like `apiPost`, for a partial update. */
+export function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  return apiSend("PATCH", path, body);
 }

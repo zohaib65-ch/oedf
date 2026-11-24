@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { PortalLoading, PortalShell } from "@/components/portal/portal-shell";
+import { PortalProviders } from "@/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "Portal",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function PortalLayout({ children }: LayoutProps<"/portal">) {
   return (
     <Suspense fallback={<PortalLoading />}>
-      <PortalShell>{children}</PortalShell>
+      <PortalProviders>
+        <PortalShell>{children}</PortalShell>
+      </PortalProviders>
     </Suspense>
   );
 }

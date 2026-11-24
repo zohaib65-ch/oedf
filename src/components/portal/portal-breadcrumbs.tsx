@@ -10,12 +10,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { PORTAL_HOME_PATH, PORTAL_NAV } from "@/lib/constants/navigation";
+import { PORTAL_HOME_PATH, PORTAL_NAV, PORTAL_PROFILE_LINK } from "@/lib/constants/navigation";
 
 /** Portal › current page. The page name comes from the portal navigation config. */
 export function PortalBreadcrumbs() {
   const pathname = usePathname();
-  const current = PORTAL_NAV.find((item) => item.href === pathname);
+  const current = [...PORTAL_NAV, PORTAL_PROFILE_LINK].find((item) => item.href === pathname);
 
   return (
     <Breadcrumb>

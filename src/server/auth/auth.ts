@@ -10,6 +10,10 @@ import { z } from "zod";
 import { getServerEnv } from "@/env";
 import type { ROLES } from "@/lib/constants/enums";
 import { connectDb } from "@/server/db/connection";
+import { sendEmail } from "@/server/email/send-email";
+import { PasswordLinkEmail } from "@/server/email/templates/password-link-email";
+import { createAuditEntry } from "@/server/repositories/audit-log.repository";
+import { getClientIp } from "@/server/security/client-ip";
 
 // The four staff roles from src/lib/constants/enums.ts. Only Super Admin gets the plugin's admin rights.
 const accessControl = createAccessControl(defaultStatements);
@@ -23,6 +27,18 @@ const STAFF_ROLES = {
 const MIN_PASSWORD_LENGTH = 12;
 const SECONDS_PER_MINUTE = 60;
 const SIGN_IN_ATTEMPTS_PER_MINUTE = 5;
+const PASSWORD_REQUESTS_PER_MINUTE = 3;
+// One lifetime for invitations and resets: an invited person may not open the email at once.
+const PASSWORD_LINK_LIFETIME_SECONDS = 24 * 60 * 60;
+const INVITED_MARKER = encodeURIComponent("invited=1");
+// Account actions a person takes themselves. They are written to the audit log after they succeed.
+const AUDITED_ACCOUNT_PATHS: Record<string, string> = {
+  "/sign-in/email": "auth.signed-in",
+  "/change-password": "auth.password-changed",
+  "/update-user": "auth.profile-updated",
+  "/revoke-session": "auth.session-revoked",
+  "/revoke-other-sessions": "auth.session-revoked",
+};
 const ADMIN_CREATE_USER_PATH = "/admin/create-user";
 
 const adminCreateUserBodySchema = z.object({ password: z.string().optional() });
@@ -41,6 +57,24 @@ const enforceMinimumPasswordOnCreateUser = createAuthMiddleware(async (ctx) => {
   }
 });
 
+const auditAccountActions = createAuthMiddleware(async (ctx) => {
+  const action = AUDITED_ACCOUNT_PATHS[ctx.path];
+  const user = ctx.context.newSession?.user ?? ctx.context.session?.user;
+  if (!action || !user) {
+    return;
+  }
+  const requestHeaders = ctx.request?.headers;
+  await createAuditEntry({
+    actorId: user.id,
+    actorName: user.name,
+    action,
+    entityType: "User",
+    entityId: user.id,
+    ipAddress: requestHeaders ? getClientIp({ headers: requestHeaders }) : "",
+    userAgent: requestHeaders?.get("user-agent") ?? "",
+  });
+});
+
 async function createAuth() {
   const env = getServerEnv();
   const { connection } = await connectDb();
@@ -56,6 +90,32 @@ async function createAuth() {
       enabled: true,
       disableSignUp: true,
       minPasswordLength: MIN_PASSWORD_LENGTH,
+      resetPasswordTokenExpiresIn: PASSWORD_LINK_LIFETIME_SECONDS,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: async ({ user, url }) => {
+        await sendEmail({
+          to: user.email,
+          subject: url.includes(INVITED_MARKER)
+            ? "You have been invited to the OEDF staff portal"
+            : "Reset your OEDF staff portal password",
+          template: PasswordLinkEmail({
+            name: user.name,
+            link: url,
+            kind: url.includes(INVITED_MARKER) ? "INVITATION" : "RESET",
+          }),
+        });
+      },
+      onPasswordReset: async ({ user }) => {
+        await createAuditEntry({
+          actorId: user.id,
+          actorName: user.name,
+          action: "auth.password-reset",
+          entityType: "User",
+          entityId: user.id,
+          ipAddress: "",
+          userAgent: "",
+        });
+      },
     },
     user: {
       additionalFields: {
@@ -67,13 +127,17 @@ async function createAuth() {
       storage: "database",
       customRules: {
         "/sign-in/email": { window: SECONDS_PER_MINUTE, max: SIGN_IN_ATTEMPTS_PER_MINUTE },
+        "/request-password-reset": {
+          window: SECONDS_PER_MINUTE,
+          max: PASSWORD_REQUESTS_PER_MINUTE,
+        },
       },
     },
     advanced: {
       useSecureCookies: isProduction,
       defaultCookieAttributes: { httpOnly: true, sameSite: "lax", secure: isProduction },
     },
-    hooks: { before: enforceMinimumPasswordOnCreateUser },
+    hooks: { before: enforceMinimumPasswordOnCreateUser, after: auditAccountActions },
     // Staff accounts are created, deactivated (banned) and reset by Super Admin only. Everything
     // else (who may review or publish what) is decided by the permission map, not by this plugin.
     plugins: [

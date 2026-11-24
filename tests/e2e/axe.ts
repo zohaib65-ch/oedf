@@ -21,10 +21,11 @@ export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<vo
     ),
   );
   const content = await new AxeBuilder({ page }).exclude("header").analyze();
-  const header = await new AxeBuilder({ page })
-    .include("header")
-    .disableRules(["color-contrast"])
-    .analyze();
+  // Pages without a header (the sign-in screens) have nothing to check here.
+  const header =
+    (await page.locator("header").count()) > 0
+      ? await new AxeBuilder({ page }).include("header").disableRules(["color-contrast"]).analyze()
+      : { violations: [] };
 
   const serious = [...content.violations, ...header.violations].filter(
     (violation) => violation.impact && SERIOUS_IMPACTS.includes(violation.impact),

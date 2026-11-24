@@ -117,3 +117,51 @@ export async function findDepartmentCodeById(
   const department = await DepartmentModel.findById(id, { code: 1 }).lean();
   return department?.code ?? null;
 }
+
+export interface StaffDepartmentRecord {
+  id: string;
+  code: (typeof DEPARTMENT_CODES)[number];
+  name: string;
+  directorName: string;
+  notificationEmail: string;
+}
+
+/** Offices with their notification email, for staff screens only. */
+export async function listDepartmentsForStaff(): Promise<StaffDepartmentRecord[]> {
+  await connectDb();
+  const departments = await DepartmentModel.find(
+    {},
+    { code: 1, name: 1, directorName: 1, notificationEmail: 1 },
+  )
+    .sort({ order: 1 })
+    .lean();
+  return departments.map((department) => ({
+    id: department._id.toString(),
+    code: department.code,
+    name: department.name,
+    directorName: department.directorName,
+    notificationEmail: department.notificationEmail,
+  }));
+}
+
+/** Saves the editable fields and returns the names of those that changed, or null if there is no such office. */
+export async function updateDepartmentDetails(
+  id: string,
+  changes: { directorName?: string | undefined; notificationEmail?: string | undefined },
+): Promise<string[] | null> {
+  await connectDb();
+  const department = await DepartmentModel.findById(id, {
+    directorName: 1,
+    notificationEmail: 1,
+  }).lean();
+  if (!department) {
+    return null;
+  }
+  const changed = (["directorName", "notificationEmail"] as const).filter(
+    (field) => changes[field] !== undefined && changes[field] !== department[field],
+  );
+  if (changed.length > 0) {
+    await DepartmentModel.updateOne({ _id: id }, { $set: changes });
+  }
+  return changed;
+}

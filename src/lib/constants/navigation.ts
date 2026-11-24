@@ -6,9 +6,13 @@ import {
   GraduationCap,
   LayoutDashboard,
   type LucideIcon,
+  ScrollTextIcon,
+  SettingsIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import { DEPARTMENTS } from "@/lib/constants/departments";
+import type { Permission } from "@/lib/constants/permissions";
 
 export interface NavLink {
   label: string;
@@ -115,7 +119,24 @@ export const FOOTER_NAV: readonly { title: string; links: readonly NavLink[] }[]
 export const PORTAL_HOME_PATH = "/portal";
 export const PORTAL_SIGN_IN_PATH = "/portal/sign-in";
 
+export interface PortalNavLink extends NavLink {
+  icon: LucideIcon;
+  /** The sidebar shows the link only to people who hold this permission. */
+  permission: Permission;
+}
+
 /** The portal sidebar. Modules are added here as their screens are built. */
-export const PORTAL_NAV: readonly NavLink[] = [
-  { label: "Overview", href: PORTAL_HOME_PATH, icon: LayoutDashboard },
+export const PORTAL_NAV: readonly PortalNavLink[] = [
+  {
+    label: "Overview",
+    href: PORTAL_HOME_PATH,
+    icon: LayoutDashboard,
+    permission: "dashboard:read",
+  },
+  { label: "Users", href: "/portal/users", icon: UsersIcon, permission: "users:manage" },
+  { label: "Settings", href: "/portal/settings", icon: SettingsIcon, permission: "settings:read" },
+  { label: "Audit log", href: "/portal/audit-log", icon: ScrollTextIcon, permission: "audit:read" },
 ];
+
+/** Pages reached from the user menu rather than the sidebar. */
+export const PORTAL_PROFILE_LINK: NavLink = { label: "Profile", href: "/portal/profile" };

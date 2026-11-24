@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, UserIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
-import { PORTAL_SIGN_IN_PATH } from "@/lib/constants/navigation";
+import { PORTAL_PROFILE_LINK, PORTAL_SIGN_IN_PATH } from "@/lib/constants/navigation";
 
 interface UserMenuProps {
   name: string;
@@ -60,6 +61,12 @@ export function UserMenu({ name, email, roleLabel }: UserMenuProps) {
           <span className="block text-xs text-muted-foreground">{email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href={PORTAL_PROFILE_LINK.href}>
+            <UserIcon aria-hidden="true" />
+            {PORTAL_PROFILE_LINK.label}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => void handleSignOut()}>
           <LogOutIcon aria-hidden="true" />
           Sign out
