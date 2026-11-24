@@ -54,7 +54,7 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 
 - **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
 - **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
-- **Real-upload tests:** `E2E_REAL_UPLOADS=1 npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
+- **Real-upload tests:** `E2E_REAL_UPLOADS=1 MAILPIT_URL=<Mailpit web address> npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
 - **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
 
 ## Deployment (planned, Phase 7)

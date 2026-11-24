@@ -6,11 +6,14 @@ import { actAsNewVisitor } from "./visitor";
 
 // These tests upload real files to the Cloudinary account in `.env` (into the `oedf-dev`
 // folder) and read the confirmation emails from Mailpit, so they only run when asked:
-//   E2E_REAL_UPLOADS=1 npm run test:e2e
+//   E2E_REAL_UPLOADS=1 MAILPIT_URL=<Mailpit web address> npm run test:e2e
 // The uploaded files stay in Cloudinary: delete the `oedf-dev` folder when you want them gone.
-test.skip(!process.env.E2E_REAL_UPLOADS, "Set E2E_REAL_UPLOADS=1 to upload real files.");
+test.skip(
+  !process.env.E2E_REAL_UPLOADS || !process.env.MAILPIT_URL,
+  "Set E2E_REAL_UPLOADS=1 and MAILPIT_URL to run the real-upload tests.",
+);
 
-const MAILPIT = "http://localhost:8025";
+const MAILPIT = process.env.MAILPIT_URL ?? "";
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==",
   "base64",
