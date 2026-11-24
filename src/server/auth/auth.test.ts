@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { MIN_PASSWORD_LENGTH } from "@/lib/validations/auth";
 import { getAuth } from "@/server/auth/auth";
 
 const PASSWORD = "a-long-enough-password";
@@ -40,14 +41,27 @@ describe("auth", () => {
     ).rejects.toThrow();
   });
 
-  it("rejects a password shorter than 12 characters", async () => {
+  it("rejects a password shorter than the minimum, and accepts one exactly that long", async () => {
     const auth = await getAuth();
 
     await expect(
       auth.api.createUser({
-        body: { email: "short@example.org", password: "short-pass", name: "Short Password" },
+        body: {
+          email: "short@example.org",
+          password: "x".repeat(MIN_PASSWORD_LENGTH - 1),
+          name: "Short Password",
+        },
       }),
     ).rejects.toThrow();
+    await expect(
+      auth.api.createUser({
+        body: {
+          email: "exact@example.org",
+          password: "x".repeat(MIN_PASSWORD_LENGTH),
+          name: "Exact Password",
+        },
+      }),
+    ).resolves.toMatchObject({ user: { email: "exact@example.org" } });
   });
 
   it("rejects a wrong password", async () => {

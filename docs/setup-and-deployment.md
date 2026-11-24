@@ -2,12 +2,12 @@
 
 ## Local setup
 
-Prerequisites: Node.js 24+, npm, Docker (or a free MongoDB Atlas cluster, which always runs as a replica set).
+Prerequisites: Node.js 24+, npm, access to the project's MongoDB Atlas cluster (your IP address added under Atlas → Network Access), and Docker for Mailpit, the local email inbox.
 
 ```bash
 npm install
 cp .env.example .env            # then fill in the four values
-docker compose up -d            # local MongoDB replica set and Mailpit (inbox at http://localhost:8025)
+docker compose up -d mailpit    # Mailpit, the local email inbox (http://localhost:8025)
 npm run db:indexes              # create the indexes
 npm run db:seed                 # offices, settings; asks once for the first Super Admin's email and password
 npm run db:seed:sample          # optional: labelled sample content so public pages have data
@@ -45,7 +45,7 @@ Derived, so not variables: the log level (debug in development, info in producti
 
 ## Testing
 
-**Never point `db:seed`, `db:seed:sample` or the e2e tests at the production database.** They write and delete data. `.env` always holds the local Docker database; the production `MONGODB_URI` (Atlas) is set only in the host's Production environment variables.
+**Database: MongoDB Atlas, never a local MongoDB** (the client's decision). `.env` holds the Atlas `MONGODB_URI`, so `npm run dev`, the `db:*` scripts and the e2e tests all use the Atlas database. The seeds are safe to repeat; `db:seed:sample` adds content labelled as sample. The e2e tests write there too: they delete the applications they create (reference numbers in the year 2099), but the contact messages and the invited Staff accounts they create stay (the accounts deactivated); see open-questions D30 about keeping test data out of the live site. Vitest never touches Atlas: it uses an in-memory database. CI uses its own MongoDB service container.
 
 A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e` pass.
 
@@ -57,6 +57,7 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 
 - **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
 - **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
+- **Test records:** some e2e tests insert their own records straight into MongoDB (`tests/e2e/db.ts`, reference numbers in the year 2099) and delete them afterwards. `playwright.config.ts` loads `.env` for this, and the app server it starts inherits the same `MONGODB_URI`, so a `.env.local` cannot point the tests at another database.
 - **Real-upload tests:** `E2E_REAL_UPLOADS=1 MAILPIT_URL=<Mailpit web address> npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
 - **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
 

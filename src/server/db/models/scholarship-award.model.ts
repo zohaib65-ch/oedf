@@ -14,6 +14,8 @@ const scholarshipAwardSchema = new Schema(
       required: true,
       unique: true,
     },
+    // Saved with the award so lists need no lookup of the application.
+    referenceNumber: { type: String, required: true },
     studentName: { type: String, required: true },
     amountPkr: { type: Number, required: true, min: 0, validate: Number.isInteger },
     period: { type: String, enum: AWARD_PERIODS, required: true },
@@ -26,5 +28,6 @@ const scholarshipAwardSchema = new Schema(
 );
 
 scholarshipAwardSchema.index({ renewalDate: 1, status: 1 });
+scholarshipAwardSchema.index({ status: 1, startDate: -1 });
 
 export const ScholarshipAwardModel = defineModel("ScholarshipAward", scholarshipAwardSchema);

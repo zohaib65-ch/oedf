@@ -122,3 +122,10 @@ export async function isProgramAcceptingApplications(id: string): Promise<boolea
     await ProgramModel.exists({ _id: id, status: "PUBLISHED", acceptsApplications: true }),
   );
 }
+
+/** Every program, drafts included, by title. For staff filters. */
+export async function listProgramOptions(): Promise<{ id: string; title: string }[]> {
+  await connectDb();
+  const programs = await ProgramModel.find({}, { title: 1 }).sort({ title: 1 }).lean();
+  return programs.map((program) => ({ id: program._id.toString(), title: program.title }));
+}

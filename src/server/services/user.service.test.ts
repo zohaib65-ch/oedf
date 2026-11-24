@@ -120,10 +120,14 @@ describe("getUsers", () => {
     await createUser(admin, newUser("one@example.org"));
     await createUser(admin, { ...newUser("two@example.org"), role: "STAFF", name: "Zed Worker" });
 
-    expect((await getUsers({ page: 1, pageSize: 20, q: "zed" })).items.map((u) => u.email)).toEqual(
-      ["two@example.org"],
-    );
-    expect((await getUsers({ page: 1, pageSize: 20, role: "DIRECTOR" })).total).toBe(1);
+    expect(
+      (await getUsers({ page: 1, pageSize: 20, q: "zed", sort: "-createdAt" })).items.map(
+        (u) => u.email,
+      ),
+    ).toEqual(["two@example.org"]);
+    expect(
+      (await getUsers({ page: 1, pageSize: 20, role: "DIRECTOR", sort: "-createdAt" })).total,
+    ).toBe(1);
   });
 });
 

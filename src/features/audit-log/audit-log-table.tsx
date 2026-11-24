@@ -1,11 +1,20 @@
 "use client";
 
-import { DataTable, type DataTableColumn } from "@/components/portal/data-table";
+import {
+  DataTable,
+  type DataTableColumn,
+  type DataTableSorting,
+} from "@/components/portal/data-table";
 import { formatDateTime } from "@/lib/format";
 import type { AuditLogRecord } from "@/server/repositories/audit-log.repository";
 
 const columns: DataTableColumn<AuditLogRecord>[] = [
-  { id: "when", header: "When", cell: (entry) => formatDateTime(entry.createdAt) },
+  {
+    id: "when",
+    header: "When",
+    sortKey: "createdAt",
+    cell: (entry) => formatDateTime(entry.createdAt),
+  },
   { id: "who", header: "Who", cell: (entry) => entry.actorName },
   {
     id: "action",
@@ -33,8 +42,20 @@ const columns: DataTableColumn<AuditLogRecord>[] = [
   { id: "ip", header: "IP address", cell: (entry) => entry.ipAddress },
 ];
 
-export function AuditLogTable({ entries }: { entries: AuditLogRecord[] }) {
+export function AuditLogTable({
+  entries,
+  sorting,
+}: {
+  entries: AuditLogRecord[];
+  sorting: DataTableSorting;
+}) {
   return (
-    <DataTable label="Audit log" columns={columns} rows={entries} getRowId={(entry) => entry.id} />
+    <DataTable
+      label="Audit log"
+      columns={columns}
+      rows={entries}
+      getRowId={(entry) => entry.id}
+      sorting={sorting}
+    />
   );
 }

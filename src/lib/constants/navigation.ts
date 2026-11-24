@@ -133,6 +133,18 @@ export const PORTAL_NAV: readonly PortalNavLink[] = [
     icon: LayoutDashboard,
     permission: "dashboard:read",
   },
+  {
+    label: "Applications",
+    href: "/portal/applications",
+    icon: ClipboardList,
+    permission: "applications:read",
+  },
+  {
+    label: "Scholarship awards",
+    href: "/portal/scholarship-awards",
+    icon: Award,
+    permission: "awards:read",
+  },
   { label: "Users", href: "/portal/users", icon: UsersIcon, permission: "users:manage" },
   { label: "Settings", href: "/portal/settings", icon: SettingsIcon, permission: "settings:read" },
   { label: "Audit log", href: "/portal/audit-log", icon: ScrollTextIcon, permission: "audit:read" },

@@ -65,13 +65,13 @@ function toQuery(filter: AuditLogFilter) {
 /** One page of the audit log, newest first. The user agent is not part of the list. */
 export async function listAuditEntries(
   filter: AuditLogFilter,
-  paging: { page: number; pageSize: number },
+  paging: { page: number; pageSize: number; direction: "asc" | "desc" },
 ): Promise<{ items: AuditLogRecord[]; total: number }> {
   await connectDb();
   const query = toQuery(filter);
   const [rows, total] = await Promise.all([
     AuditLogModel.find(query, { userAgent: 0 })
-      .sort({ createdAt: -1, _id: -1 })
+      .sort(paging.direction === "asc" ? { createdAt: 1, _id: 1 } : { createdAt: -1, _id: -1 })
       .skip((paging.page - 1) * paging.pageSize)
       .limit(paging.pageSize)
       .lean(),

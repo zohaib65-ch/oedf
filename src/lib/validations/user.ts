@@ -1,7 +1,14 @@
 import { z } from "zod";
 
 import { ROLES } from "@/lib/constants/enums";
-import { emailText, listQuerySchema, nameText, objectIdText } from "@/lib/validations/common";
+import {
+  emailText,
+  filterEnum,
+  listQuerySchema,
+  nameText,
+  objectIdText,
+  sortParam,
+} from "@/lib/validations/common";
 
 const roleChoice = z.enum(ROLES, { error: "Choose a role" });
 
@@ -22,16 +29,11 @@ export const updateUserSchema = z
   .partial()
   .refine((value) => Object.keys(value).length > 0, "Nothing to change");
 
-/** The role filter's "All roles" choice. It means no filter, and never reaches a query. */
-export const ALL_ROLES = "ALL";
+const USER_SORT_FIELDS = ["name", "email", "role", "createdAt"] as const;
 
 export const listUsersQuerySchema = listQuerySchema.extend({
-  role: z
-    .preprocess(
-      (value) => (value === ALL_ROLES || value === "" ? undefined : value),
-      z.enum(ROLES).optional(),
-    )
-    .catch(undefined),
+  role: filterEnum(ROLES),
+  sort: sortParam(USER_SORT_FIELDS, "-createdAt"),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;

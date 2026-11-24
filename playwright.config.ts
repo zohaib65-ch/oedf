@@ -1,4 +1,12 @@
+import { existsSync } from "node:fs";
+
 import { defineConfig, devices } from "@playwright/test";
+
+// Tests that prepare their own records (tests/e2e/db.ts) use the same database as the app. CI sets
+// the variables in the workflow instead of a file.
+if (existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
 
 const PORT = Number(process.env.PORT ?? 3000);
 const BASE_URL = `http://localhost:${PORT}`;

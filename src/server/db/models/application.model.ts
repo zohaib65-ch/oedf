@@ -94,6 +94,9 @@ const applicationSchema = new Schema(
 );
 
 applicationSchema.index({ status: 1, type: 1, createdAt: -1 });
+applicationSchema.index({ createdAt: -1 });
+applicationSchema.index({ programId: 1 });
+applicationSchema.index({ "applicant.city": 1 });
 applicationSchema.index({ "applicant.email": 1 });
 applicationSchema.index({ "applicant.cnic": 1 });
 applicationSchema.index({ "applicant.fullName": "text", referenceNumber: "text" });

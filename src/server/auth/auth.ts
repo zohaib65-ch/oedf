@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { getServerEnv } from "@/env";
 import type { ROLES } from "@/lib/constants/enums";
+import { MIN_PASSWORD_LENGTH } from "@/lib/validations/auth";
 import { connectDb } from "@/server/db/connection";
 import { sendEmail } from "@/server/email/send-email";
 import { PasswordLinkEmail } from "@/server/email/templates/password-link-email";
@@ -24,7 +25,6 @@ const STAFF_ROLES = {
   STAFF: accessControl.newRole(userAc.statements),
 } satisfies Record<(typeof ROLES)[number], unknown>;
 
-const MIN_PASSWORD_LENGTH = 12;
 const SECONDS_PER_MINUTE = 60;
 const SIGN_IN_ATTEMPTS_PER_MINUTE = 5;
 const PASSWORD_REQUESTS_PER_MINUTE = 3;

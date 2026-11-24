@@ -21,3 +21,25 @@ const dateTimeFormat = new Intl.DateTimeFormat("en-GB", {
 export function formatDateTime(iso: string): string {
   return dateTimeFormat.format(new Date(iso));
 }
+
+const rupeeFormat = new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 });
+
+/** Whole rupees such as "Rs 12,500". */
+export function formatPkr(amount: number): string {
+  return `Rs ${rupeeFormat.format(amount)}`;
+}
+
+/** A stored day (YYYY-MM-DD) such as "24 November 2026". */
+export function formatDay(day: string): string {
+  return formatDate(new Date(`${day}T00:00:00Z`));
+}
+
+const KILOBYTE = 1024;
+
+/** A file size such as "240 KB" or "1.2 MB". */
+export function formatBytes(bytes: number): string {
+  if (bytes < KILOBYTE * KILOBYTE) {
+    return `${Math.max(1, Math.round(bytes / KILOBYTE))} KB`;
+  }
+  return `${(bytes / (KILOBYTE * KILOBYTE)).toFixed(1)} MB`;
+}
