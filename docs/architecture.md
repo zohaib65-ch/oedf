@@ -4,16 +4,16 @@ One Next.js application: public website, staff portal (`/portal`) and REST API (
 
 ## Stack and key decisions
 
-| Area       | Choice                                                                                      | Why / consequence                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Framework  | Next.js 16.4, App Router, Turbopack, Cache Components on                                    | Data is dynamic by default; public reads opt in to caching                                           |
-| Language   | TypeScript 6.0 (`strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`)                 | Not 7: `typescript-eslint` supports below 6.1 only. Revisit when it adds support                     |
-| Styling    | Tailwind CSS v4 through `@tailwindcss/postcss`, shadcn/ui on Radix                          | The setup the Next.js docs describe (the starter's `@tailwindcss/turbopack` loader is undocumented)  |
-| Database   | MongoDB 8 + Mongoose 9, as a replica set                                                    | Transactions need a replica set. No Prisma: it does not support MongoDB in its current major version |
-| Auth       | Better Auth + MongoDB adapter                                                               | Staff email and password; no public sign-up                                                          |
-| Validation | Zod 4, shared by forms and API                                                              | One schema validates in the form and again in the API                                                |
-| Tooling    | npm, Node 24, ESLint (strict type-checked), Prettier, Knip, Husky, Vitest, Playwright + axe | Knip enforces "no unused code"; dependencies are added only when used                                |
-| Logging    | pino                                                                                        | Server only; never logs secrets or personal documents                                                |
+| Area       | Choice                                                                                        | Why / consequence                                                                                                                                                              |
+| ---------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Framework  | Next.js 16.4, App Router, Turbopack, Cache Components on                                      | Data is dynamic by default; public reads opt in to caching                                                                                                                     |
+| Language   | TypeScript 6.0 (`strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`)                   | Not 7: `typescript-eslint` supports below 6.1 only. Revisit when it adds support                                                                                               |
+| Styling    | Tailwind CSS v4 through `@tailwindcss/postcss`, shadcn/ui on Radix                            | The setup the Next.js docs describe (the starter's `@tailwindcss/turbopack` loader is undocumented)                                                                            |
+| Database   | MongoDB 8 + Mongoose 9, as a replica set                                                      | Transactions need a replica set. No Prisma: it does not support MongoDB in its current major version                                                                           |
+| Auth       | Better Auth + MongoDB adapter                                                                 | Staff email and password; no public sign-up                                                                                                                                    |
+| Validation | Zod 4, shared by forms and API                                                                | One schema validates in the form and again in the API                                                                                                                          |
+| Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky, Vitest, Playwright + axe | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
+| Logging    | pino                                                                                          | Server only; never logs secrets or personal documents                                                                                                                          |
 
 Later phases add Cloudinary, Nodemailer with React Email, Tiptap, TanStack Query and Table, React Hook Form and Turnstile (see the project brief).
 
@@ -22,7 +22,7 @@ Decisions with consequences:
 - **One service layer and one API.** Every client-side read and write goes through `/api/v1`; there are no Server Actions for data changes. Server Components call services directly and never call the app's own API over HTTP.
 - **`mongodb` is a direct dependency** (it is the peer dependency of Better Auth's Mongo adapter), so Mongoose and the adapter share one driver copy and Better Auth can reuse Mongoose's client for transactions.
 - **npm** with a committed `package-lock.json`. Install scripts are allow-listed in `package.json` (`allowScripts`): `esbuild` and `mongodb-memory-server` run, `fsevents` does not.
-- **shadcn components import `cn` from the `cn` package**, and `shadcn add` installs it. Nothing in the repo uses it yet, so it is not installed.
+- **shadcn components import `cn` from the `cn` package** (not from `src/lib/utils.ts`). `src/components/ui/` and `src/hooks/use-mobile.ts` are CLI output: ESLint skips them and Knip ignores their unused exports, but Prettier and TypeScript still check them.
 
 ## Layers
 
@@ -72,7 +72,7 @@ sequenceDiagram
 | `NOT_FOUND`        | 404    | `INTERNAL_ERROR`    | 500    |
 
 - **Connection:** one Mongoose connection cached on `globalThis` (no new connection per hot reload), `sanitizeFilter` on (request input can never inject query operators), `autoIndex` off in production.
-- **Caching:** public service reads will use `"use cache"` with `cacheLife` and `cacheTag`, invalidated after writes (Phase 3). Portal data is per-user and never cached on the server.
+- **Caching:** public service reads use `"use cache"` with `cacheLife` and `cacheTag` (settings: tag `settings`, hours), invalidated after writes. A component that reads them calls `await connection()` first and sits in a `<Suspense>`, so the data is fetched at request time and `npm run build` never needs a database. Portal data is per-user and never cached on the server.
 - **Environment:** `src/env.ts` validates variables with Zod; `next.config.ts` runs it on every start and build, so the app refuses to run with a bad variable.
 
 ## Folder structure
@@ -84,10 +84,13 @@ docs/                         five documents, plus reference/ (client files, kep
 public/brand/                 OEDF logos only
 scripts/                      seed.ts, sync-indexes.ts
 src/
-  app/                        (site)/ pages, api/auth/[...all], api/v1/health, layout, globals.css, icons
-  lib/constants/              enums.ts, departments.ts, site.ts
+  app/                        (site)/ (layout, home, error), portal/(dashboard)/, api/auth/[...all], api/v1/health, not-found, global-error, layout, globals.css, icons
+  components/                 ui/ (shadcn), shared/, site/, portal/
+  hooks/                      use-mobile.ts (shadcn)
+  lib/                        constants/ (enums, departments, site, navigation, labels), auth-client.ts
+  lib/constants/              (see above)
   server/
-    auth/auth.ts              Better Auth instance
+    auth/                     auth.ts (Better Auth), session.ts (requireSession)
     db/                       connection.ts, define-model.ts, models/ (one per collection, all-models.ts, shared.schema.ts)
     http/                     handler.ts, errors.ts, responses.ts
     lib/logger.ts
@@ -99,8 +102,8 @@ tests/                        e2e/, global-setup.ts (one in-memory replica set),
 - Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/`. `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
 - Route files stay short: load data, compose components. Unit tests sit next to the file they test. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script and its test, not a barrel).
 - Only `src/server/storage/cloudinary.ts` will talk to the Cloudinary SDK.
-- Planned: `src/components/` (Phase 2), `src/features/` and `src/content/` (Phase 3 on), `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
-- Adding the first animated shadcn component: add `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"` to `globals.css` (both packages installed by `shadcn init`).
+- Planned: `src/features/` and `src/content/` (Phase 3 on), `src/lib/api/` and `src/providers/` (Phase 5), `src/server/email/`, `storage/`, `security/` (Phase 4), `src/proxy.ts` (Phase 5).
+- `globals.css` imports `tw-animate-css` and `shadcn/tailwind.css` (dev dependencies) for the animated shadcn components. The shared gold button is `CtaButton`, a variant wrapper in `shared/`.
 
 ## Auth and permissions
 

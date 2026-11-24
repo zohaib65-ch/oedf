@@ -16,6 +16,8 @@ env:
   BETTER_AUTH_SECRET: ci-only-secret-that-is-at-least-32-characters
   BETTER_AUTH_URL: http://localhost:3000
   LOG_LEVEL: warn
+  SEED_ADMIN_EMAIL: ci-admin@example.org
+  SEED_ADMIN_PASSWORD: ci-only-password-123
 
 jobs:
   quality:
@@ -62,6 +64,7 @@ jobs:
           docker exec mongo mongosh --quiet --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"
           until docker exec mongo mongosh --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 1; done
       - run: npm ci
+      - run: npm run db:seed
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e

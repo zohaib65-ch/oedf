@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT ?? 3000);
 const BASE_URL = `http://localhost:${PORT}`;
 const isCi = Boolean(process.env.CI);
 
@@ -15,8 +15,19 @@ export default defineConfig({
   reporter: isCi ? "github" : "list",
   use: { baseURL: BASE_URL, trace: "on-first-retry" },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], channel: browserChannel } },
-    { name: "mobile", use: { ...devices["Pixel 7"], channel: browserChannel } },
+    { name: "setup", testMatch: /auth\.setup\.ts/, use: { channel: browserChannel } },
+    {
+      name: "desktop",
+      testIgnore: /auth\.setup\.ts/,
+      dependencies: ["setup"],
+      use: { ...devices["Desktop Chrome"], channel: browserChannel },
+    },
+    {
+      name: "mobile",
+      testIgnore: /auth\.setup\.ts/,
+      dependencies: ["setup"],
+      use: { ...devices["Pixel 7"], channel: browserChannel },
+    },
   ],
   webServer: {
     command: "npm run start",

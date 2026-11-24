@@ -210,7 +210,7 @@ Inner pages: About, Governance (banner, alternating light sections); Departments
 
 ## Shared components
 
-Planned for Phase 2 onward. None are built yet. Install a shadcn component only when a screen uses it, and use theme tokens only.
+**Built in Phase 2:** `Logo` (full logo only; `isOnDark` adds the white plate), `Container`, `Section`, `PageHero`, `CtaButton` (gold and light variants), `EmptyState`, the site `Header`, `MainNav`, `MobileNav`, `AnnouncementBar`, `Footer`, `CtaBand` and `SiteShell`, and the portal `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu` and `PortalShell`. **The rest are built in the phase whose screens use them** (an unused component fails Knip). Install a shadcn component only when a screen uses it, and use theme tokens only.
 
 | Component                                                                      | Purpose                                                                                  |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
