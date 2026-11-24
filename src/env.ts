@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Only three variables are always required (site URL, database, auth secret). Everything else is
+// Only four variables are always required (site URL, database, auth secret, Cloudinary folder). Everything else is
 // optional locally and required only on a real deployment, which is any build whose site URL is
 // not localhost. Locally, mail goes to Mailpit, and uploads and the spam check report that they
 // are not configured. See docs/setup-and-deployment.md.
@@ -25,6 +25,11 @@ const serverEnvSchema = publicEnvSchema.extend({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   MONGODB_URI: z.string().regex(/^mongodb(\+srv)?:\/\//, "Must be a MongoDB connection string"),
   BETTER_AUTH_SECRET: z.string().min(MIN_SECRET_LENGTH, "Must be at least 32 characters"),
+  // The Cloudinary folder every upload goes into. Set per environment (see docs), never derived,
+  // so a preview deployment cannot write into the production folder.
+  CLOUDINARY_FOLDER: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9-]*$/, "Must be lowercase letters, digits and hyphens, e.g. oedf-dev"),
   // Cloudinary's "API environment variable": cloudinary://<api key>:<api secret>@<cloud name>.
   CLOUDINARY_URL: optional(
     z

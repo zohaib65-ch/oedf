@@ -50,9 +50,9 @@ function getCloudinary() {
   return cloudinary;
 }
 
-/** One folder per environment, so development uploads never mix with production ones. */
+/** One folder per environment (CLOUDINARY_FOLDER), so previews and development never mix with production. */
 function getRootFolder(): string {
-  return getServerEnv().IS_DEPLOYMENT ? "oedf" : "oedf-dev";
+  return getServerEnv().CLOUDINARY_FOLDER;
 }
 
 function getPurposePrefix(purpose: PublicUploadPurpose): string {

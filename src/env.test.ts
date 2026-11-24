@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { getServerEnv } from "@/env";
 
 const REQUIRED_ENV = {
+  CLOUDINARY_FOLDER: "oedf-dev",
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
   MONGODB_URI: "mongodb://localhost:27017/oedf?replicaSet=rs0",
   BETTER_AUTH_SECRET: "a-secret-with-at-least-thirty-two-characters",
@@ -37,7 +38,7 @@ afterEach(() => {
 });
 
 describe("getServerEnv", () => {
-  it("needs only the three required variables and leaves the rest unset or on a local default", async () => {
+  it("needs only the four required variables and leaves the rest unset or on a local default", async () => {
     stubRequiredEnv();
 
     const env = (await loadFreshEnvModule()).getServerEnv();
