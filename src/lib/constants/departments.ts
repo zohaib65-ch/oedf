@@ -80,3 +80,26 @@ export const DEPARTMENTS: readonly DepartmentSeed[] = [
     order: 5,
   },
 ];
+
+/** Public pages that belong to each office, shown on its page. */
+export const DEPARTMENT_RELATED_PAGES: Record<
+  DepartmentSeed["code"],
+  readonly { label: string; href: string }[]
+> = {
+  CEO_OFFICE: [
+    { label: "News and events", href: "/news" },
+    { label: "Frequently asked questions", href: "/faqs" },
+    { label: "Governance", href: "/governance" },
+  ],
+  ADMISSIONS_SCHOLARSHIPS: [
+    { label: "Admissions", href: "/admissions" },
+    { label: "Scholarships", href: "/scholarships" },
+    { label: "Application status", href: "/application-status" },
+  ],
+  HR_TEACHER_MANAGEMENT: [{ label: "Careers and open vacancies", href: "/careers" }],
+  INSTITUTIONAL_DEVELOPMENT: [
+    { label: "Programs", href: "/programs" },
+    { label: "Institutions", href: "/institutions" },
+  ],
+  RESEARCH_POLICY: [{ label: "Research and publications", href: "/research" }],
+};

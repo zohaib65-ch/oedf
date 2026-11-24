@@ -183,7 +183,7 @@ Missing: a transparent or SVG logo, a white version, an icon-only mark (see [ope
 
 ## Section mapping
 
-Reference home page, in order, and the OEDF equivalent. Pages built in Phase 3.
+Reference home page, in order, and the OEDF equivalent. Built in Phase 3, with the exceptions in [open-questions.md](open-questions.md) (D9 to D14).
 
 | #      | Reference section                                   | Surface             | OEDF equivalent                                                                                                                                                    |
 | ------ | --------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -210,7 +210,7 @@ Inner pages: About, Governance (banner, alternating light sections); Departments
 
 ## Shared components
 
-**Built in Phase 2:** `Logo` (full logo only; `isOnDark` adds the white plate), `Container`, `Section`, `PageHero`, `CtaButton` (gold and light variants), `EmptyState`, the site `Header`, `MainNav`, `MobileNav`, `TopBar`, `Footer`, `CtaBand` and `SiteShell`, and the portal `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu` and `PortalShell`. **The rest are built in the phase whose screens use them** (an unused component fails Knip). Install a shadcn component only when a screen uses it, and use theme tokens only.
+**Built in Phase 2:** `Logo` (full logo only; `isOnDark` adds the white plate), `Container`, `Section`, `PageHero`, `CtaButton` (gold and light variants), `EmptyState`, the site `Header`, `MainNav`, `MobileNav`, `TopBar`, `Footer`, `CtaBand`, `SiteShell`, and, in Phase 3, the shared `SectionHeading`, `IconCard`, `LinkCard`, `FilterChips`, `Pagination`, `DetailSection`, `FactsCard`, `ProseBlock`, `PlainTextContent`, `DraftNotice`, `BackLink`, `JsonLd`, loading skeletons, and the site cards `ProgramCard`, `InstitutionCard`, `NewsCard`, `PublicationCard`, `DepartmentCard`, `ClosingCta`, and the portal `AppSidebar`, `Topbar`, `PageHeader`, `UserMenu` and `PortalShell`. **The rest are built in the phase whose screens use them** (an unused component fails Knip). Install a shadcn component only when a screen uses it, and use theme tokens only.
 
 | Component                                                                | Purpose                                                                                  |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
