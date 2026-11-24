@@ -45,6 +45,8 @@ Derived, so not variables: the log level (debug in development, info in producti
 
 ## Testing
 
+**Never point `db:seed`, `db:seed:sample` or the e2e tests at the production database.** They write and delete data. `.env` always holds the local Docker database; the production `MONGODB_URI` (Atlas) is set only in the host's Production environment variables.
+
 A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e` pass.
 
 - **Unit and integration (Vitest):** tests sit next to the code (`*.test.ts`). `tests/global-setup.ts` starts one in-memory MongoDB replica set; `tests/setup.ts` gives each test file its own empty database and stubs `server-only`. Mongoose is never mocked. Tests in one file share its database, so clear collections in `beforeEach` when a test needs a clean state. Test variables are in `vitest.config.ts`. Target: 80% or more of lines in `src/server/services/` and `src/lib/validations/` (`npx vitest run --coverage`). Every service function gets the success path, a permission failure and each business-rule failure.
