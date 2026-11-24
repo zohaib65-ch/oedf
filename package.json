@@ -1,26 +1,69 @@
 {
-  "name": "oedf",
+  "name": "oedf-website",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "knip": "knip",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "db:indexes": "tsx --conditions=react-server scripts/sync-indexes.ts",
+    "db:seed": "tsx --conditions=react-server scripts/seed.ts",
+    "check": "npm run lint && npm run typecheck && npm run knip && npm run test",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs,css,json,md,yaml,yml}": "prettier --write",
+    "*.{ts,tsx,mjs}": "eslint --fix"
   },
   "dependencies": {
+    "@better-auth/mongo-adapter": "^1.7.27",
+    "better-auth": "^1.7.27",
+    "mongodb": "^7.9.1",
+    "mongoose": "^9.12.3",
     "next": "16.4.6",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "pino": "^10.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitest/coverage-v8": "^5.1.1",
+    "eslint": "^10.15.0",
     "eslint-config-next": "16.4.6",
-    "tailwindcss": "4.3.3",
-    "typescript": "^5"
+    "husky": "^9.1.7",
+    "knip": "^6.48.0",
+    "lint-staged": "^17.6.2",
+    "mongodb-memory-server": "^11.4.0",
+    "prettier": "^3.10.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
+  },
+  "allowScripts": {
+    "mongodb-memory-server@11.4.0": true,
+    "esbuild@0.28.2": true,
+    "fsevents": false
   }
 }

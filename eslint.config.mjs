@@ -1,18 +1,54 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = defineConfig([
+export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [tseslint.configs.strictTypeChecked],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    settings: {
+      "import/internal-regex": "^@/",
+    },
+    rules: {
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/ban-ts-comment": "error",
+      "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+      "no-console": ["error", { allow: ["info", "warn", "error"] }],
+      "import/order": [
+        "error",
+        {
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          "newlines-between": "always",
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/server/db/models/**/*.ts"],
+    rules: {
+      // Mongoose types schema field options as a class, but schema definitions are plain object
+      // literals by design, so this rule only produces noise here.
+      "@typescript-eslint/no-unsafe-class-instance-assignment": "off",
+    },
+  },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
+    "coverage/**",
+    "playwright-report/**",
     "next-env.d.ts",
   ]),
 ]);
-
-export default eslintConfig;
