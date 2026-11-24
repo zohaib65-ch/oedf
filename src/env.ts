@@ -1,13 +1,10 @@
 import { z } from "zod";
 
 // Only three variables are always required (site URL, database, auth secret). Everything else is
-// optional locally (a development default, or the feature reports it is not configured) and is
-// required only on a real deployment, which is any
-// build whose site URL is not localhost. See docs/setup-and-deployment.md.
+// optional locally and required only on a real deployment, which is any build whose site URL is
+// not localhost. Locally, mail goes to Mailpit, and uploads and the spam check report that they
+// are not configured. See docs/setup-and-deployment.md.
 
-// Cloudflare's public test keys: they always pass, so local forms work without an account.
-const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
-const TURNSTILE_TEST_SECRET_KEY = "1x0000000000000000000000000000000AA";
 // Mailpit, the test inbox that `docker compose up -d` starts (http://localhost:8025).
 const DEV_SMTP_URL = "smtp://localhost:1025";
 const DEV_EMAIL_FROM = "OEDF <no-reply@localhost>";
@@ -79,10 +76,7 @@ export const publicEnv = (() => {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   });
-  return {
-    NEXT_PUBLIC_SITE_URL: env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_TURNSTILE_SITE_KEY: env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? TURNSTILE_TEST_SITE_KEY,
-  };
+  return env;
 })();
 
 function resolveServerEnv(source: unknown) {
@@ -102,10 +96,8 @@ function resolveServerEnv(source: unknown) {
   }
   return {
     ...env,
-    NEXT_PUBLIC_TURNSTILE_SITE_KEY: publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     SMTP_URL: env.SMTP_URL ?? DEV_SMTP_URL,
     EMAIL_FROM: env.EMAIL_FROM ?? DEV_EMAIL_FROM,
-    TURNSTILE_SECRET_KEY: env.TURNSTILE_SECRET_KEY ?? TURNSTILE_TEST_SECRET_KEY,
     /** Undefined in development: uploads report that Cloudinary is not configured. */
     CLOUDINARY_URL: env.CLOUDINARY_URL,
     /** Undefined in development: the cleanup endpoint then refuses every call. */

@@ -91,5 +91,5 @@ Never paste these into chat. They go into `.env.local` (see `docs/setup-and-depl
 
 - MongoDB Atlas connection string (a local single-node replica set is used for development)
 - Cloudinary cloud name, API key and API secret
-- Cloudflare Turnstile site key and secret (official test keys in development)
+- Cloudflare Turnstile site key and secret (for deployment; the spam check is skipped in development)
 - SMTP host, port, user and password (Mailpit locally)

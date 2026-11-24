@@ -37,15 +37,15 @@ afterEach(() => {
 });
 
 describe("getServerEnv", () => {
-  it("needs only the three required variables and falls back to local development defaults", async () => {
+  it("needs only the three required variables and leaves the rest unset or on a local default", async () => {
     stubRequiredEnv();
 
     const env = (await loadFreshEnvModule()).getServerEnv();
     expect(env).toMatchObject(REQUIRED_ENV);
     expect(env.SMTP_URL).toBe("smtp://localhost:1025");
     expect(env.EMAIL_FROM).toBe("OEDF <no-reply@localhost>");
-    expect(env.TURNSTILE_SECRET_KEY).toBe("1x0000000000000000000000000000000AA");
-    expect(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY).toBe("1x00000000000000000000AA");
+    expect(env.TURNSTILE_SECRET_KEY).toBeUndefined();
+    expect(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY).toBeUndefined();
     expect(env.CRON_SECRET).toBeUndefined();
     expect(env.CLOUDINARY_URL).toBeUndefined();
   });
