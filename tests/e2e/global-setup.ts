@@ -21,7 +21,8 @@ export default function globalSetup(): void {
   runTestAccounts("clean");
   const email = `e2e-admin.${String(randomInt(100_000, 999_999))}@example.org`;
   const password = randomBytes(24).toString("base64url");
-  runTestAccounts("create", "--email", email, "--password", password);
+  // `--name=value`: a random password can start with "-", which would read as another option.
+  runTestAccounts("create", `--email=${email}`, `--password=${password}`);
   process.env.E2E_ADMIN_EMAIL = email;
   process.env.E2E_ADMIN_PASSWORD = password;
 }

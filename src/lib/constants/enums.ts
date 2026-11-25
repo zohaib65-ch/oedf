@@ -103,7 +103,11 @@ export const ASSIGNMENT_STATUSES = [
   "IN_PROGRESS",
   "COMPLETED",
   "CLARIFICATION_REQUESTED",
+  "CLOSED",
 ] as const;
+
+/** How the CEO Office settles a clarification: the office carries on, or is released from the directive. */
+export const CLARIFICATION_DECISIONS = ["REOPEN", "CLOSE"] as const;
 
 export const CLARIFICATION_REASONS = [
   "LAW",

@@ -1,10 +1,10 @@
 import { SECP_REGISTRATION_NUMBER, SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants/site";
 import { absoluteUrl } from "@/lib/seo";
 import type { NewsDetail } from "@/server/repositories/news.repository";
-import type { PublicationDetail } from "@/server/repositories/publication.repository";
 import type { PublicSiteSettingsRecord } from "@/server/repositories/site-settings.repository";
 import type { VacancyDetail } from "@/server/repositories/vacancy.repository";
 import type { FaqGroup } from "@/server/services/faq.service";
+import type { PublicPublicationDetail } from "@/server/services/publication.service";
 
 // schema.org structured data for search engines. Every builder returns plain JSON-LD.
 
@@ -109,7 +109,7 @@ export function newsJsonLd(post: NewsDetail) {
   };
 }
 
-export function publicationJsonLd(publication: PublicationDetail) {
+export function publicationJsonLd(publication: PublicPublicationDetail) {
   return {
     "@context": CONTEXT,
     "@type": "Report",

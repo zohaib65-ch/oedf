@@ -1,6 +1,7 @@
 import "server-only";
 import mongoose from "mongoose";
 
+import { FINISHED_ASSIGNMENT_STATUSES } from "@/lib/constants/directive-workflow";
 import { connectDb } from "@/server/db/connection";
 import { ApplicationModel } from "@/server/db/models/application.model";
 import { ContactMessageModel } from "@/server/db/models/contact-message.model";
@@ -8,6 +9,7 @@ import { DirectiveModel } from "@/server/db/models/directive.model";
 import { JobApplicationModel } from "@/server/db/models/job-application.model";
 import { ScholarshipAwardModel } from "@/server/db/models/scholarship-award.model";
 import { VacancyModel } from "@/server/db/models/vacancy.model";
+import { toPakistanDay } from "@/server/lib/day-range";
 
 const DAY_MS = 86_400_000;
 const WEEK_DAYS = 7;
@@ -79,15 +81,17 @@ export async function countAwaitingAcknowledgement(departmentId: string | null):
   });
 }
 
-/** Directives past their due date that an office (or any office) has not completed. */
+/** Directives past their due date that an office (or any office) has not finished. */
 export async function countOverdueDirectives(departmentId: string | null): Promise<number> {
   await connectDb();
   const open = {
-    status: mongoose.trusted({ $ne: "COMPLETED" }),
+    status: mongoose.trusted({ $nin: FINISHED_ASSIGNMENT_STATUSES }),
     ...(departmentId ? { departmentId: new mongoose.Types.ObjectId(departmentId) } : {}),
   };
+  // A due date is a whole day (UTC midnight), so the work is late from the next day on.
+  const today = new Date(`${toPakistanDay(new Date())}T00:00:00Z`);
   return DirectiveModel.countDocuments({
-    dueDate: mongoose.trusted({ $lt: new Date() }),
+    dueDate: mongoose.trusted({ $lt: today }),
     assignments: mongoose.trusted({ $elemMatch: open }),
   });
 }

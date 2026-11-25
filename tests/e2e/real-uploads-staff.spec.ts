@@ -108,3 +108,56 @@ test("a program photo shows on the public site, and a signed agreement opens thr
   expect(file.status()).toBe(200);
   expect((await file.body()).subarray(0, 4).toString()).toBe("%PDF");
 });
+
+test("a published publication's PDF downloads through a short-lived link, and its cover shows", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Uploads run once.");
+  test.setTimeout(120_000);
+  const { png, pdf } = await makeFiles(page);
+
+  const title = `E2E Upload publication ${suffix()}`;
+  await page.goto("/portal/publications/new");
+  await page.getByLabel("Title").fill(title);
+  await choose(page, "Type", "Research report");
+  await page.getByLabel("Summary").fill("A publication with a real PDF and cover.");
+  await choose(page, "Status", "Published");
+  await page.getByLabel("Full PDF").setInputFiles({
+    name: "report.pdf",
+    mimeType: "application/pdf",
+    buffer: pdf,
+  });
+  await expect(page.getByText("report.pdf")).toBeVisible({ timeout: 30_000 });
+  await page.getByLabel("Photo", { exact: true }).setInputFiles({
+    name: "cover.png",
+    mimeType: "image/png",
+    buffer: png,
+  });
+  await expect(page.getByText("cover.png")).toBeVisible({ timeout: 30_000 });
+  await page.getByLabel("Photo description").fill("A navy test cover");
+  await page.getByRole("button", { name: "Save publication" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+
+  const href = await page
+    .getByRole("link", { name: /View on the public site/ })
+    .getAttribute("href");
+  await page.goto(href ?? "/research");
+  const cover = page.getByRole("img", { name: "A navy test cover" });
+  await expect
+    .poll(() => cover.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
+  await capture(page, "real-upload-publication");
+
+  const download = page.getByRole("link", { name: "Download the full PDF" });
+  const redirect = await page.request.get((await download.getAttribute("href")) ?? "", {
+    maxRedirects: 0,
+  });
+  expect(redirect.status()).toBe(302);
+  const location = redirect.headers().location ?? "";
+  const expiresAt = Number(new URL(location).searchParams.get("expires_at"));
+  expect(expiresAt - Date.now() / 1000).toBeLessThanOrEqual(5 * 60 + 5);
+  const file = await page.request.get(location);
+  expect(file.status()).toBe(200);
+  expect((await file.body()).subarray(0, 4).toString()).toBe("%PDF");
+});

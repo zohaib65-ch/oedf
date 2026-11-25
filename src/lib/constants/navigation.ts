@@ -6,6 +6,8 @@ import {
   FilePen,
   FileUser,
   GraduationCap,
+  LibraryBig,
+  Megaphone,
   School,
   LayoutDashboard,
   type LucideIcon,
@@ -159,6 +161,18 @@ export const PORTAL_NAV: readonly PortalNavLink[] = [
     href: "/portal/institutions",
     icon: School,
     permission: "institutions:read",
+  },
+  {
+    label: "Publications",
+    href: "/portal/publications",
+    icon: LibraryBig,
+    permission: "publications:read",
+  },
+  {
+    label: "Directives",
+    href: "/portal/directives",
+    icon: Megaphone,
+    permission: "directives:read",
   },
   {
     label: "Vacancies",

@@ -12,6 +12,7 @@ const PERMISSION_FOR_OWNER: Record<string, Permission> = {
   [FILE_OWNER_TYPES.application]: "applications:read",
   [FILE_OWNER_TYPES.jobApplication]: "job-applications:read",
   [FILE_OWNER_TYPES.institution]: "institutions:read",
+  [FILE_OWNER_TYPES.publication]: "publications:read",
 };
 
 /** A link to a private file that expires after 5 minutes. Every access is written to the audit log. */

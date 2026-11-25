@@ -168,6 +168,11 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **Agreements** keep an optional signed copy as a private `AGREEMENT` file (a `fileAssets` row owned by the institution, opened like any private file). Agreements and reviews never reach the public site.
 - **Web addresses** for vacancies, programs and institutions come from `uniqueSlug` (`src/server/services/slug.service.ts`): made from the title once, numbered when taken, never changed.
 
+## Publications and directives
+
+- **Publications** follow the program rules (Staff draft, a Director publishes, D39) and add a deletion by a Director. The full PDF is a private `PUBLICATION_PDF` file owned by the publication; staff open it like any private file, and visitors get it from `/research/{slug}/pdf`, a route handler that answers only for a published publication with a 5-minute link (D40). Replacing or removing the PDF deletes the old file after the save.
+- **Directives** (`directive.service.ts`) keep one assignment per target office, each with its own status, owner, clarification, `history[]` (status changes with reason) and `updates[]` (progress notes). Every change goes through `moveAssignment`, which writes only while the part still has the status the caller saw and records who, when and why; the allowed moves are in `src/lib/constants/directive-workflow.ts`. Who may act is decided per office (`actsForOffice`) plus the permission: `directives:issue` (Research & Policy), `respond` (the office's Director), `update` (anyone in the office), `resolve` (CEO Office). Overdue directives are counted on the overview, which links to the list filtered to them; overdue rows and parts carry an "Overdue" badge.
+
 ## Coding standards
 
 - **No dead code:** no unused files, exports, components, hooks, dependencies, variables, routes, endpoints or CSS; no commented-out code, `console.log`, `TODO`/`FIXME`, demo pages or abstractions "for later". `npm run knip` reports nothing. (`console.info`, `warn`, `error` are allowed in `scripts/`.)

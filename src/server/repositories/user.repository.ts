@@ -90,6 +90,38 @@ export async function findUserIdByEmail(email: string): Promise<string | null> {
   return user ? user._id.toString() : null;
 }
 
+export interface StaffMember {
+  id: string;
+  name: string;
+  email: string;
+  departmentId: string | null;
+}
+
+/**
+ * Active staff with one of these roles, optionally only in these offices, by name. Used for
+ * notifications and for choosing who owns a piece of work.
+ */
+export async function listActiveStaff(filter: {
+  roles: readonly Role[];
+  departmentIds?: readonly string[];
+}): Promise<StaffMember[]> {
+  const collection = await getUserCollection();
+  const rows = await collection
+    .find({
+      role: { $in: [...filter.roles] },
+      banned: { $ne: true },
+      ...(filter.departmentIds ? { departmentId: { $in: [...filter.departmentIds] } } : {}),
+    })
+    .sort({ name: 1 })
+    .toArray();
+  return rows.map((row) => ({
+    id: row._id.toString(),
+    name: row.name,
+    email: row.email,
+    departmentId: row.departmentId ?? null,
+  }));
+}
+
 /** How many active Super Admins there are, so the last one can never be removed. */
 export async function countActiveSuperAdmins(): Promise<number> {
   const collection = await getUserCollection();

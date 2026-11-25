@@ -168,3 +168,14 @@ export async function deleteVacanciesByTitle(title: string): Promise<void> {
     await db.collection("vacancies").deleteMany({ title });
   });
 }
+
+/** Moves a test directive's due date into the past, which the portal never allows, to show it overdue. */
+export async function makeDirectiveOverdue(id: string): Promise<void> {
+  const yesterday = new Date(Date.now() - 2 * 86_400_000);
+  yesterday.setUTCHours(0, 0, 0, 0);
+  await withDb((db) =>
+    db
+      .collection("directives")
+      .updateOne({ _id: new ObjectId(id) }, { $set: { dueDate: yesterday } }),
+  );
+}

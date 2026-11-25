@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
+import { CtaButton } from "@/components/shared/cta-button";
 import { DetailSection } from "@/components/shared/detail-section";
 import { FactsCard } from "@/components/shared/facts-card";
 import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { ProseBlock } from "@/components/shared/prose-block";
+import { PublicImage } from "@/components/shared/public-image";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { PUBLICATION_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDate } from "@/lib/format";
@@ -47,8 +49,22 @@ export async function PublicationDetail({ params }: { params: Promise<{ slug: st
       <DetailSection
         backHref="/research"
         backLabel="All research"
-        aside={<FactsCard title="Publication details" facts={facts} />}
+        aside={
+          <FactsCard title="Publication details" facts={facts}>
+            {publication.hasPdf ? (
+              // A route that redirects to a short-lived file link, so it is never prefetched.
+              <CtaButton
+                href={`/research/${publication.slug}/pdf`}
+                prefetch={false}
+                className="w-full"
+              >
+                Download the full PDF
+              </CtaButton>
+            ) : null}
+          </FactsCard>
+        }
       >
+        {publication.image ? <PublicImage image={publication.image} /> : null}
         <ProseBlock title="Summary">
           <FormattedText text={publication.summary} />
         </ProseBlock>

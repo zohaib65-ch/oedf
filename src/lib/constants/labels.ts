@@ -2,9 +2,13 @@ import type {
   AGREEMENT_STATUSES,
   APPLICATION_STATUSES,
   APPLICATION_TYPES,
+  ASSIGNMENT_STATUSES,
   AWARD_PERIODS,
   AWARD_STATUSES,
+  CLARIFICATION_DECISIONS,
+  CLARIFICATION_REASONS,
   CONTENT_STATUSES,
+  DIRECTIVE_PRIORITIES,
   DOCUMENT_KINDS,
   EMPLOYMENT_TYPES,
   GENDERS,
@@ -143,6 +147,35 @@ export const CONTENT_STATUS_LABELS = {
   PUBLISHED: "Published",
   ARCHIVED: "Archived",
 } satisfies Record<(typeof CONTENT_STATUSES)[number], string>;
+
+export const DIRECTIVE_PRIORITY_LABELS = {
+  LOW: "Low",
+  NORMAL: "Normal",
+  HIGH: "High",
+  URGENT: "Urgent",
+} satisfies Record<(typeof DIRECTIVE_PRIORITIES)[number], string>;
+
+export const ASSIGNMENT_STATUS_LABELS = {
+  PENDING_ACKNOWLEDGEMENT: "Awaiting acknowledgement",
+  ACKNOWLEDGED: "Acknowledged",
+  IN_PROGRESS: "In progress",
+  COMPLETED: "Completed",
+  CLARIFICATION_REQUESTED: "Clarification requested",
+  CLOSED: "Closed by CEO Office",
+} satisfies Record<(typeof ASSIGNMENT_STATUSES)[number], string>;
+
+export const CLARIFICATION_REASON_LABELS = {
+  LAW: "Conflicts with the law",
+  CONSTITUTIONAL_DOCUMENTS: "Conflicts with the constitutional documents",
+  BOARD_RESOLUTION: "Conflicts with a Board resolution",
+  DONOR_RESTRICTION: "Conflicts with a donor restriction",
+  OPERATIONAL_IMPOSSIBILITY: "Not possible to carry out",
+} satisfies Record<(typeof CLARIFICATION_REASONS)[number], string>;
+
+export const CLARIFICATION_DECISION_LABELS = {
+  REOPEN: "Reopen: the office carries out the directive",
+  CLOSE: "Close: the office is released from the directive",
+} satisfies Record<(typeof CLARIFICATION_DECISIONS)[number], string>;
 
 export const INSTITUTION_STATUS_LABELS = {
   PROPOSED: "Proposed",

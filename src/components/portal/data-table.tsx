@@ -48,6 +48,8 @@ interface DataTableProps<TRow> {
   label: string;
   getRowId: (row: TRow) => string;
   sorting?: DataTableSorting;
+  /** Marks rows that need attention, such as overdue work. The cells must also say why in text. */
+  isRowHighlighted?: (row: TRow) => boolean;
 }
 
 function SortableHeader({
@@ -101,7 +103,14 @@ function HeaderContent<TRow>({
  * The portal's list table, built from shadcn Table. Paging, filters and sorting happen on the
  * server (the page reads them from the URL); a sortable header is a link to the new order.
  */
-export function DataTable<TRow>({ columns, rows, label, getRowId, sorting }: DataTableProps<TRow>) {
+export function DataTable<TRow>({
+  columns,
+  rows,
+  label,
+  getRowId,
+  sorting,
+  isRowHighlighted,
+}: DataTableProps<TRow>) {
   const [hiddenIds, setHiddenIds] = useState<ReadonlySet<string>>(new Set());
   const visibleColumns = columns.filter((column) => !hiddenIds.has(column.id));
 
@@ -165,7 +174,10 @@ export function DataTable<TRow>({ columns, rows, label, getRowId, sorting }: Dat
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={getRowId(row)}>
+              <TableRow
+                key={getRowId(row)}
+                className={isRowHighlighted?.(row) ? "bg-destructive/5" : undefined}
+              >
                 {visibleColumns.map((column) => (
                   <TableCell key={column.id}>{column.cell(row)}</TableCell>
                 ))}

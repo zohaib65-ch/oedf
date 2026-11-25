@@ -46,8 +46,9 @@ async function createAdmin(email: string, password: string): Promise<void> {
 type Db = NonNullable<typeof mongoose.connection.db>;
 
 /**
- * Deletes from Cloudinary the files the real-upload tests saved: photos of test programs and
- * institutions, and the signed copies of their agreements (and those files' records).
+ * Deletes from Cloudinary the files the real-upload tests saved: photos of test programs,
+ * institutions and publications, agreements' signed copies and publication PDFs (and those
+ * files' records).
  */
 async function deleteTestFiles(db: Db): Promise<void> {
   const programs = await db
@@ -61,10 +62,29 @@ async function deleteTestFiles(db: Db): Promise<void> {
   const photoIds = [...programs, ...institutions]
     .map((record) => (record.image as { publicId?: string } | undefined)?.publicId)
     .filter((publicId): publicId is string => typeof publicId === "string");
+  const publications = await db
+    .collection("publications")
+    .find({ title: /^E2E / }, { projection: { cover: 1 } })
+    .toArray();
+  const coverIds = publications
+    .map((record) => (record.cover as { publicId?: string } | undefined)?.publicId)
+    .filter((publicId): publicId is string => typeof publicId === "string");
+  photoIds.push(...coverIds);
   const files = await db
     .collection("fileAssets")
     .find(
-      { "owner.type": "Institution", "owner.id": { $in: institutions.map((item) => item._id) } },
+      {
+        $or: [
+          {
+            "owner.type": "Institution",
+            "owner.id": { $in: institutions.map((item) => item._id) },
+          },
+          {
+            "owner.type": "Publication",
+            "owner.id": { $in: publications.map((item) => item._id) },
+          },
+        ],
+      },
       { projection: { publicId: 1, resourceType: 1 } },
     )
     .toArray();
@@ -111,6 +131,8 @@ async function clean(): Promise<void> {
     db.collection("vacancies").deleteMany({ $or: [{ title: /^E2E / }, { slug: /^e2e-/ }] }),
     db.collection("programs").deleteMany({ title: /^E2E / }),
     db.collection("institutions").deleteMany({ name: /^E2E / }),
+    db.collection("publications").deleteMany({ title: /^E2E / }),
+    db.collection("directives").deleteMany({ title: /^E2E / }),
     db.collection("contactMessages").deleteMany({ email: { $in: TEST_MESSAGE_EMAILS } }),
   ]);
   await db.collection("user").deleteMany({ _id: { $in: userIds } });

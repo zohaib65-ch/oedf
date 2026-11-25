@@ -6,10 +6,14 @@ const PUBLIC_UPLOAD_PURPOSES = [
   "CV",
 ] as const satisfies readonly (typeof FILE_PURPOSES)[number][];
 
-/** Files staff upload from the portal: public images and private agreement documents. */
+/**
+ * Files staff upload from the portal: public images, private agreement documents and publication
+ * PDFs (private on Cloudinary; visitors download a published one through a short-lived link).
+ */
 export const STAFF_UPLOAD_PURPOSES = [
   "IMAGE",
   "AGREEMENT",
+  "PUBLICATION_PDF",
 ] as const satisfies readonly (typeof FILE_PURPOSES)[number][];
 
 export const UPLOAD_PURPOSES = [...PUBLIC_UPLOAD_PURPOSES, ...STAFF_UPLOAD_PURPOSES] as const;
@@ -48,6 +52,12 @@ export const UPLOAD_RULES = {
     formats: ["pdf"],
     label: "PDF",
     folder: "agreements",
+    deliveryType: "authenticated",
+  },
+  PUBLICATION_PDF: {
+    formats: ["pdf"],
+    label: "PDF",
+    folder: "publications",
     deliveryType: "authenticated",
   },
 } as const satisfies Record<
