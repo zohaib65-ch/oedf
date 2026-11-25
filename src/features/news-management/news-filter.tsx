@@ -18,7 +18,6 @@ export function NewsFilter({ query }: { query: ListNewsQuery }) {
         value={query.status}
         options={toOptions(CONTENT_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="news-type"
@@ -27,7 +26,6 @@ export function NewsFilter({ query }: { query: ListNewsQuery }) {
         value={query.type}
         options={toOptions(NEWS_TYPE_LABELS)}
         allLabel="News and events"
-        className="w-44"
       />
     </FilterBar>
   );

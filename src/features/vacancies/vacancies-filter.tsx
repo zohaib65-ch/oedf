@@ -22,7 +22,7 @@ export function VacanciesFilter({ query, offices }: VacanciesFilterProps) {
         label="Search"
         value={query.q}
         placeholder="Title or city"
-        className="w-56"
+        size="lg"
       />
       <FilterSelect
         id="vacancies-status"
@@ -31,7 +31,6 @@ export function VacanciesFilter({ query, offices }: VacanciesFilterProps) {
         value={query.status}
         options={toOptions(VACANCY_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="vacancies-office"
@@ -40,7 +39,7 @@ export function VacanciesFilter({ query, offices }: VacanciesFilterProps) {
         value={query.departmentId}
         options={offices}
         allLabel="All offices"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="vacancies-type"
@@ -49,7 +48,6 @@ export function VacanciesFilter({ query, offices }: VacanciesFilterProps) {
         value={query.type}
         options={toOptions(EMPLOYMENT_TYPE_LABELS)}
         allLabel="All types"
-        className="w-40"
       />
     </FilterBar>
   );

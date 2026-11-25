@@ -28,7 +28,6 @@ export function InstitutionsFilter({ query }: { query: ListInstitutionsQuery }) 
         value={query.status}
         options={toOptions(INSTITUTION_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="institutions-type"
@@ -37,7 +36,6 @@ export function InstitutionsFilter({ query }: { query: ListInstitutionsQuery }) 
         value={query.type}
         options={toOptions(INSTITUTION_TYPE_LABELS)}
         allLabel="All types"
-        className="w-44"
       />
     </FilterBar>
   );

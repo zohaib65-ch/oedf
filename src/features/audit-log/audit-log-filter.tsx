@@ -23,22 +23,8 @@ export function AuditLogFilter({ query }: { query: AuditLogQuery }) {
         value={query.action}
         placeholder="For example user.created"
       />
-      <FilterInput
-        id="audit-from"
-        name="from"
-        label="From"
-        type="date"
-        value={query.from}
-        className="w-44"
-      />
-      <FilterInput
-        id="audit-to"
-        name="to"
-        label="To"
-        type="date"
-        value={query.to}
-        className="w-44"
-      />
+      <FilterInput id="audit-from" name="from" label="From" type="date" value={query.from} />
+      <FilterInput id="audit-to" name="to" label="To" type="date" value={query.to} />
     </FilterBar>
   );
 }

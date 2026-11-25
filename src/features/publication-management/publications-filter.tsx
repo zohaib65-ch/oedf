@@ -24,7 +24,6 @@ export function PublicationsFilter({ query }: { query: ListPublicationsQuery }) 
         value={query.status}
         options={toOptions(CONTENT_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="publications-type"
@@ -33,7 +32,6 @@ export function PublicationsFilter({ query }: { query: ListPublicationsQuery }) 
         value={query.type}
         options={toOptions(PUBLICATION_TYPE_LABELS)}
         allLabel="All types"
-        className="w-48"
       />
     </FilterBar>
   );

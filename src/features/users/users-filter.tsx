@@ -16,7 +16,7 @@ export function UsersFilter({ query }: { query: ListUsersQuery }) {
         label="Search"
         value={query.q}
         placeholder="Name or email"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="users-role"
@@ -25,7 +25,6 @@ export function UsersFilter({ query }: { query: ListUsersQuery }) {
         value={query.role}
         options={ROLE_OPTIONS}
         allLabel="All roles"
-        className="w-44"
       />
     </FilterBar>
   );

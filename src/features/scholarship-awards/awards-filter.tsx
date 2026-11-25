@@ -16,7 +16,7 @@ export function AwardsFilter({ query }: { query: ListAwardsQuery }) {
         label="Search"
         value={query.q}
         placeholder="Student or reference"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="awards-status"
@@ -25,7 +25,6 @@ export function AwardsFilter({ query }: { query: ListAwardsQuery }) {
         value={query.status}
         options={toOptions(AWARD_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterInput
         id="awards-renewal"
@@ -33,7 +32,6 @@ export function AwardsFilter({ query }: { query: ListAwardsQuery }) {
         label="Renewal on or before"
         type="date"
         value={query.renewalBefore}
-        className="w-44"
       />
     </FilterBar>
   );

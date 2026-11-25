@@ -18,7 +18,6 @@ export function ProgramsFilter({ query }: { query: ListProgramsQuery }) {
         value={query.status}
         options={toOptions(CONTENT_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="programs-category"
@@ -27,7 +26,6 @@ export function ProgramsFilter({ query }: { query: ListProgramsQuery }) {
         value={query.category}
         options={toOptions(PROGRAM_CATEGORY_LABELS)}
         allLabel="All categories"
-        className="w-44"
       />
     </FilterBar>
   );

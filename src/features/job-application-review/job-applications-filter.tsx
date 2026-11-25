@@ -22,7 +22,7 @@ export function JobApplicationsFilter({ query, vacancies }: JobApplicationsFilte
         label="Search"
         value={query.q}
         placeholder="Name, reference or CNIC"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="job-applications-vacancy"
@@ -31,7 +31,7 @@ export function JobApplicationsFilter({ query, vacancies }: JobApplicationsFilte
         value={query.vacancyId}
         options={vacancies}
         allLabel="All vacancies"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="job-applications-status"
@@ -40,7 +40,6 @@ export function JobApplicationsFilter({ query, vacancies }: JobApplicationsFilte
         value={query.status}
         options={toOptions(JOB_APPLICATION_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="job-applications-view"
@@ -49,7 +48,6 @@ export function JobApplicationsFilter({ query, vacancies }: JobApplicationsFilte
         value={query.view}
         options={[{ value: "ARCHIVED", label: "Archived" }]}
         allLabel="In progress"
-        className="w-40"
       />
     </FilterBar>
   );

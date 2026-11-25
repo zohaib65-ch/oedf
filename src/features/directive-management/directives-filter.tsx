@@ -30,7 +30,7 @@ export function DirectivesFilter({ query }: { query: ListDirectivesQuery }) {
         value={query.status}
         options={toOptions(ASSIGNMENT_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-56"
+        size="lg"
       />
       <FilterSelect
         id="directives-priority"
@@ -39,7 +39,6 @@ export function DirectivesFilter({ query }: { query: ListDirectivesQuery }) {
         value={query.priority}
         options={toOptions(DIRECTIVE_PRIORITY_LABELS)}
         allLabel="All priorities"
-        className="w-40"
       />
       <FilterSelect
         id="directives-show"
@@ -48,7 +47,6 @@ export function DirectivesFilter({ query }: { query: ListDirectivesQuery }) {
         value={query.show}
         options={SHOW_OPTIONS}
         allLabel="Any due date"
-        className="w-40"
       />
     </FilterBar>
   );

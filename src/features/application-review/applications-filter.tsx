@@ -35,7 +35,7 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         label="Search"
         value={query.q}
         placeholder="Name, reference or CNIC"
-        className="w-64"
+        size="lg"
       />
       <FilterSelect
         id="applications-type"
@@ -44,7 +44,6 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         value={query.type}
         options={toOptions(APPLICATION_TYPE_LABELS)}
         allLabel="All types"
-        className="w-40"
       />
       <FilterSelect
         id="applications-status"
@@ -53,7 +52,6 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         value={query.status}
         options={toOptions(APPLICATION_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-44"
       />
       <FilterSelect
         id="applications-program"
@@ -62,22 +60,15 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         value={query.programId}
         options={programs}
         allLabel="All programs"
-        className="w-56"
+        size="lg"
       />
-      <FilterInput
-        id="applications-city"
-        name="city"
-        label="City"
-        value={query.city}
-        className="w-40"
-      />
+      <FilterInput id="applications-city" name="city" label="City" value={query.city} />
       <FilterInput
         id="applications-from"
         name="from"
         label="Submitted from"
         type="date"
         value={query.from}
-        className="w-44"
       />
       <FilterInput
         id="applications-to"
@@ -85,7 +76,6 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         label="Submitted to"
         type="date"
         value={query.to}
-        className="w-44"
       />
       <FilterSelect
         id="applications-view"
@@ -94,7 +84,6 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         value={query.view}
         options={[{ value: "ARCHIVED", label: "Archived" }]}
         allLabel="In progress"
-        className="w-40"
       />
     </FilterBar>
   );

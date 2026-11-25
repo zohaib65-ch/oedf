@@ -24,7 +24,6 @@ export function MessagesFilter({ query }: { query: ListMessagesQuery }) {
         value={query.status}
         options={toOptions(MESSAGE_STATUS_LABELS)}
         allLabel="All statuses"
-        className="w-40"
       />
       <FilterSelect
         id="messages-subject"
@@ -33,7 +32,6 @@ export function MessagesFilter({ query }: { query: ListMessagesQuery }) {
         value={query.subject}
         options={toOptions(MESSAGE_SUBJECT_LABELS)}
         allLabel="All subjects"
-        className="w-44"
       />
     </FilterBar>
   );
