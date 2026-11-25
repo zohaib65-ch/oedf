@@ -10,6 +10,7 @@ import { FileAssetModel } from "@/server/db/models/file-asset.model";
 export const FILE_OWNER_TYPES = {
   application: "Application",
   jobApplication: "JobApplication",
+  institution: "Institution",
 } as const;
 
 export interface NewFileAsset {

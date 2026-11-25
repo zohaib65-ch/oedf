@@ -6,6 +6,7 @@ import {
   FilePen,
   FileUser,
   GraduationCap,
+  School,
   LayoutDashboard,
   type LucideIcon,
   ScrollTextIcon,
@@ -146,6 +147,18 @@ export const PORTAL_NAV: readonly PortalNavLink[] = [
     href: "/portal/scholarship-awards",
     icon: Award,
     permission: "awards:read",
+  },
+  {
+    label: "Programs",
+    href: "/portal/programs",
+    icon: GraduationCap,
+    permission: "programs:read",
+  },
+  {
+    label: "Institutions",
+    href: "/portal/institutions",
+    icon: School,
+    permission: "institutions:read",
   },
   {
     label: "Vacancies",

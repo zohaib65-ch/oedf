@@ -5,6 +5,7 @@ import type { InstitutionFilters } from "@/lib/validations/list-params";
 import { connectDb } from "@/server/db/connection";
 import { InstitutionModel } from "@/server/db/models/institution.model";
 import { ProgramModel } from "@/server/db/models/program.model";
+import type { StoredImage } from "@/server/services/image.service";
 
 // The public site shows only Active institutions marked public. Agreements and reviews are internal
 // and are never selected.
@@ -16,6 +17,7 @@ export interface InstitutionSummary {
   name: string;
   type: (typeof INSTITUTION_TYPES)[number];
   city: string;
+  image: StoredImage | null;
 }
 
 export interface InstitutionDetail extends InstitutionSummary {
@@ -25,7 +27,7 @@ export interface InstitutionDetail extends InstitutionSummary {
   programs: { slug: string; title: string }[];
 }
 
-const SUMMARY_FIELDS = { slug: 1, name: 1, type: 1, city: 1 } as const;
+const SUMMARY_FIELDS = { slug: 1, name: 1, type: 1, city: 1, image: 1 } as const;
 
 function toSummary(institution: {
   _id: { toString(): string };
@@ -33,13 +35,18 @@ function toSummary(institution: {
   name: string;
   type: (typeof INSTITUTION_TYPES)[number];
   city: string;
+  image?: { publicId: string; width: number; height: number; alt: string } | null;
 }): InstitutionSummary {
+  const { image } = institution;
   return {
     id: institution._id.toString(),
     slug: institution.slug,
     name: institution.name,
     type: institution.type,
     city: institution.city,
+    image: image
+      ? { publicId: image.publicId, width: image.width, height: image.height, alt: image.alt }
+      : null,
   };
 }
 

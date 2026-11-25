@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 
+import { capture, shotName } from "./screenshots";
+
 const SERIOUS_IMPACTS = ["serious", "critical"];
 
 /**
@@ -14,6 +16,8 @@ const SERIOUS_IMPACTS = ["serious", "critical"];
  *
  * Toasts stacked behind the newest one are left out: sonner dims them on purpose while they wait
  * behind it. The newest toast is checked like everything else.
+ *
+ * Every page checked here is also saved as a screenshot for the review (`capture`).
  */
 export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<void> {
   await page.evaluate(() =>
@@ -36,5 +40,6 @@ export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<vo
   const serious = [...content.violations, ...header.violations].filter(
     (violation) => violation.impact && SERIOUS_IMPACTS.includes(violation.impact),
   );
+  await capture(page, shotName());
   expect(serious).toEqual([]);
 }

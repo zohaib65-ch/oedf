@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { ADMIN_STATE_FILE } from "./auth-state";
 import { expectNoSeriousAccessibilityIssues } from "./axe";
 import { deleteTestApplication, insertTestApplication, type TestApplication } from "./db";
+import { capture } from "./screenshots";
 
 test.use({ storageState: ADMIN_STATE_FILE });
 
@@ -101,6 +102,7 @@ test("a scholarship goes from submitted to approved, and its award is recorded",
   });
 
   await expect(page.getByText(/^Approved by/)).toBeVisible();
+  await capture(page, "application-approved");
   await page.getByRole("link", { name: "View the scholarship award" }).click();
   await expect(page.getByLabel("Amount (whole rupees)")).toHaveValue("5000");
 

@@ -1,11 +1,14 @@
 import type {
+  AGREEMENT_STATUSES,
   APPLICATION_STATUSES,
   APPLICATION_TYPES,
   AWARD_PERIODS,
   AWARD_STATUSES,
+  CONTENT_STATUSES,
   DOCUMENT_KINDS,
   EMPLOYMENT_TYPES,
   GENDERS,
+  INSTITUTION_STATUSES,
   INSTITUTION_TYPES,
   JOB_APPLICATION_STATUSES,
   MESSAGE_SUBJECTS,
@@ -134,6 +137,26 @@ export const JOB_APPLICATION_STATUS_LABELS = {
   REJECTED: "Rejected",
   ON_HOLD: "On hold",
 } satisfies Record<(typeof JOB_APPLICATION_STATUSES)[number], string>;
+
+export const CONTENT_STATUS_LABELS = {
+  DRAFT: "Draft",
+  PUBLISHED: "Published",
+  ARCHIVED: "Archived",
+} satisfies Record<(typeof CONTENT_STATUSES)[number], string>;
+
+export const INSTITUTION_STATUS_LABELS = {
+  PROPOSED: "Proposed",
+  ACTIVE: "Active",
+  SUSPENDED: "Suspended",
+  CLOSED: "Closed",
+} satisfies Record<(typeof INSTITUTION_STATUSES)[number], string>;
+
+export const AGREEMENT_STATUS_LABELS = {
+  DRAFT: "Draft",
+  UNDER_LEGAL_REVIEW: "Under legal review",
+  APPROVED: "Approved",
+  EXPIRED: "Expired",
+} satisfies Record<(typeof AGREEMENT_STATUSES)[number], string>;
 
 /** `{ value, label }` pairs for a select, in the order the labels are written. */
 export function toOptions(labels: Record<string, string>): { value: string; label: string }[] {

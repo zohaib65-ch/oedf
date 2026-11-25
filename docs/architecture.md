@@ -161,6 +161,13 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **Job applications** follow `JOB_APPLICATION_TRANSITIONS` with the same conditional write as applications (`409` when someone changed it first). They are archived, never deleted; an archived one is hidden from the default list and read-only until restored. The CV opens like any private file (`PrivateFileLink`, 5-minute link, audit-logged).
 - **Shared portal pieces** added here: `ConfirmButton` (an Alert Dialog before publishing, closing, archiving or deleting), `PrivateFileLink`, `apiDelete`, `buildTimeline` (`src/server/lib/timeline.ts`) for every status-and-notes history, and `escapeRegExp` (`src/server/lib/escape-regexp.ts`) for search text.
 
+## Programs and institutions
+
+- **Who does what:** Staff of Institutional Development create and edit draft programs and non-public institutions, and record agreements and reviews. Publishing a program (any status but Draft), making an institution public, and changing either once it is on the public site need `programs:publish` / `institutions:publish` (a Director). A program nobody applied to can be deleted (a published one by a Director); one with applications is archived. Institutions are never deleted (set Closed).
+- **Photos:** staff upload a public `IMAGE` (signed upload, `upload` delivery, tag `pending` until saved) with a required description. `resolveImage` keeps, replaces (checked with Cloudinary) or removes it; `settleImage` confirms the new file and deletes the replaced one. Public pages get a resized link from `toPublicImage` and render it with `next/image`; `next.config.ts` allows only this account's `res.cloudinary.com/<cloud>/image/upload/` path.
+- **Agreements** keep an optional signed copy as a private `AGREEMENT` file (a `fileAssets` row owned by the institution, opened like any private file). Agreements and reviews never reach the public site.
+- **Web addresses** for vacancies, programs and institutions come from `uniqueSlug` (`src/server/services/slug.service.ts`): made from the title once, numbered when taken, never changed.
+
 ## Coding standards
 
 - **No dead code:** no unused files, exports, components, hooks, dependencies, variables, routes, endpoints or CSS; no commented-out code, `console.log`, `TODO`/`FIXME`, demo pages or abstractions "for later". `npm run knip` reports nothing. (`console.info`, `warn`, `error` are allowed in `scripts/`.)

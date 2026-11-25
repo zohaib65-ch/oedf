@@ -5,7 +5,6 @@ import { CACHE_TAGS } from "@/lib/constants/cache-tags";
 import { VACANCY_STATUS_LABELS } from "@/lib/constants/labels";
 import { hasPermission } from "@/lib/constants/permissions";
 import { VACANCY_TRANSITIONS } from "@/lib/constants/vacancy-workflow";
-import { toSlug } from "@/lib/slug";
 import { parseSort } from "@/lib/validations/common";
 import type {
   ListVacanciesQuery,
@@ -19,7 +18,6 @@ import {
   createVacancyDraft,
   deleteDraftVacancy,
   departmentExists,
-  findTakenSlugs,
   findVacancyForStaff,
   listVacanciesForStaff,
   listVacancyOptions,
@@ -30,6 +28,7 @@ import {
   type VacancyFields,
 } from "@/server/repositories/vacancy-management.repository";
 import { recordAudit } from "@/server/services/audit-log.service";
+import { uniqueSlug } from "@/server/services/slug.service";
 
 const ENTITY_TYPE = "Vacancy";
 const STALE_MESSAGE = "This vacancy was changed by someone else. Reload the page and try again.";
@@ -82,20 +81,6 @@ const toFields = (input: VacancyFormInput): VacancyFields => ({
   deadline: endOfPakistanDay(input.deadline),
 });
 
-/** The title as a web address, numbered when another vacancy already has it. Never changes after. */
-async function uniqueSlug(title: string): Promise<string> {
-  const base = toSlug(title, "vacancy");
-  const taken = await findTakenSlugs(base);
-  if (!taken.has(base)) {
-    return base;
-  }
-  let number = 2;
-  while (taken.has(`${base}-${String(number)}`)) {
-    number += 1;
-  }
-  return `${base}-${String(number)}`;
-}
-
 /** Saves a new vacancy as a draft. Nothing reaches the public site until a Director publishes it. */
 export async function createVacancy(
   staff: StaffContext,
@@ -105,7 +90,7 @@ export async function createVacancy(
     throw forbidden("You do not have permission to create vacancies.");
   }
   await assertOfficeExists(input.departmentId);
-  const id = await createVacancyDraft(await uniqueSlug(input.title), toFields(input));
+  const id = await createVacancyDraft(await uniqueSlug("vacancy", input.title), toFields(input));
   await recordAudit(staff, {
     action: "vacancy.created",
     entityType: ENTITY_TYPE,

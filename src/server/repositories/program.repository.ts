@@ -6,6 +6,7 @@ import type { ProgramFilters } from "@/lib/validations/list-params";
 import { connectDb } from "@/server/db/connection";
 import { InstitutionModel } from "@/server/db/models/institution.model";
 import { ProgramModel } from "@/server/db/models/program.model";
+import type { StoredImage } from "@/server/services/image.service";
 
 export interface ProgramSummary {
   id: string;
@@ -15,6 +16,7 @@ export interface ProgramSummary {
   summary: string;
   duration: string;
   acceptsApplications: boolean;
+  image: StoredImage | null;
 }
 
 export interface ProgramDetail extends ProgramSummary {
@@ -31,6 +33,7 @@ const SUMMARY_FIELDS = {
   summary: 1,
   duration: 1,
   acceptsApplications: 1,
+  image: 1,
 } as const;
 
 function toSummary(program: {
@@ -41,7 +44,9 @@ function toSummary(program: {
   summary: string;
   duration: string;
   acceptsApplications: boolean;
+  image?: { publicId: string; width: number; height: number; alt: string } | null;
 }): ProgramSummary {
+  const { image } = program;
   return {
     id: program._id.toString(),
     slug: program.slug,
@@ -50,6 +55,9 @@ function toSummary(program: {
     summary: program.summary,
     duration: program.duration,
     acceptsApplications: program.acceptsApplications,
+    image: image
+      ? { publicId: image.publicId, width: image.width, height: image.height, alt: image.alt }
+      : null,
   };
 }
 
