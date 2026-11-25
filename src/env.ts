@@ -36,7 +36,7 @@ const serverEnvSchema = publicEnvSchema.extend({
       ),
   ),
   SMTP_URL: z.string().regex(/^smtps?:\/\//, "Must start with smtp:// or smtps://"),
-  EMAIL_FROM: z.string().min(1, "Must be a sender such as OEDF <no-reply@example.org>"),
+  EMAIL_FROM: z.string().min(1, "Must be a sender such as OEDF <contact@oed-foundation.org>"),
   CRON_SECRET: optional(z.string().min(MIN_SECRET_LENGTH, "Must be at least 32 characters")),
 });
 
