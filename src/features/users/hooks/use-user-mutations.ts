@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { apiPatch, apiPost } from "@/lib/api/client";
+import { apiDelete, apiPatch, apiPost } from "@/lib/api/client";
 import { useApiAction } from "@/lib/api/use-api-action";
 import type { CreateUserInput, UpdateUserInput } from "@/lib/validations/user";
 
@@ -21,6 +21,15 @@ export function useUpdateUser() {
   return useApiAction(async (id: string, changes: UpdateUserInput) => {
     await apiPatch(`/users/${id}`, changes);
     toast.success("User updated.");
+    router.refresh();
+  });
+}
+
+export function useDeleteUser() {
+  const router = useRouter();
+  return useApiAction(async (id: string) => {
+    await apiDelete(`/users/${id}`);
+    toast.success("User deleted.");
     router.refresh();
   });
 }

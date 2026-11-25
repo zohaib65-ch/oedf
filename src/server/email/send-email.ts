@@ -1,7 +1,7 @@
 import "server-only";
-import { render } from "@react-email/render";
 import nodemailer, { type Transporter } from "nodemailer";
 import type { ReactElement } from "react";
+import { render } from "react-email";
 
 import { getServerEnv } from "@/env";
 import { logger } from "@/server/lib/logger";

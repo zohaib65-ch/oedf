@@ -150,7 +150,7 @@ export const STAFF_GUIDE: readonly GuideSection[] = [
     intro: "The Super Admin manages accounts and the website's contact details.",
     points: [
       "Create an account with a name, work email, role and office. The person gets an email to set their password.",
-      "Deactivate accounts of people who leave; this signs them out at once. Accounts are never deleted.",
+      "Deactivate accounts of people who leave; this signs them out at once. An account added by mistake can be deleted while the person has not worked in the portal yet; after that it can only be deactivated.",
       "Settings hold the contact details, social links, impact numbers and the site announcement.",
       "The audit log shows who did what and when, including every file opened and every export.",
     ],

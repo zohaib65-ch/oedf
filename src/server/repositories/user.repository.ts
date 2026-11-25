@@ -179,6 +179,12 @@ export async function updateUserAccount(id: string, changes: UserChanges): Promi
   }
 }
 
+/** Deletes the account with its sessions and sign-in details, so the person is signed out at once. */
+export async function deleteUserAccount(id: string): Promise<void> {
+  const context = await (await getAuth()).$context;
+  await context.internalAdapter.deleteUser(id);
+}
+
 /** Emails a link to set a new password. The same call serves the invitation and a reset. */
 export async function sendPasswordLink(email: string, redirectTo: string): Promise<void> {
   const auth = await getAuth();

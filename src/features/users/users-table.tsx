@@ -26,7 +26,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSendPasswordReset, useUpdateUser } from "@/features/users/hooks/use-user-mutations";
+import {
+  useDeleteUser,
+  useSendPasswordReset,
+  useUpdateUser,
+} from "@/features/users/hooks/use-user-mutations";
 import { UserFormDialog } from "@/features/users/user-form-dialog";
 import { toastApiError } from "@/lib/api/use-api-action";
 import { getRoleLabel } from "@/lib/constants/labels";
@@ -42,7 +46,9 @@ interface UsersTableProps {
 
 export function UsersTable({ users, departments, currentUserId, sorting }: UsersTableProps) {
   const [pendingDeactivation, setPendingDeactivation] = useState<UserRecord | null>(null);
+  const [pendingDeletion, setPendingDeletion] = useState<UserRecord | null>(null);
   const update = useUpdateUser();
+  const remove = useDeleteUser();
   const sendReset = useSendPasswordReset();
   const officeName = new Map(departments.map((department) => [department.value, department.label]));
 
@@ -124,6 +130,16 @@ export function UsersTable({ users, departments, currentUserId, sorting }: Users
                 Reactivate
               </DropdownMenuItem>
             )}
+            {user.id === currentUserId ? null : (
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => {
+                  setPendingDeletion(user);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -166,6 +182,39 @@ export function UsersTable({ users, departments, currentUserId, sorting }: Users
               }}
             >
               Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={pendingDeletion !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setPendingDeletion(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {pendingDeletion?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The account is removed for good and its invitation link stops working. This is only
+              possible while the person has not worked in the portal yet; after that, deactivate the
+              account instead so the record of who did what stays complete.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => {
+                if (pendingDeletion) {
+                  remove.run(pendingDeletion.id).catch(toastApiError);
+                }
+              }}
+            >
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

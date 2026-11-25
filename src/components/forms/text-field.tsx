@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
 import { describedBy, fieldId } from "@/components/forms/field-ids";
+import { PasswordInput } from "@/components/forms/password-input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -17,7 +18,10 @@ interface TextFieldProps<T extends FieldValues> {
   maxLength?: number;
 }
 
-/** A labelled text input bound to the form, with its description and error linked for screen readers. */
+/**
+ * A labelled text input bound to the form, with its description and error linked for screen readers.
+ * A password gets an eye button to show or hide it.
+ */
 export function TextField<T extends FieldValues>({
   control,
   name,
@@ -33,33 +37,39 @@ export function TextField<T extends FieldValues>({
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={fieldId(name)}>{label}</FieldLabel>
-          <Input
-            {...field}
-            value={field.value ?? ""}
-            id={fieldId(name)}
-            type={type}
-            autoComplete={autoComplete}
-            inputMode={inputMode}
-            placeholder={placeholder}
-            maxLength={maxLength}
-            aria-invalid={fieldState.invalid}
-            aria-describedby={describedBy(name, {
-              hasDescription: Boolean(description),
-              hasError: fieldState.invalid,
-            })}
-            className="h-11"
-          />
-          {description ? (
-            <FieldDescription id={`${fieldId(name)}-description`}>{description}</FieldDescription>
-          ) : null}
-          {fieldState.invalid ? (
-            <FieldError id={`${fieldId(name)}-error`} errors={[fieldState.error]} />
-          ) : null}
-        </Field>
-      )}
+      render={({ field, fieldState }) => {
+        const inputProps = {
+          ...field,
+          value: field.value ?? "",
+          id: fieldId(name),
+          autoComplete,
+          inputMode,
+          placeholder,
+          maxLength,
+          "aria-invalid": fieldState.invalid,
+          "aria-describedby": describedBy(name, {
+            hasDescription: Boolean(description),
+            hasError: fieldState.invalid,
+          }),
+          className: "h-11",
+        };
+        return (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={fieldId(name)}>{label}</FieldLabel>
+            {type === "password" ? (
+              <PasswordInput {...inputProps} />
+            ) : (
+              <Input {...inputProps} type={type} />
+            )}
+            {description ? (
+              <FieldDescription id={`${fieldId(name)}-description`}>{description}</FieldDescription>
+            ) : null}
+            {fieldState.invalid ? (
+              <FieldError id={`${fieldId(name)}-error`} errors={[fieldState.error]} />
+            ) : null}
+          </Field>
+        );
+      }}
     />
   );
 }

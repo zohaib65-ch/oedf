@@ -419,3 +419,13 @@ export function acknowledgementFields(actor: Actor): Record<string, unknown> {
     acknowledgedByName: actor.name,
   };
 }
+
+/** Whether the person issued a directive or owns an office's part of one. */
+export async function isNamedInDirectives(userId: string): Promise<boolean> {
+  await connectDb();
+  const id = new mongoose.Types.ObjectId(userId);
+  const directive = await DirectiveModel.exists(
+    mongoose.trusted({ $or: [{ issuedById: id }, { "assignments.ownerId": id }] }),
+  );
+  return directive !== null;
+}

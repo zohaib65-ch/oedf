@@ -1,4 +1,4 @@
-import { Text } from "@react-email/components";
+import { Text } from "react-email";
 
 import { EmailLayout, referenceStyle, textStyle } from "@/server/email/templates/email-layout";
 

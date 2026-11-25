@@ -131,7 +131,7 @@ Staff sign in with email and password; Better Auth serves `/api/auth/*`. Public 
 | Sign-in rate limit  | 5 attempts per minute, then `429`                                                                                                                                                         |
 | Session cookie      | `HttpOnly`, `SameSite=Lax`, `Secure` in production, 7 days                                                                                                                                |
 | Cross-site requests | A request with a session cookie from another origin gets `403`                                                                                                                            |
-| Accounts            | Created by Super Admin only; deactivated (banned), never deleted                                                                                                                          |
+| Accounts            | Created by Super Admin only; deactivated (banned). Deleted only while the person has no work history (D52)                                                                                |
 
 The cookie is `Secure` in production, so over plain `http://localhost` use Chrome or Firefox (Safari rejects it).
 

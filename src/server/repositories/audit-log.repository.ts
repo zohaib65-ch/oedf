@@ -91,3 +91,16 @@ export async function listAuditEntries(
     })),
   };
 }
+
+/**
+ * Whether the person has done any work in the portal. Their own account actions (signing in,
+ * changing their password or profile) do not count; every other audited action does.
+ */
+export async function hasWorkHistory(actorId: string): Promise<boolean> {
+  await connectDb();
+  const entry = await AuditLogModel.exists({
+    actorId: new mongoose.Types.ObjectId(actorId),
+    action: mongoose.trusted({ $not: /^auth\./ }),
+  });
+  return entry !== null;
+}

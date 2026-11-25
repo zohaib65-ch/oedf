@@ -1,15 +1,5 @@
-import {
-  Body,
-  Container,
-  Head,
-  Hr,
-  Html,
-  Img,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
 import type { ReactNode } from "react";
+import { Body, Container, Head, Hr, Html, Img, Preview, Section, Text } from "react-email";
 
 import { publicEnv } from "@/env";
 import { SECP_REGISTRATION_NUMBER, SITE_NAME } from "@/lib/constants/site";

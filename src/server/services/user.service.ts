@@ -4,10 +4,13 @@ import { parseSort } from "@/lib/validations/common";
 import type { CreateUserInput, ListUsersQuery, UpdateUserInput } from "@/lib/validations/user";
 import type { StaffContext } from "@/server/auth/api-session";
 import { AppError } from "@/server/http/errors";
+import { hasWorkHistory } from "@/server/repositories/audit-log.repository";
 import { findDepartmentCodeById } from "@/server/repositories/department.repository";
+import { isNamedInDirectives } from "@/server/repositories/directive.repository";
 import {
   countActiveSuperAdmins,
   createUserAccount,
+  deleteUserAccount,
   findUserById,
   findUserIdByEmail,
   listUsers,
@@ -143,5 +146,32 @@ export async function sendUserPasswordReset(staff: StaffContext, id: string): Pr
     action: "user.password-reset-requested",
     entityType: "User",
     entityId: id,
+  });
+}
+
+/**
+ * Deletes an account that has no work history, for example one added by mistake. Someone who has
+ * worked in the portal is deactivated instead, so the record of who did what stays complete.
+ */
+export async function deleteUser(staff: StaffContext, id: string): Promise<void> {
+  const target = await requireUser(id);
+  if (target.id === staff.id) {
+    throw new AppError("CONFLICT", "You cannot delete your own account.");
+  }
+  if (target.role === "SUPER_ADMIN" && target.isActive && (await countActiveSuperAdmins()) <= 1) {
+    throw new AppError("CONFLICT", "There must always be one active Super Admin.");
+  }
+  if ((await hasWorkHistory(id)) || (await isNamedInDirectives(id))) {
+    throw new AppError(
+      "CONFLICT",
+      "This person has already worked in the portal, so the account cannot be deleted. Deactivate it instead.",
+    );
+  }
+  await deleteUserAccount(id);
+  await recordAudit(staff, {
+    action: "user.deleted",
+    entityType: "User",
+    entityId: id,
+    metadata: { name: target.name, email: target.email, role: target.role },
   });
 }
