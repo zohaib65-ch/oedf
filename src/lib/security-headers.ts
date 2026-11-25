@@ -16,7 +16,7 @@ interface SecurityHeaderOptions {
   isHttps: boolean;
 }
 
-export function buildContentSecurityPolicy({ isDev, isHttps }: SecurityHeaderOptions): string {
+function buildContentSecurityPolicy({ isDev, isHttps }: SecurityHeaderOptions): string {
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
     // React needs eval only in development, for its debugging tools.

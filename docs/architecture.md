@@ -4,16 +4,16 @@ One Next.js application: public website, staff portal (`/portal`) and REST API (
 
 ## Stack and key decisions
 
-| Area       | Choice                                                                                        | Why / consequence                                                                                                                                                              |
-| ---------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Framework  | Next.js 16.4, App Router, Turbopack, Cache Components on                                      | Data is dynamic by default; public reads opt in to caching                                                                                                                     |
-| Language   | TypeScript 6.0 (`strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`)                   | Not 7: `typescript-eslint` supports below 6.1 only. Revisit when it adds support                                                                                               |
-| Styling    | Tailwind CSS v4 through `@tailwindcss/postcss`, shadcn/ui on Radix                            | The setup the Next.js docs describe (the starter's `@tailwindcss/turbopack` loader is undocumented)                                                                            |
-| Database   | MongoDB 8 + Mongoose 9, as a replica set                                                      | Transactions need a replica set. No Prisma: it does not support MongoDB in its current major version                                                                           |
-| Auth       | Better Auth + MongoDB adapter                                                                 | Staff email and password; no public sign-up                                                                                                                                    |
-| Validation | Zod 4, shared by forms and API                                                                | One schema validates in the form and again in the API                                                                                                                          |
-| Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky, Vitest, Playwright + axe | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
-| Logging    | pino                                                                                          | Server only; never logs secrets or personal documents                                                                                                                          |
+| Area       | Choice                                                                      | Why / consequence                                                                                                                                                              |
+| ---------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Framework  | Next.js 16.4, App Router, Turbopack, Cache Components on                    | Data is dynamic by default; public reads opt in to caching                                                                                                                     |
+| Language   | TypeScript 6.0 (`strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`) | Not 7: `typescript-eslint` supports below 6.1 only. Revisit when it adds support                                                                                               |
+| Styling    | Tailwind CSS v4 through `@tailwindcss/postcss`, shadcn/ui on Radix          | The setup the Next.js docs describe (the starter's `@tailwindcss/turbopack` loader is undocumented)                                                                            |
+| Database   | MongoDB 8 + Mongoose 9, as a replica set                                    | Transactions need a replica set. No Prisma: it does not support MongoDB in its current major version                                                                           |
+| Auth       | Better Auth + MongoDB adapter                                               | Staff email and password; no public sign-up                                                                                                                                    |
+| Validation | Zod 4, shared by forms and API                                              | One schema validates in the form and again in the API                                                                                                                          |
+| Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky         | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
+| Logging    | pino                                                                        | Server only; never logs secrets or personal documents                                                                                                                          |
 
 Later phases add Cloudinary, Nodemailer with React Email, React Hook Form and Turnstile (see the project brief). There is no rich text editor: long text is plain text in a shadcn Textarea, shown by `FormattedText` (open-questions D13).
 
@@ -79,7 +79,7 @@ sequenceDiagram
 ## Folder structure
 
 ```text
-.github/workflows/ci.yml      format, lint, typecheck, knip, tests, build, audit, e2e
+.github/workflows/ci.yml      format, lint, typecheck, knip, build, audit
 .husky/pre-commit             lint-staged
 docs/                         five documents, plus reference/ (client files, kept until design sign-off)
 public/brand/                 OEDF logos only
@@ -98,11 +98,10 @@ src/
     lib/logger.ts
     repositories/  services/
   env.ts
-tests/                        e2e/, global-setup.ts (one in-memory replica set), setup.ts (per-file database)
 ```
 
 - Used by one feature: `src/features/<feature>/`; by two or more: `src/components/shared/` (generic) or `src/components/site/` (public-site specific, such as cards). `src/components/ui/` holds only shadcn CLI output; change looks through tokens and `cva` variants, or wrap in `shared/`.
-- Route files stay short: load data, compose components. Unit tests sit next to the file they test. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script and its test, not a barrel).
+- Route files stay short: load data, compose components. Alias `@/` is `src/`. No barrel `index.ts` (`all-models.ts` is a list for the index script, not a barrel).
 - Only `src/server/storage/cloudinary.ts` talks to the Cloudinary SDK.
 
 ## Public forms and security

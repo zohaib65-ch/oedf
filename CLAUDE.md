@@ -8,9 +8,8 @@ One Next.js 16 app (App Router, Cache Components on): website, staff portal (`/p
 
 ```bash
 npm run dev            # development server
-npm run check          # lint + typecheck + knip + test (must pass before a phase is done)
+npm run check          # lint + typecheck + knip (must pass before a phase is done)
 npm run build          # production build (must pass)
-npm run test:e2e       # Playwright (needs MongoDB; run `npm run build` first)
 npm run db:indexes     # sync MongoDB indexes
 npm run db:seed        # offices, settings, first Super Admin (asks once)
 npm run format         # Prettier
@@ -24,7 +23,7 @@ npm run format         # Prettier
 - **Docs:** there are exactly five files in `docs/` (see [README.md](README.md)). **Never add another docs file without asking.** Update the matching doc in the same commit as the code; do not repeat content across docs.
 - **Git:** never commit, stage (`git add`), push, force-push, merge, branch or change git remotes unless the user explicitly asks for that exact action in that message. Leave changes in the working tree. Read-only git is fine. `.claude/settings.json` denies `git push`.
 - **UI:** use shadcn/ui components for everything (Table, Select, Input, Label, Textarea, Checkbox, Dialog, Button, …). Never use a native `<select>`, `<table>`, `<input>`, `<label>`, `<textarea>` or `<button>` in app code, and add no UI library beside shadcn (no TanStack Table or Query, no rich text editor: long text is a Textarea shown with `FormattedText`).
-- **Env:** one file, `.env` (git-ignored); `.env.example` is the committed template. Do not create `.env.local`. Never print values. The database is MongoDB Atlas (the URI in `.env`, the `oedf-dev` database), never a local MongoDB; Docker is only for Mailpit. Tests never run against production (`oedf`) or use a real account: the e2e setup refuses any database not ending in `-dev`/`-test` and creates its own throwaway accounts.
-- **Done means:** `npm run check`, `npm run build` and `npm run test:e2e` pass, Knip reports nothing, and every placeholder is listed in `docs/open-questions.md`. Conventional Commits, one branch per build phase.
+- **Env:** one file, `.env` (git-ignored); `.env.example` is the committed template. Do not create `.env.local`. Never print values. The database is MongoDB Atlas (the URI in `.env`, the `oedf-dev` database), never a local MongoDB; Docker is only for Mailpit. There are no automated tests; never add test files or test packages without asking.
+- **Done means:** `npm run check` and `npm run build` pass, Knip reports nothing, and every placeholder is listed in `docs/open-questions.md`. Conventional Commits, one branch per build phase.
 
 Details: [docs/architecture.md](docs/architecture.md) (layers, standards), [docs/design-system.md](docs/design-system.md) (tokens).

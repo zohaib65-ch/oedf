@@ -4,7 +4,7 @@ type Role = (typeof ROLES)[number];
 type DepartmentCode = (typeof DEPARTMENT_CODES)[number];
 
 /** Every action a staff member can be allowed to do. One list, used by the UI and the server. */
-export const PERMISSIONS = [
+const PERMISSIONS = [
   "dashboard:read",
   "applications:read",
   "applications:review",
@@ -105,7 +105,7 @@ const CEO_OFFICE_PERMISSIONS = [
 ] as const satisfies readonly Permission[];
 
 /** What each role may do. The one place access is decided. */
-export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
+const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   SUPER_ADMIN: PERMISSIONS,
   CEO_OFFICE: CEO_OFFICE_PERMISSIONS,
   DIRECTOR: DIRECTOR_PERMISSIONS,

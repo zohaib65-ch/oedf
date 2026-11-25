@@ -17,7 +17,7 @@ npm run db:seed
 npm run dev                     # http://localhost:3000
 ```
 
-`npm run check` runs lint, typecheck, Knip and the tests. All scripts are listed in the setup doc.
+`npm run check` runs lint, typecheck and Knip. All scripts are listed in the setup doc.
 
 ## Documentation
 
@@ -26,7 +26,7 @@ npm run dev                     # http://localhost:3000
 | [docs/architecture.md](docs/architecture.md)                 | Stack, layers, folder structure, auth and permissions, coding standards, decisions |
 | [docs/design-system.md](docs/design-system.md)               | Tokens, section mapping, shared components                                         |
 | [docs/api-and-database.md](docs/api-and-database.md)         | Endpoints, collections and indexes, status workflows, emails                       |
-| [docs/setup-and-deployment.md](docs/setup-and-deployment.md) | Local setup, environment variables, testing, deployment                            |
+| [docs/setup-and-deployment.md](docs/setup-and-deployment.md) | Local setup, environment variables, checks, deployment                             |
 | [docs/open-questions.md](docs/open-questions.md)             | Every placeholder and unanswered question                                          |
 
 Rules for working on this codebase (and for AI assistants) are in [CLAUDE.md](CLAUDE.md).

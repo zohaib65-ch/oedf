@@ -25,12 +25,12 @@ const SUPER_ADMIN_ROLE = "SUPER_ADMIN";
 // The technical administrator belongs to the Chief Executive Office until the client says otherwise.
 const SUPER_ADMIN_DEPARTMENT_CODE = "CEO_OFFICE";
 
-// Contact details come from the foundation's letterhead and are NOT confirmed by the client yet
-// (docs/open-questions.md, C2 and C3). The site shows them as placeholders until they are.
+// Contact details are not in the code: the Super Admin enters them in the portal's Settings. Until
+// then the site leaves them out.
 const DEFAULT_SETTINGS = {
   contact: {
-    address: "House No R200, Street No 2, Wasli Chowk, near Almakka Karyana, College Town, Vehari",
-    phone: "0311 0046225",
+    address: "",
+    phone: "",
     email: "",
     officeHours: "",
   },
@@ -46,7 +46,7 @@ const credentialsSchema = z.object({
 });
 
 /**
- * The first Super Admin's email and password. They come from `--email` and `--password` (for CI)
+ * The first Super Admin's email and password. They come from `--email` and `--password`
  * or are asked for in the terminal. They are stored in the database, never in an env file.
  */
 async function readCredentials(): Promise<z.infer<typeof credentialsSchema>> {

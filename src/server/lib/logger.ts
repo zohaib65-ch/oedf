@@ -3,7 +3,7 @@ import pino from "pino";
 
 import { getServerEnv } from "@/env";
 
-const LEVEL_BY_ENVIRONMENT = { development: "debug", test: "silent", production: "info" } as const;
+const LEVEL_BY_ENVIRONMENT = { development: "debug", production: "info" } as const;
 
 /**
  * Server-side logger. Never log secrets, CNIC numbers, financial details or personal documents.

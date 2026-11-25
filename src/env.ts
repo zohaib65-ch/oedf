@@ -1,13 +1,9 @@
 import { z } from "zod";
 
-// Only four variables are always required (site URL, database, auth secret, Cloudinary folder). Everything else is
-// optional locally and required only on a real deployment, which is any build whose site URL is
-// not localhost. Locally, mail goes to Mailpit, and uploads and the spam check report that they
-// are not configured. See docs/setup-and-deployment.md.
-
-// Mailpit, the test inbox that `docker compose up -d` starts (http://localhost:8025).
-const DEV_SMTP_URL = "smtp://localhost:1025";
-const DEV_EMAIL_FROM = "OEDF <no-reply@localhost>";
+// Six variables are always required (site URL, database, auth secret, Cloudinary folder, mail server
+// and sender). The rest are optional locally and required only on a real deployment, which is any
+// build whose site URL is not localhost. Locally, uploads and the spam check report that they are
+// not configured. Nothing has a built-in default. See docs/setup-and-deployment.md.
 
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const MIN_SECRET_LENGTH = 32;
@@ -22,7 +18,7 @@ const publicEnvSchema = z.object({
 });
 
 const serverEnvSchema = publicEnvSchema.extend({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z.enum(["development", "production"]).default("development"),
   MONGODB_URI: z.string().regex(/^mongodb(\+srv)?:\/\//, "Must be a MongoDB connection string"),
   BETTER_AUTH_SECRET: z.string().min(MIN_SECRET_LENGTH, "Must be at least 32 characters"),
   // The Cloudinary folder every upload goes into. Set per environment (see docs), never derived,
@@ -39,8 +35,8 @@ const serverEnvSchema = publicEnvSchema.extend({
         "Must look like cloudinary://key:secret@cloud",
       ),
   ),
-  SMTP_URL: optional(z.string().regex(/^smtps?:\/\//, "Must start with smtp:// or smtps://")),
-  EMAIL_FROM: optional(z.string()),
+  SMTP_URL: z.string().regex(/^smtps?:\/\//, "Must start with smtp:// or smtps://"),
+  EMAIL_FROM: z.string().min(1, "Must be a sender such as OEDF <no-reply@example.org>"),
   TURNSTILE_SECRET_KEY: optional(z.string()),
   CRON_SECRET: optional(z.string().min(MIN_SECRET_LENGTH, "Must be at least 32 characters")),
 });
@@ -50,8 +46,6 @@ type RawServerEnv = z.infer<typeof serverEnvSchema>;
 /** The variables a real deployment must set instead of relying on a development default. */
 const DEPLOYMENT_ONLY = [
   "CLOUDINARY_URL",
-  "SMTP_URL",
-  "EMAIL_FROM",
   "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
   "TURNSTILE_SECRET_KEY",
   "CRON_SECRET",
@@ -103,8 +97,6 @@ function resolveServerEnv(source: unknown) {
     ...env,
     /** True when the site URL is not localhost. A local production build is not a deployment. */
     IS_DEPLOYMENT: !isLocalSite(env.NEXT_PUBLIC_SITE_URL),
-    SMTP_URL: env.SMTP_URL ?? DEV_SMTP_URL,
-    EMAIL_FROM: env.EMAIL_FROM ?? DEV_EMAIL_FROM,
     /** Undefined in development: uploads report that Cloudinary is not configured. */
     CLOUDINARY_URL: env.CLOUDINARY_URL,
     /** Undefined in development: the cleanup endpoint then refuses every call. */
