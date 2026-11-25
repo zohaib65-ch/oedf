@@ -14,7 +14,6 @@ export const POST = withApiHandler(async (request) => {
     scope: "contact",
     ...FORM_RATE_LIMIT,
     faxNumber: input.faxNumber,
-    turnstileToken: input.turnstileToken,
   });
   await submitContactMessage(input);
   return ok({ sent: true }, 201);

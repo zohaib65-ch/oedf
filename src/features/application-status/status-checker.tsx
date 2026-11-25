@@ -9,7 +9,6 @@ import { ErrorSummary } from "@/components/forms/error-summary";
 import { HoneypotField } from "@/components/forms/honeypot-field";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TextField } from "@/components/forms/text-field";
-import { Turnstile } from "@/components/shared/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldGroup } from "@/components/ui/field";
 import { MissingDocumentsForm } from "@/features/application-status/missing-documents-form";
@@ -21,7 +20,7 @@ import type { PublicApplicationStatus } from "@/server/services/application.serv
 const LABELS = { referenceNumber: "Reference number", email: "Email" };
 const KNOWN_FIELDS = new Set(Object.keys(LABELS));
 
-export function StatusChecker({ turnstileSiteKey }: { turnstileSiteKey: string | undefined }) {
+export function StatusChecker() {
   const form = useForm<z.input<typeof statusLookupSchema>, unknown, StatusLookupInput>({
     // The error summary takes focus instead of the first invalid field, so a screen reader hears every problem.
     shouldFocusError: false,
@@ -31,33 +30,18 @@ export function StatusChecker({ turnstileSiteKey }: { turnstileSiteKey: string |
   const [result, setResult] = useState<PublicApplicationStatus | undefined>();
   const [owner, setOwner] = useState<{ referenceNumber: string; email: string } | undefined>();
   const [formError, setFormError] = useState<string | undefined>();
-  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
-  const [resetKey, setResetKey] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
 
   const handleSubmit = form.handleSubmit(
     async (values) => {
       setFormError(undefined);
       setResult(undefined);
-      if (turnstileSiteKey && !turnstileToken) {
-        setFormError("Please complete the spam check.");
-        setFocusKey((key) => key + 1);
-        return;
-      }
       try {
-        setResult(
-          await apiPost<PublicApplicationStatus>("/applications/status-lookup", {
-            ...values,
-            turnstileToken,
-          }),
-        );
+        setResult(await apiPost<PublicApplicationStatus>("/applications/status-lookup", values));
         setOwner({ referenceNumber: values.referenceNumber, email: values.email });
       } catch (error: unknown) {
         setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
         setFocusKey((key) => key + 1);
-      } finally {
-        // A spam-check token works once, so ask for a new one after every attempt.
-        setResetKey((key) => key + 1);
       }
     },
     () => {
@@ -95,7 +79,6 @@ export function StatusChecker({ turnstileSiteKey }: { turnstileSiteKey: string |
           />
         </FieldGroup>
         <HoneypotField register={form.register} />
-        <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={resetKey} />
         <SubmitButton isSubmitting={form.formState.isSubmitting}>Check status</SubmitButton>
       </form>
 
@@ -116,7 +99,6 @@ export function StatusChecker({ turnstileSiteKey }: { turnstileSiteKey: string |
               key={owner.referenceNumber}
               owner={owner}
               missingItems={result.missingItems}
-              turnstileSiteKey={turnstileSiteKey}
               onUpdated={setResult}
             />
           ) : null}

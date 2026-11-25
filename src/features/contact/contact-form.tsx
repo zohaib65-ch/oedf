@@ -12,7 +12,6 @@ import { SelectField } from "@/components/forms/select-field";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
-import { Turnstile } from "@/components/shared/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldGroup } from "@/components/ui/field";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
@@ -34,7 +33,7 @@ const SUBJECT_OPTIONS = MESSAGE_SUBJECTS.map((value) => ({
   label: MESSAGE_SUBJECT_LABELS[value],
 }));
 
-export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey: string | undefined }) {
+export function ContactForm() {
   const form = useForm<z.input<typeof contactMessageSchema>, unknown, ContactMessageInput>({
     // The error summary takes focus instead of the first invalid field, so a screen reader hears every problem.
     shouldFocusError: false,
@@ -50,24 +49,16 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey: string | u
   });
   const [isSent, setIsSent] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
-  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
-  const [resetKey, setResetKey] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
 
   const handleSubmit = form.handleSubmit(
     async (values) => {
       setFormError(undefined);
-      if (turnstileSiteKey && !turnstileToken) {
-        setFormError("Please complete the spam check.");
-        setFocusKey((key) => key + 1);
-        return;
-      }
       try {
-        await apiPost("/contact-messages", { ...values, turnstileToken });
+        await apiPost("/contact-messages", values);
         setIsSent(true);
       } catch (error: unknown) {
         setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
-        setResetKey((key) => key + 1);
         setFocusKey((key) => key + 1);
       }
     },
@@ -117,7 +108,6 @@ export function ContactForm({ turnstileSiteKey }: { turnstileSiteKey: string | u
         <TextareaField control={form.control} name="message" label="Message" />
       </FieldGroup>
       <HoneypotField register={form.register} />
-      <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={resetKey} />
       <SubmitButton isSubmitting={form.formState.isSubmitting}>Send message</SubmitButton>
     </form>
   );

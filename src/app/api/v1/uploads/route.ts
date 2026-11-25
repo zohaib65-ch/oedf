@@ -9,9 +9,9 @@ import { createUploadPermission } from "@/server/services/upload.service";
 
 const STAFF_PURPOSES: ReadonlySet<string> = new Set(STAFF_UPLOAD_PURPOSES);
 
-// Visitors' uploads are rate-limited but have no spam check: the file itself is checked after the
-// upload. Staff purposes (images, agreements) need a signed-in staff member; the record the file
-// is saved to checks the permission.
+// Visitors' uploads are rate-limited, and the file itself is checked after the upload. Staff
+// purposes (images, agreements) need a signed-in staff member; the record the file is saved to
+// checks the permission.
 export const POST = withApiHandler(async (request) => {
   const input = await readJson(request, uploadRequestSchema);
   if (STAFF_PURPOSES.has(input.purpose)) {
@@ -20,7 +20,6 @@ export const POST = withApiHandler(async (request) => {
     await guardPublicRequest(request, {
       scope: "upload",
       ...UPLOAD_RATE_LIMIT,
-      needsTurnstile: false,
     });
   }
   return ok(createUploadPermission(input));

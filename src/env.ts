@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 // Six variables are always required (site URL, database, auth secret, Cloudinary folder, mail server
-// and sender). The rest are optional locally and required only on a real deployment, which is any
-// build whose site URL is not localhost. Locally, uploads and the spam check report that they are
-// not configured. Nothing has a built-in default. See docs/setup-and-deployment.md.
+// and sender). The other two (Cloudinary connection, cron secret) are optional locally and required
+// only on a real deployment, which is any build whose site URL is not localhost. Locally, uploads
+// report that they are not configured. Nothing has a built-in default. See
+// docs/setup-and-deployment.md.
 
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const MIN_SECRET_LENGTH = 32;
@@ -14,7 +15,6 @@ const optional = <T extends z.ZodType>(schema: T) =>
 
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url(),
-  NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional(z.string()),
 });
 
 const serverEnvSchema = publicEnvSchema.extend({
@@ -37,7 +37,6 @@ const serverEnvSchema = publicEnvSchema.extend({
   ),
   SMTP_URL: z.string().regex(/^smtps?:\/\//, "Must start with smtp:// or smtps://"),
   EMAIL_FROM: z.string().min(1, "Must be a sender such as OEDF <no-reply@example.org>"),
-  TURNSTILE_SECRET_KEY: optional(z.string()),
   CRON_SECRET: optional(z.string().min(MIN_SECRET_LENGTH, "Must be at least 32 characters")),
 });
 
@@ -46,8 +45,6 @@ type RawServerEnv = z.infer<typeof serverEnvSchema>;
 /** The variables a real deployment must set instead of relying on a development default. */
 const DEPLOYMENT_ONLY = [
   "CLOUDINARY_URL",
-  "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
-  "TURNSTILE_SECRET_KEY",
   "CRON_SECRET",
 ] as const satisfies readonly (keyof RawServerEnv)[];
 
@@ -73,7 +70,6 @@ function parseEnv<T extends z.ZodType>(schema: T, source: unknown): z.infer<T> {
 export const publicEnv = (() => {
   const env = parseEnv(publicEnvSchema, {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   });
   return env;
 })();

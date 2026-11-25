@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Container } from "@/components/shared/container";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
-import { publicEnv } from "@/env";
 import { StatusChecker } from "@/features/application-status/status-checker";
 import { pageMetadata } from "@/lib/seo";
 
@@ -27,7 +26,7 @@ export default function ApplicationStatusPage() {
       />
       <Section tone="warm">
         <Container className="max-w-2xl">
-          <StatusChecker turnstileSiteKey={publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
+          <StatusChecker />
         </Container>
       </Section>
     </>

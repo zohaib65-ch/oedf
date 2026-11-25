@@ -61,12 +61,8 @@ export const uploadedFileSchema = z.object(
 
 export type UploadedFile = z.infer<typeof uploadedFileSchema>;
 
-/**
- * Fields every public form carries: the spam-check token and a honeypot. Real visitors never see
- * the honeypot, so a filled one means a bot.
- */
+/** The honeypot every public form carries. Real visitors never see it, so a filled one means a bot. */
 export const spamProtectionShape = {
-  turnstileToken: z.string().max(2048).optional(),
   faxNumber: z.string().max(200).optional(),
 };
 

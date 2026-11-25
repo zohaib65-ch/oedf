@@ -10,7 +10,6 @@ import { ErrorSummary } from "@/components/forms/error-summary";
 import { SelectField } from "@/components/forms/select-field";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { UploadField } from "@/components/forms/upload-field";
-import { Turnstile } from "@/components/shared/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
@@ -26,7 +25,6 @@ const KIND_OPTIONS = DOCUMENT_KINDS.map((value) => ({ value, label: DOCUMENT_KIN
 // The reference number and email come from the status lookup, so this form asks only for the files.
 const formSchema = missingDocumentsSchema.pick({
   documents: true,
-  turnstileToken: true,
   faxNumber: true,
 });
 
@@ -36,7 +34,6 @@ const emptyRow = () => ({}) as z.input<typeof formSchema>["documents"][number];
 interface MissingDocumentsFormProps {
   owner: { referenceNumber: string; email: string };
   missingItems: readonly string[];
-  turnstileSiteKey: string | undefined;
   onUpdated: (status: PublicApplicationStatus) => void;
 }
 
@@ -44,7 +41,6 @@ interface MissingDocumentsFormProps {
 export function MissingDocumentsForm({
   owner,
   missingItems,
-  turnstileSiteKey,
   onUpdated,
 }: MissingDocumentsFormProps) {
   const form = useForm<z.input<typeof formSchema>, unknown, z.output<typeof formSchema>>({
@@ -55,8 +51,6 @@ export function MissingDocumentsForm({
   });
   const rows = useFieldArray({ control: form.control, name: "documents" });
   const [formError, setFormError] = useState<string | undefined>();
-  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
-  const [resetKey, setResetKey] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
 
   const labels = Object.fromEntries(
@@ -70,22 +64,15 @@ export function MissingDocumentsForm({
   const handleSubmit = form.handleSubmit(
     async (values) => {
       setFormError(undefined);
-      if (turnstileSiteKey && !turnstileToken) {
-        setFormError("Please complete the spam check.");
-        setFocusKey((key) => key + 1);
-        return;
-      }
       try {
         onUpdated(
           await apiPost<PublicApplicationStatus>("/applications/missing-documents", {
             ...owner,
             ...values,
-            turnstileToken,
           }),
         );
       } catch (error: unknown) {
         setFormError(applyApiErrors(error, form.setError, knownFields));
-        setResetKey((key) => key + 1);
         setFocusKey((key) => key + 1);
       }
     },
@@ -160,7 +147,6 @@ export function MissingDocumentsForm({
           Add another document
         </Button>
       ) : null}
-      <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={resetKey} />
       <SubmitButton isSubmitting={form.formState.isSubmitting}>Send documents</SubmitButton>
     </form>
   );

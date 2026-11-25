@@ -14,7 +14,6 @@ export const POST = withApiHandler(async (request) => {
     scope: "job-application",
     ...FORM_RATE_LIMIT,
     faxNumber: input.faxNumber,
-    turnstileToken: input.turnstileToken,
   });
   return ok(await submitJobApplication(input), 201);
 });

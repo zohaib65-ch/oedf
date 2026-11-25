@@ -3,7 +3,6 @@ import "server-only";
 import { AppError } from "@/server/http/errors";
 import { getClientIp } from "@/server/security/client-ip";
 import { enforceRateLimit } from "@/server/security/rate-limit";
-import { verifyTurnstile } from "@/server/security/turnstile";
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
@@ -20,22 +19,16 @@ interface GuardInput {
   windowMs: number;
   /** The honeypot field. Real visitors never see it, so any value means a bot. */
   faxNumber?: string | undefined;
-  /** Uploads are only rate-limited; every other public request also needs the spam check. */
-  turnstileToken?: string | undefined;
-  needsTurnstile?: boolean;
 }
 
-/** The checks every public request passes first: honeypot, then rate limit, then the spam check. */
+/** The checks every public request passes first: the honeypot, then the per-IP rate limit. */
 export async function guardPublicRequest(
   request: Request,
-  { scope, limit, windowMs, faxNumber, turnstileToken, needsTurnstile = true }: GuardInput,
+  { scope, limit, windowMs, faxNumber }: GuardInput,
 ): Promise<void> {
   if (faxNumber) {
     throw new AppError("VALIDATION_ERROR", "We could not accept this submission.");
   }
   const ip = getClientIp(request);
   await enforceRateLimit({ scope, ip, limit, windowMs });
-  if (needsTurnstile) {
-    await verifyTurnstile(turnstileToken, ip);
-  }
 }

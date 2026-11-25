@@ -3,7 +3,6 @@ import { connection } from "next/server";
 
 import { CtaButton } from "@/components/shared/cta-button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { publicEnv } from "@/env";
 import { ApplicationForm } from "@/features/applications/application-form";
 import { getApplicationPrograms } from "@/server/services/program.service";
 import { getPublicSiteSettings } from "@/server/services/site-settings.service";
@@ -39,11 +38,7 @@ export async function ApplyContent({ type }: ApplyContentProps) {
   const programs = await getApplicationPrograms();
   return (
     <div className="rounded-xl border border-border bg-white p-6 shadow-card md:p-10">
-      <ApplicationForm
-        type={type}
-        programs={programs}
-        turnstileSiteKey={publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-      />
+      <ApplicationForm type={type} programs={programs} />
     </div>
   );
 }

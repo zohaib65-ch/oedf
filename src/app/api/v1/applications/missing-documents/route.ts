@@ -11,7 +11,6 @@ export const POST = withApiHandler(async (request) => {
     scope: "missing-documents",
     ...FORM_RATE_LIMIT,
     faxNumber: input.faxNumber,
-    turnstileToken: input.turnstileToken,
   });
   return ok(await submitMissingDocuments(input));
 });

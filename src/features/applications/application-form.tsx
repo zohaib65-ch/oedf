@@ -9,7 +9,6 @@ import { ErrorSummary } from "@/components/forms/error-summary";
 import { FormSuccess } from "@/components/forms/form-success";
 import { HoneypotField } from "@/components/forms/honeypot-field";
 import { SubmitButton } from "@/components/forms/submit-button";
-import { Turnstile } from "@/components/shared/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +32,6 @@ import type { ApplicationProgramOption } from "@/server/repositories/program.rep
 interface ApplicationFormProps {
   type: "ADMISSION" | "SCHOLARSHIP";
   programs: readonly ApplicationProgramOption[];
-  turnstileSiteKey: string | undefined;
 }
 
 function buildDefaults(type: "ADMISSION" | "SCHOLARSHIP"): Partial<ApplicationFormValues> {
@@ -79,7 +77,7 @@ function buildDefaults(type: "ADMISSION" | "SCHOLARSHIP"): Partial<ApplicationFo
  * The admission and scholarship application, one question group at a time. Each step is checked
  * before the next opens, answers are kept when going back, and a summary comes before sending.
  */
-export function ApplicationForm({ type, programs, turnstileSiteKey }: ApplicationFormProps) {
+export function ApplicationForm({ type, programs }: ApplicationFormProps) {
   const steps = getSteps(type);
   const form = useForm<ApplicationFormValues, unknown, ApplicationInput>({
     // The error summary takes focus instead of the first invalid field, so a screen reader hears every problem.
@@ -90,8 +88,6 @@ export function ApplicationForm({ type, programs, turnstileSiteKey }: Applicatio
   const [stepIndex, setStepIndex] = useState(0);
   const [referenceNumber, setReferenceNumber] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | undefined>();
-  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
-  const [resetKey, setResetKey] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
   const [stepFocusKey, setStepFocusKey] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -146,20 +142,11 @@ export function ApplicationForm({ type, programs, turnstileSiteKey }: Applicatio
 
   const handleSubmit = form.handleSubmit(async (values) => {
     setFormError(undefined);
-    if (turnstileSiteKey && !turnstileToken) {
-      setFormError("Please complete the spam check.");
-      setFocusKey((key) => key + 1);
-      return;
-    }
     try {
-      const result = await apiPost<{ referenceNumber: string }>("/applications", {
-        ...values,
-        turnstileToken,
-      });
+      const result = await apiPost<{ referenceNumber: string }>("/applications", values);
       setReferenceNumber(result.referenceNumber);
     } catch (error: unknown) {
       setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
-      setResetKey((key) => key + 1);
       showFirstInvalidStep();
     }
   }, showFirstInvalidStep);
@@ -245,7 +232,6 @@ export function ApplicationForm({ type, programs, turnstileSiteKey }: Applicatio
       {isLastStep ? (
         <>
           <HoneypotField register={form.register} />
-          <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={resetKey} />
         </>
       ) : null}
 

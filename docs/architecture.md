@@ -15,7 +15,7 @@ One Next.js application: public website, staff portal (`/portal`) and REST API (
 | Tooling    | npm, Node 24, ESLint 9 (strict type-checked), Prettier, Knip, Husky         | Knip enforces "no unused code"; dependencies are added only when used. ESLint 9, not 10: `eslint-plugin-import` crashes on ESLint 10 whenever it reports an import-order error |
 | Logging    | pino                                                                        | Server only; never logs secrets or personal documents                                                                                                                          |
 
-Later phases add Cloudinary, Nodemailer with React Email, React Hook Form and Turnstile (see the project brief). There is no rich text editor: long text is plain text in a shadcn Textarea, shown by `FormattedText` (open-questions D13).
+Later phases add Cloudinary, Nodemailer with React Email, and React Hook Form (see the project brief). There is no CAPTCHA: public forms are protected by a honeypot and a per-IP rate limit (D51). There is no rich text editor: long text is plain text in a shadcn Textarea, shown by `FormattedText` (open-questions D13).
 
 Decisions with consequences:
 
@@ -107,7 +107,7 @@ src/
 ## Public forms and security
 
 - **Layers for a form:** the browser validates with the same Zod schema as the API (`src/lib/validations/`), sends JSON through `src/lib/api/client.ts`, and shows server field errors next to the fields. The route handler parses the body, runs the guard, then calls one service function.
-- **Guard** (`src/server/security/public-form-guard.ts`): honeypot first, then a per-IP fixed-window rate limit stored in `rateLimits` (the IP only as a hash, a TTL index removes old buckets), then Turnstile. No Turnstile secret key (local development) skips the spam check; a real deployment must set both keys.
+- **Guard** (`src/server/security/public-form-guard.ts`): honeypot first, then a per-IP fixed-window rate limit stored in `rateLimits` (the IP only as a hash, a TTL index removes old buckets). No CAPTCHA and no keys (D51).
 - **Email** (`src/server/email/`): Nodemailer plus React Email templates. Sending never throws into the caller.
 - **Forms** (`src/components/forms/`): fields built on shadcn `Field` with the description and error linked by `aria-describedby`, an error summary that takes focus and links to each field (react-hook-form's own focus is off), and a hidden honeypot. The multi-step application keeps one form instance, so answers survive Back.
 - **Not yet built:** security headers and the Content-Security-Policy (Phase 7).
@@ -180,7 +180,7 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 
 ## Security headers
 
-`next.config.ts` sends the headers from `src/lib/security-headers.ts` on every response: a Content-Security-Policy allowing only Cloudflare Turnstile and Cloudinary besides the site, `frame-ancestors 'none'`, HSTS (two years, preload), `nosniff`, `strict-origin-when-cross-origin`, a Permissions-Policy that turns off camera, microphone, location and payments, and `Cross-Origin-Opener-Policy: same-origin`. Cache Components prerender a static shell that cannot carry a per-request nonce, so `script-src` uses `'unsafe-inline'` as the Next.js guide describes (D47); `'unsafe-eval'` is added only in development, and Zod runs `jitless` so it never probes `eval`. `upgrade-insecure-requests` is sent only when the site URL is https. `dark:` styles are tied to a `.dark` class that is never set: the site has one light theme even on a device in dark mode.
+`next.config.ts` sends the headers from `src/lib/security-headers.ts` on every response: a Content-Security-Policy allowing only Cloudinary besides the site, no frames (`frame-src` and `frame-ancestors` `'none'`), HSTS (two years, preload), `nosniff`, `strict-origin-when-cross-origin`, a Permissions-Policy that turns off camera, microphone, location and payments, and `Cross-Origin-Opener-Policy: same-origin`. Cache Components prerender a static shell that cannot carry a per-request nonce, so `script-src` uses `'unsafe-inline'` as the Next.js guide describes (D47); `'unsafe-eval'` is added only in development, and Zod runs `jitless` so it never probes `eval`. `upgrade-insecure-requests` is sent only when the site URL is https. `dark:` styles are tied to a `.dark` class that is never set: the site has one light theme even on a device in dark mode.
 
 ## Coding standards
 

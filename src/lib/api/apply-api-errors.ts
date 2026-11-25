@@ -22,7 +22,7 @@ export function applyApiErrors<T extends FieldValues>(
       hasUnshownField = true;
     }
   }
-  // A message about a field the visitor cannot see (the spam check, for example) is shown above the form.
+  // A message about a field the visitor cannot see (the honeypot, for example) is shown above the form.
   return hasUnshownField || Object.keys(error.fieldErrors).length === 0
     ? error.message
     : "Please fix the highlighted fields and submit again.";

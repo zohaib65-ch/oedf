@@ -12,7 +12,6 @@ import { SubmitButton } from "@/components/forms/submit-button";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { UploadField } from "@/components/forms/upload-field";
-import { Turnstile } from "@/components/shared/turnstile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldGroup } from "@/components/ui/field";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
@@ -34,10 +33,9 @@ const KNOWN_FIELDS = new Set(Object.keys(LABELS));
 
 interface JobApplicationFormProps {
   vacancySlug: string;
-  turnstileSiteKey: string | undefined;
 }
 
-export function JobApplicationForm({ vacancySlug, turnstileSiteKey }: JobApplicationFormProps) {
+export function JobApplicationForm({ vacancySlug }: JobApplicationFormProps) {
   const form = useForm<z.input<typeof jobApplicationSchema>, unknown, JobApplicationInput>({
     // The error summary takes focus instead of the first invalid field, so a screen reader hears every problem.
     shouldFocusError: false,
@@ -57,27 +55,16 @@ export function JobApplicationForm({ vacancySlug, turnstileSiteKey }: JobApplica
   });
   const [referenceNumber, setReferenceNumber] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | undefined>();
-  const [turnstileToken, setTurnstileToken] = useState<string | undefined>();
-  const [resetKey, setResetKey] = useState(0);
   const [focusKey, setFocusKey] = useState(0);
 
   const handleSubmit = form.handleSubmit(
     async (values) => {
       setFormError(undefined);
-      if (turnstileSiteKey && !turnstileToken) {
-        setFormError("Please complete the spam check.");
-        setFocusKey((key) => key + 1);
-        return;
-      }
       try {
-        const result = await apiPost<{ referenceNumber: string }>("/job-applications", {
-          ...values,
-          turnstileToken,
-        });
+        const result = await apiPost<{ referenceNumber: string }>("/job-applications", values);
         setReferenceNumber(result.referenceNumber);
       } catch (error: unknown) {
         setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
-        setResetKey((key) => key + 1);
         setFocusKey((key) => key + 1);
       }
     },
@@ -149,7 +136,6 @@ export function JobApplicationForm({ vacancySlug, turnstileSiteKey }: JobApplica
         <UploadField control={form.control} name="cv" label="CV" purpose="CV" />
       </FieldGroup>
       <HoneypotField register={form.register} />
-      <Turnstile siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetKey={resetKey} />
       <SubmitButton isSubmitting={form.formState.isSubmitting}>Submit application</SubmitButton>
     </form>
   );

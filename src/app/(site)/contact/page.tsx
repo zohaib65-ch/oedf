@@ -5,7 +5,6 @@ import { Container } from "@/components/shared/container";
 import { DetailSkeleton } from "@/components/shared/content-skeleton";
 import { PageHero } from "@/components/shared/page-hero";
 import { Section } from "@/components/shared/section";
-import { publicEnv } from "@/env";
 import { ContactDetails } from "@/features/contact/contact-details";
 import { ContactForm } from "@/features/contact/contact-form";
 import { pageMetadata } from "@/lib/seo";
@@ -37,7 +36,7 @@ export default function ContactPage() {
             <p className="mt-2 mb-6 text-muted-foreground">
               Choose the subject that fits best, and your message reaches the right office.
             </p>
-            <ContactForm turnstileSiteKey={publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
+            <ContactForm />
           </div>
         </Container>
       </Section>
