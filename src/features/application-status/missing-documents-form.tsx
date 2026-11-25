@@ -112,6 +112,7 @@ export function MissingDocumentsForm({
             control={form.control}
             name={`documents.${index}.kind`}
             label="Type of document"
+            placeholder="Choose a type of document"
             options={KIND_OPTIONS}
           />
           <UploadField

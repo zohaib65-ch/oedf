@@ -6,21 +6,25 @@ import { PasswordInput } from "@/components/forms/password-input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-interface TextFieldProps<T extends FieldValues> {
+type TextFieldProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   label: string;
   description?: string;
-  type?: ComponentProps<"input">["type"];
   autoComplete?: string;
   inputMode?: ComponentProps<"input">["inputMode"];
-  placeholder?: string;
   maxLength?: number;
-}
+} &
+  // The browser draws its own --:-- hint in a time input, so a placeholder never shows.
+  (
+    | { type: "time"; placeholder?: never }
+    | { type?: "text" | "email" | "tel" | "number" | "password" | "url"; placeholder: string }
+  );
 
 /**
  * A labelled text input bound to the form, with its description and error linked for screen readers.
- * A password gets an eye button to show or hide it.
+ * A password gets an eye button to show or hide it. Every typed input needs a placeholder. A date
+ * is a `DateField` (the shadcn calendar), never a native date input.
  */
 export function TextField<T extends FieldValues>({
   control,

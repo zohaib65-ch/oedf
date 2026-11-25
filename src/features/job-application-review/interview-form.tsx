@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { TextField } from "@/components/forms/text-field";
+import { DateTimeField } from "@/components/forms/date-time-field";
 import { SaveButton } from "@/components/portal/save-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -54,11 +54,10 @@ export function InterviewForm({ applicationId, interviewAtLocal }: InterviewForm
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       ) : null}
-      <TextField
+      <DateTimeField
         control={form.control}
         name="interviewAt"
         label="Interview date and time"
-        type="datetime-local"
         description="Pakistan time."
       />
       <div className="flex flex-wrap gap-2">

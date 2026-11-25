@@ -23,11 +23,11 @@ import {
 import type { PublicSiteSettingsRecord } from "@/server/repositories/site-settings.repository";
 
 const SOCIAL_FIELDS = [
-  ["facebook", "Facebook"],
-  ["instagram", "Instagram"],
-  ["linkedin", "LinkedIn"],
-  ["x", "X"],
-  ["youtube", "YouTube"],
+  ["facebook", "Facebook", "https://www.facebook.com/…"],
+  ["instagram", "Instagram", "https://www.instagram.com/…"],
+  ["linkedin", "LinkedIn", "https://www.linkedin.com/company/…"],
+  ["x", "X", "https://x.com/…"],
+  ["youtube", "YouTube", "https://www.youtube.com/@…"],
 ] as const;
 
 const MAX_IMPACT_NUMBERS = 8;
@@ -67,19 +67,38 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
         </CardHeader>
         <CardContent>
           <FieldGroup>
-            <TextareaField control={form.control} name="contact.address" label="Address" rows={3} />
-            <TextField control={form.control} name="contact.phone" label="Phone" type="tel" />
+            <TextareaField
+              control={form.control}
+              name="contact.address"
+              label="Address"
+              placeholder="Street, area and city"
+              rows={3}
+            />
+            <TextField
+              control={form.control}
+              name="contact.phone"
+              label="Phone"
+              placeholder="+92 42 1234567"
+              type="tel"
+            />
             <TextField
               control={form.control}
               name="contact.email"
               label="General email"
+              placeholder="info@example.com"
               type="email"
             />
-            <TextField control={form.control} name="contact.officeHours" label="Office hours" />
+            <TextField
+              control={form.control}
+              name="contact.officeHours"
+              label="Office hours"
+              placeholder="For example Mon–Fri, 9 am to 5 pm"
+            />
             <TextField
               control={form.control}
               name="mapUrl"
               label="Map link"
+              placeholder="https://maps.app.goo.gl/…"
               description="A Google Maps share link."
             />
           </FieldGroup>
@@ -93,8 +112,14 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
         </CardHeader>
         <CardContent>
           <FieldGroup>
-            {SOCIAL_FIELDS.map(([key, label]) => (
-              <TextField key={key} control={form.control} name={`social.${key}`} label={label} />
+            {SOCIAL_FIELDS.map(([key, label, placeholder]) => (
+              <TextField
+                key={key}
+                control={form.control}
+                name={`social.${key}`}
+                label={label}
+                placeholder={placeholder}
+              />
             ))}
           </FieldGroup>
         </CardContent>
@@ -115,6 +140,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
                   control={form.control}
                   name={`impactNumbers.${index}.label`}
                   label="Label"
+                  placeholder="For example Students supported"
                 />
               </div>
               <div className="w-40">
@@ -122,6 +148,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
                   control={form.control}
                   name={`impactNumbers.${index}.value`}
                   label="Number"
+                  placeholder="For example 1200"
                   inputMode="numeric"
                 />
               </div>
@@ -163,11 +190,17 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
             <CheckboxField control={form.control} name="announcement.isActive">
               Show the announcement bar
             </CheckboxField>
-            <TextField control={form.control} name="announcement.text" label="Text" />
+            <TextField
+              control={form.control}
+              name="announcement.text"
+              label="Text"
+              placeholder="For example Admissions for Fall 2026 are open"
+            />
             <TextField
               control={form.control}
               name="announcement.linkUrl"
               label="Link"
+              placeholder="For example /admissions"
               description="A page on this site (starting with /) or a full web address. Optional."
             />
           </FieldGroup>

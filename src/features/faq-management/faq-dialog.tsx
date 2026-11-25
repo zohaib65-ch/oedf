@@ -116,11 +116,18 @@ export function FaqDialog({ faq, topics }: FaqDialogProps) {
             </Alert>
           ) : null}
           <FieldGroup>
-            <TextField control={form.control} name="question" label="Question" maxLength={300} />
+            <TextField
+              control={form.control}
+              name="question"
+              label="Question"
+              placeholder="For example How do I apply for a scholarship?"
+              maxLength={300}
+            />
             <TextareaField
               control={form.control}
               name="answer"
               label="Answer"
+              placeholder="A clear, complete answer to the question"
               description={FORMATTED_TEXT_HINT}
               rows={6}
               maxLength={5000}

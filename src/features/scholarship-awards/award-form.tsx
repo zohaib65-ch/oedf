@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { SaveButton } from "@/components/portal/save-button";
@@ -67,26 +68,28 @@ export function AwardForm({ award }: { award: AwardDetail }) {
           control={form.control}
           name="amountPkr"
           label="Amount (whole rupees)"
+          placeholder="For example 25000"
           inputMode="numeric"
         />
         <SelectField
           control={form.control}
           name="period"
           label="Paid"
+          placeholder="Choose how often it is paid"
           options={toOptions(AWARD_PERIOD_LABELS)}
         />
-        <TextField control={form.control} name="startDate" label="Start date" type="date" />
-        <TextField
+        <DateField control={form.control} name="startDate" label="Start date" />
+        <DateField
           control={form.control}
           name="renewalDate"
           label="Renewal date"
-          type="date"
           description="Optional. Leave empty when there is none."
         />
         <SelectField
           control={form.control}
           name="status"
           label="Status"
+          placeholder="Choose a status"
           options={toOptions(AWARD_STATUS_LABELS)}
         />
       </FieldGroup>

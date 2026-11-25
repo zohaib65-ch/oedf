@@ -90,7 +90,13 @@ export function UserFormDialog({ user, departments, children }: UserFormDialogPr
             </Alert>
           ) : null}
           <FieldGroup>
-            <TextField control={form.control} name="name" label="Name" autoComplete="off" />
+            <TextField
+              control={form.control}
+              name="name"
+              label="Name"
+              placeholder="Full name"
+              autoComplete="off"
+            />
             {isEditing ? (
               <p className="text-sm text-muted-foreground">Email: {user.email}</p>
             ) : (
@@ -98,15 +104,23 @@ export function UserFormDialog({ user, departments, children }: UserFormDialogPr
                 control={form.control}
                 name="email"
                 label="Email"
+                placeholder="name@example.com"
                 type="email"
                 autoComplete="off"
               />
             )}
-            <SelectField control={form.control} name="role" label="Role" options={ROLE_OPTIONS} />
+            <SelectField
+              control={form.control}
+              name="role"
+              label="Role"
+              placeholder="Choose a role"
+              options={ROLE_OPTIONS}
+            />
             <SelectField
               control={form.control}
               name="departmentId"
               label="Office"
+              placeholder="Choose an office"
               options={departments}
             />
           </FieldGroup>

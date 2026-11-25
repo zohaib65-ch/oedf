@@ -46,6 +46,7 @@ export function ChangePasswordForm() {
             control={form.control}
             name="currentPassword"
             label="Current password"
+            placeholder="Your current password"
             type="password"
             autoComplete="current-password"
           />
@@ -53,6 +54,7 @@ export function ChangePasswordForm() {
             control={form.control}
             name="newPassword"
             label="New password"
+            placeholder="Enter a new password"
             type="password"
             autoComplete="new-password"
           />
@@ -60,6 +62,7 @@ export function ChangePasswordForm() {
             control={form.control}
             name="confirmPassword"
             label="Confirm new password"
+            placeholder="Type the new password again"
             type="password"
             autoComplete="new-password"
           />

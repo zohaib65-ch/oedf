@@ -15,6 +15,7 @@ interface NoteFormProps {
   /** The API path that takes the note, for example `/applications/{id}/notes`. */
   endpoint: string;
   label: string;
+  placeholder: string;
   submitLabel?: string;
   successMessage?: string;
 }
@@ -23,6 +24,7 @@ interface NoteFormProps {
 export function NoteForm({
   endpoint,
   label,
+  placeholder,
   submitLabel = "Add note",
   successMessage = "Note added.",
 }: NoteFormProps) {
@@ -45,7 +47,14 @@ export function NoteForm({
 
   return (
     <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-3">
-      <TextareaField control={form.control} name="body" label={label} rows={3} maxLength={2000} />
+      <TextareaField
+        control={form.control}
+        name="body"
+        label={label}
+        placeholder={placeholder}
+        rows={3}
+        maxLength={2000}
+      />
       <SaveButton isPending={form.formState.isSubmitting} variant="outline">
         {submitLabel}
       </SaveButton>

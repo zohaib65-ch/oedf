@@ -92,6 +92,7 @@ export function JobStatusDialog({ applicationId, target }: JobStatusDialogProps)
             control={form.control}
             name="reason"
             label="Reason"
+            placeholder="Why the status is changing"
             description="Recorded with your name in the application's history. The candidate does not see it."
             rows={3}
             maxLength={1000}

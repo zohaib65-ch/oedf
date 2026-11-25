@@ -40,6 +40,7 @@ export function ImageFields<T extends FieldValues>({ control, currentImage }: Im
         control={control}
         name={"imageAlt" as Path<T>}
         label="Photo description"
+        placeholder="For example Students at a reading class"
         description="What the photo shows, for people who cannot see it. Needed with a photo."
         maxLength={200}
       />

@@ -67,6 +67,7 @@ export function StatusChecker() {
             control={form.control}
             name="referenceNumber"
             label="Reference number"
+            placeholder="OEDF-ADM-2026-000123"
             description="For example OEDF-ADM-2026-000123."
             autoComplete="off"
           />
@@ -74,6 +75,7 @@ export function StatusChecker() {
             control={form.control}
             name="email"
             label="Email"
+            placeholder="The email you applied with"
             type="email"
             autoComplete="email"
           />

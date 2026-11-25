@@ -92,11 +92,18 @@ export function JobApplicationForm({ vacancySlug }: JobApplicationFormProps) {
         </Alert>
       ) : null}
       <FieldGroup>
-        <TextField control={form.control} name="fullName" label="Full name" autoComplete="name" />
+        <TextField
+          control={form.control}
+          name="fullName"
+          label="Full name"
+          placeholder="Your full name"
+          autoComplete="name"
+        />
         <TextField
           control={form.control}
           name="email"
           label="Email"
+          placeholder="you@example.com"
           type="email"
           autoComplete="email"
         />
@@ -104,6 +111,7 @@ export function JobApplicationForm({ vacancySlug }: JobApplicationFormProps) {
           control={form.control}
           name="phone"
           label="Phone"
+          placeholder="0300 1234567"
           type="tel"
           autoComplete="tel"
         />
@@ -111,19 +119,28 @@ export function JobApplicationForm({ vacancySlug }: JobApplicationFormProps) {
           control={form.control}
           name="cnic"
           label="CNIC number"
+          placeholder="35202-1234567-1"
           inputMode="numeric"
           description="13 digits, with or without dashes."
         />
-        <TextField control={form.control} name="city" label="City" autoComplete="address-level2" />
+        <TextField
+          control={form.control}
+          name="city"
+          label="City"
+          placeholder="For example Lahore"
+          autoComplete="address-level2"
+        />
         <TextField
           control={form.control}
           name="highestQualification"
           label="Highest qualification"
+          placeholder="For example MA Education"
         />
         <TextField
           control={form.control}
           name="yearsOfExperience"
           label="Years of experience"
+          placeholder="For example 3"
           type="number"
           inputMode="numeric"
         />
@@ -131,6 +148,7 @@ export function JobApplicationForm({ vacancySlug }: JobApplicationFormProps) {
           control={form.control}
           name="coverLetter"
           label="Cover letter (optional)"
+          placeholder="Tell us why you are a good fit for this role."
           rows={6}
         />
         <UploadField control={form.control} name="cv" label="CV" purpose="CV" />

@@ -1,4 +1,4 @@
-import { FilterBar, FilterInput, FilterSelect } from "@/components/portal/list-filters";
+import { FilterBar, FilterDate, FilterInput, FilterSelect } from "@/components/portal/list-filters";
 import { AWARD_STATUS_LABELS, toOptions } from "@/lib/constants/labels";
 import type { ListAwardsQuery } from "@/lib/validations/application-review";
 
@@ -26,11 +26,10 @@ export function AwardsFilter({ query }: { query: ListAwardsQuery }) {
         options={toOptions(AWARD_STATUS_LABELS)}
         allLabel="All statuses"
       />
-      <FilterInput
+      <FilterDate
         id="awards-renewal"
         name="renewalBefore"
         label="Renewal on or before"
-        type="date"
         value={query.renewalBefore}
       />
     </FilterBar>

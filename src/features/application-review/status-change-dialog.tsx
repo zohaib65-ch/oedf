@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
@@ -118,6 +119,7 @@ export function StatusChangeDialog({
                 control={form.control}
                 name="missingItems"
                 label="What the applicant must send"
+                placeholder={"Attested result card\nCopy of guardian's CNIC"}
                 description="One item per line. The applicant sees this list."
                 rows={4}
               />
@@ -128,25 +130,21 @@ export function StatusChangeDialog({
                   control={form.control}
                   name="award.amountPkr"
                   label="Amount (whole rupees)"
+                  placeholder="For example 25000"
                   inputMode="numeric"
                 />
                 <SelectField
                   control={form.control}
                   name="award.period"
                   label="Paid"
+                  placeholder="Choose how often it is paid"
                   options={toOptions(AWARD_PERIOD_LABELS)}
                 />
-                <TextField
-                  control={form.control}
-                  name="award.startDate"
-                  label="Start date"
-                  type="date"
-                />
-                <TextField
+                <DateField control={form.control} name="award.startDate" label="Start date" />
+                <DateField
                   control={form.control}
                   name="award.renewalDate"
                   label="Renewal date"
-                  type="date"
                   description="Optional. When the award is next reviewed."
                 />
               </>
@@ -155,6 +153,7 @@ export function StatusChangeDialog({
               control={form.control}
               name="reason"
               label="Reason"
+              placeholder="Why the status is changing"
               description="Recorded with your name in the application's history. Not sent to the applicant."
               rows={3}
               maxLength={1000}

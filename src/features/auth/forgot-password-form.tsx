@@ -52,6 +52,7 @@ export function ForgotPasswordForm() {
         control={form.control}
         name="email"
         label="Email"
+        placeholder="you@example.com"
         type="email"
         autoComplete="username"
       />

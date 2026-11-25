@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
-import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { SaveButton } from "@/components/portal/save-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -80,17 +80,19 @@ export function ReviewDialog({ institutionId }: { institutionId: string }) {
             </Alert>
           ) : null}
           <FieldGroup>
-            <TextField control={form.control} name="reviewDate" label="Review date" type="date" />
+            <DateField control={form.control} name="reviewDate" label="Review date" />
             <SelectField
               control={form.control}
               name="rating"
               label="Rating"
+              placeholder="Choose a rating"
               options={RATING_OPTIONS}
             />
             <TextareaField
               control={form.control}
               name="summary"
               label="Summary"
+              placeholder="What was reviewed and what was found"
               rows={4}
               maxLength={2000}
             />

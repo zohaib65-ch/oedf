@@ -15,7 +15,8 @@ interface SelectFieldProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
   options: readonly { value: string; label: string }[];
-  placeholder?: string;
+  /** Shown until something is chosen, for example "Choose a status". */
+  placeholder: string;
   description?: string;
 }
 
@@ -24,7 +25,7 @@ export function SelectField<T extends FieldValues>({
   name,
   label,
   options,
-  placeholder = "Choose one",
+  placeholder,
   description,
 }: SelectFieldProps<T>) {
   return (

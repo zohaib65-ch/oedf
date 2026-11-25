@@ -50,11 +50,17 @@ function OfficeForm({ office }: { office: StaffDepartmentRecord }) {
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="directorName" label="Director's name" />
+        <TextField
+          control={form.control}
+          name="directorName"
+          label="Director's name"
+          placeholder="Full name of the director"
+        />
         <TextField
           control={form.control}
           name="notificationEmail"
           label="Notification email"
+          placeholder="office@example.com"
           type="email"
           description="Contact messages for this office are sent here."
         />

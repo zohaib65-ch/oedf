@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
@@ -61,20 +62,38 @@ export function VacancyForm({ vacancyId, defaultValues, offices }: VacancyFormPr
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="title" label="Title" maxLength={150} />
-        <SelectField control={form.control} name="departmentId" label="Office" options={offices} />
-        <TextField control={form.control} name="city" label="City" maxLength={80} />
+        <TextField
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="For example Program Officer"
+          maxLength={150}
+        />
+        <SelectField
+          control={form.control}
+          name="departmentId"
+          label="Office"
+          placeholder="Choose an office"
+          options={offices}
+        />
+        <TextField
+          control={form.control}
+          name="city"
+          label="City"
+          placeholder="For example Lahore"
+          maxLength={80}
+        />
         <SelectField
           control={form.control}
           name="employmentType"
           label="Type of post"
+          placeholder="Choose a type of post"
           options={toOptions(EMPLOYMENT_TYPE_LABELS)}
         />
-        <TextField
+        <DateField
           control={form.control}
           name="deadline"
           label="Last day to apply"
-          type="date"
           description="Applications are accepted until the end of this day, Pakistan time."
         />
       </FieldGroup>
@@ -83,6 +102,7 @@ export function VacancyForm({ vacancyId, defaultValues, offices }: VacancyFormPr
           control={form.control}
           name="description"
           label="Description"
+          placeholder="What the role involves and its main duties"
           description={`The role and its duties. ${FORMATTED_TEXT_HINT}`}
           rows={12}
           maxLength={10_000}
@@ -91,6 +111,7 @@ export function VacancyForm({ vacancyId, defaultValues, offices }: VacancyFormPr
           control={form.control}
           name="requirements"
           label="Requirements"
+          placeholder="Qualifications, experience and skills needed"
           description={`Optional. Qualifications and experience. ${FORMATTED_TEXT_HINT}`}
           rows={8}
           maxLength={5000}

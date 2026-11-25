@@ -38,7 +38,13 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
       </CardHeader>
       <CardContent>
         <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-4">
-          <TextField control={form.control} name="name" label="Name" autoComplete="name" />
+          <TextField
+            control={form.control}
+            name="name"
+            label="Name"
+            placeholder="Your full name"
+            autoComplete="name"
+          />
           <SaveButton isPending={form.formState.isSubmitting}>Save name</SaveButton>
         </form>
       </CardContent>

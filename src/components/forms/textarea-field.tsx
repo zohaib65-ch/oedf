@@ -8,6 +8,7 @@ interface TextareaFieldProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
   label: string;
+  placeholder: string;
   description?: string;
   rows?: number;
   maxLength?: number;
@@ -17,6 +18,7 @@ export function TextareaField<T extends FieldValues>({
   control,
   name,
   label,
+  placeholder,
   description,
   rows = 5,
   maxLength,
@@ -32,6 +34,7 @@ export function TextareaField<T extends FieldValues>({
             {...field}
             value={field.value ?? ""}
             id={fieldId(name)}
+            placeholder={placeholder}
             rows={rows}
             maxLength={maxLength}
             aria-invalid={fieldState.invalid}

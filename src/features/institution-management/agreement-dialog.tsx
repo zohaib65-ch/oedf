@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { UploadField } from "@/components/forms/upload-field";
@@ -113,27 +114,38 @@ export function AgreementDialog({ institutionId, agreement }: AgreementDialogPro
             </Alert>
           ) : null}
           <FieldGroup>
-            <TextField control={form.control} name="title" label="Title" maxLength={150} />
-            <TextField control={form.control} name="partner" label="Partner" maxLength={150} />
-            <TextField control={form.control} name="startDate" label="Start date" type="date" />
             <TextField
               control={form.control}
-              name="endDate"
-              label="End date"
-              type="date"
-              description="Optional."
+              name="title"
+              label="Title"
+              placeholder="For example Scholarship partnership agreement"
+              maxLength={150}
             />
             <TextField
               control={form.control}
+              name="partner"
+              label="Partner"
+              placeholder="Name of the partner organization"
+              maxLength={150}
+            />
+            <DateField control={form.control} name="startDate" label="Start date" />
+            <DateField
+              control={form.control}
+              name="endDate"
+              label="End date"
+              description="Optional."
+            />
+            <DateField
+              control={form.control}
               name="renewalDate"
               label="Renewal date"
-              type="date"
               description="Optional. Listed on the institutions page as the next renewal."
             />
             <SelectField
               control={form.control}
               name="status"
               label="Status"
+              placeholder="Choose a status"
               options={toOptions(AGREEMENT_STATUS_LABELS)}
             />
             <UploadField

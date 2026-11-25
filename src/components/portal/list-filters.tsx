@@ -3,6 +3,7 @@ import { FilterIcon, SearchIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
+import { DatePicker } from "@/components/forms/date-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
@@ -122,7 +123,7 @@ export function FilterSelect({
     <FilterField id={id} label={label} size={size}>
       <Select name={name} defaultValue={value ?? ALL_FILTER_VALUE}>
         <SelectTrigger id={id} className={CONTROL}>
-          <SelectValue />
+          <SelectValue placeholder={allLabel} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value={ALL_FILTER_VALUE}>{allLabel}</SelectItem>
@@ -137,18 +138,19 @@ export function FilterSelect({
   );
 }
 
-interface FilterInputProps extends Omit<
+type FilterInputProps = Omit<
   ComponentProps<typeof Input>,
-  "id" | "name" | "defaultValue" | "size" | "className"
-> {
+  "id" | "name" | "defaultValue" | "size" | "className" | "type" | "placeholder"
+> & {
   id: string;
   name: string;
   label: string;
   value: string | undefined;
+  placeholder: string;
   size?: FilterSize;
-}
+};
 
-/** A text or date filter. The free-text search (`q`) gets a search icon and the wider size. */
+/** A text filter. The free-text search (`q`) gets a search icon and the wider size. */
 export function FilterInput({ id, name, label, value, size, ...props }: FilterInputProps) {
   const isSearch = name === "q";
   return (
@@ -163,6 +165,30 @@ export function FilterInput({ id, name, label, value, size, ...props }: FilterIn
       ) : (
         <Input id={id} name={name} defaultValue={value} className={CONTROL} {...props} />
       )}
+    </FilterField>
+  );
+}
+
+interface FilterDateProps {
+  id: string;
+  name: string;
+  label: string;
+  /** The applied day (YYYY-MM-DD), if any. */
+  value: string | undefined;
+  size?: FilterSize;
+}
+
+/** A day filter: the shadcn calendar, sending the day as YYYY-MM-DD under `name`. */
+export function FilterDate({ id, name, label, value, size = "md" }: FilterDateProps) {
+  return (
+    <FilterField id={id} label={label} size={size}>
+      <DatePicker
+        id={id}
+        name={name}
+        defaultValue={value}
+        placeholder="Any date"
+        className={CONTROL}
+      />
     </FilterField>
   );
 }

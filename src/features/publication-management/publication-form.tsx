@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
@@ -90,24 +91,31 @@ export function PublicationForm({
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="title" label="Title" maxLength={200} />
+        <TextField
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="Title of the publication"
+          maxLength={200}
+        />
         <SelectField
           control={form.control}
           name="type"
           label="Type"
+          placeholder="Choose a type"
           options={toOptions(PUBLICATION_TYPE_LABELS)}
         />
-        <TextField
+        <DateField
           control={form.control}
           name="publishedOn"
           label="Publish date"
-          type="date"
           description="Optional. Left empty, it is the day the publication is published."
         />
         <SelectField
           control={form.control}
           name="status"
           label="Status"
+          placeholder="Choose a status"
           options={statusOptions}
           description={
             canPublish
@@ -121,6 +129,7 @@ export function PublicationForm({
           control={form.control}
           name="summary"
           label="Summary"
+          placeholder="What the publication covers and its main findings"
           description={`Shown on cards and the public page. ${FORMATTED_TEXT_HINT}`}
           rows={8}
           maxLength={10_000}
@@ -129,6 +138,7 @@ export function PublicationForm({
           control={form.control}
           name="authors"
           label="Authors"
+          placeholder="For example Ayesha Khan, Bilal Ahmed"
           description="Optional. Separate names with commas."
           maxLength={2000}
         />
@@ -136,6 +146,7 @@ export function PublicationForm({
           control={form.control}
           name="tags"
           label="Topics"
+          placeholder="For example literacy, rural schools"
           description="Optional. Separate topics with commas, for example “literacy, rural schools”."
           maxLength={1000}
         />

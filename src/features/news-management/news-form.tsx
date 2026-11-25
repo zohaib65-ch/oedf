@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
@@ -83,30 +84,37 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="title" label="Title" maxLength={200} />
+        <TextField
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="Headline of the post"
+          maxLength={200}
+        />
         <SelectField
           control={form.control}
           name="type"
           label="Type"
+          placeholder="Choose a type"
           options={toOptions(NEWS_TYPE_LABELS)}
         />
         <SelectField
           control={form.control}
           name="status"
           label="Status"
+          placeholder="Choose a status"
           options={toOptions(CONTENT_STATUS_LABELS)}
           description="Published posts are on the News page; archived ones are hidden."
         />
-        <TextField
+        <DateField
           control={form.control}
           name="publishedOn"
           label="Publish date"
-          type="date"
           description="Optional. Left empty, it is the moment the post is published."
         />
         {type === "EVENT" ? (
           <>
-            <TextField control={form.control} name="eventDate" label="Event date" type="date" />
+            <DateField control={form.control} name="eventDate" label="Event date" />
             <TextField
               control={form.control}
               name="eventStartTime"
@@ -118,6 +126,7 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
               control={form.control}
               name="venue"
               label="Venue"
+              placeholder="Where the event takes place"
               description="Optional."
               maxLength={200}
             />
@@ -129,6 +138,7 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
           control={form.control}
           name="excerpt"
           label="Excerpt"
+          placeholder="A short summary of the post"
           description="One or two sentences for cards and search results."
           rows={2}
           maxLength={300}
@@ -137,6 +147,7 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
           control={form.control}
           name="body"
           label="Body"
+          placeholder="Write the full post here"
           description={FORMATTED_TEXT_HINT}
           rows={14}
           maxLength={20_000}
@@ -150,6 +161,7 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
             control={form.control}
             name="seoTitle"
             label="Search title"
+            placeholder="Leave empty to use the title"
             description={`Optional; the title is used when empty. Up to ${String(MAX_SEO_TITLE_LENGTH)} characters.`}
             maxLength={MAX_SEO_TITLE_LENGTH}
           />
@@ -157,6 +169,7 @@ export function NewsForm({ postId, defaultValues, currentImage }: NewsFormProps)
             control={form.control}
             name="seoDescription"
             label="Search description"
+            placeholder="Leave empty to use the excerpt"
             description={`Optional; the excerpt is used when empty. Up to ${String(MAX_SEO_DESCRIPTION_LENGTH)} characters.`}
             rows={2}
             maxLength={MAX_SEO_DESCRIPTION_LENGTH}

@@ -74,7 +74,11 @@ export default async function AwardPage({ params }: PageProps<"/portal/scholarsh
           </CardHeader>
           <CardContent className="space-y-6">
             {canManage ? (
-              <NoteForm endpoint={`/scholarship-awards/${award.id}/notes`} label="Progress note" />
+              <NoteForm
+                endpoint={`/scholarship-awards/${award.id}/notes`}
+                label="Progress note"
+                placeholder="How the student is doing"
+              />
             ) : null}
             <Timeline
               items={award.notes.map((note) => ({

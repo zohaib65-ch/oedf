@@ -150,6 +150,7 @@ export function AssignmentActions({
             control={ownerForm.control}
             name="note"
             label="Note"
+            placeholder="Anything the owner should know"
             description="Optional. Kept with the progress updates."
             rows={3}
             maxLength={2000}
@@ -177,6 +178,7 @@ export function AssignmentActions({
             control={progressForm.control}
             name="note"
             label="Note"
+            placeholder="What was done, and what is next"
             rows={4}
             maxLength={2000}
           />
@@ -208,6 +210,7 @@ export function AssignmentActions({
             control={clarificationForm.control}
             name="text"
             label="Explanation"
+            placeholder="Describe the conflict and the decision you need"
             description="What conflicts, and what you need decided."
             rows={5}
             maxLength={2000}
@@ -239,6 +242,7 @@ export function AssignmentActions({
             control={resolutionForm.control}
             name="note"
             label="Reason for the decision"
+            placeholder="Why this decision was made"
             rows={4}
             maxLength={2000}
           />

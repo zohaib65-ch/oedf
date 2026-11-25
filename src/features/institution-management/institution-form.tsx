@@ -87,18 +87,32 @@ export function InstitutionForm({
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="name" label="Name" maxLength={150} />
+        <TextField
+          control={form.control}
+          name="name"
+          label="Name"
+          placeholder="Full name of the institution"
+          maxLength={150}
+        />
         <SelectField
           control={form.control}
           name="type"
           label="Type"
+          placeholder="Choose a type"
           options={toOptions(INSTITUTION_TYPE_LABELS)}
         />
-        <TextField control={form.control} name="city" label="City" maxLength={80} />
+        <TextField
+          control={form.control}
+          name="city"
+          label="City"
+          placeholder="For example Lahore"
+          maxLength={80}
+        />
         <SelectField
           control={form.control}
           name="status"
           label="Status"
+          placeholder="Choose a status"
           options={toOptions(INSTITUTION_STATUS_LABELS)}
         />
       </FieldGroup>
@@ -107,6 +121,7 @@ export function InstitutionForm({
           control={form.control}
           name="address"
           label="Address"
+          placeholder="Street address"
           description="Optional."
           maxLength={300}
         />
@@ -114,6 +129,7 @@ export function InstitutionForm({
           control={form.control}
           name="description"
           label="Description"
+          placeholder="About the institution and its work"
           description={`Optional. ${FORMATTED_TEXT_HINT}`}
           rows={8}
           maxLength={10_000}

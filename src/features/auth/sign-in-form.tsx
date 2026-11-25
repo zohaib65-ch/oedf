@@ -58,6 +58,7 @@ export function SignInForm() {
         control={form.control}
         name="email"
         label="Email"
+        placeholder="you@example.com"
         type="email"
         autoComplete="username"
       />
@@ -65,6 +66,7 @@ export function SignInForm() {
         control={form.control}
         name="password"
         label="Password"
+        placeholder="Your password"
         type="password"
         autoComplete="current-password"
       />

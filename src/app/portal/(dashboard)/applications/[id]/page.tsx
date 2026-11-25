@@ -168,6 +168,7 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
                 <NoteForm
                   endpoint={`/applications/${application.id}/notes`}
                   label="Internal note"
+                  placeholder="Only staff can see this note"
                 />
               ) : null}
               <Timeline items={toTimelineItems(application)} emptyText="Nothing recorded yet." />

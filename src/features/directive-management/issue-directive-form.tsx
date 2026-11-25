@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { CheckboxListField } from "@/components/forms/checkbox-list-field";
+import { DateField } from "@/components/forms/date-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
@@ -59,28 +60,35 @@ export function IssueDirectiveForm({ offices }: IssueDirectiveFormProps) {
         </Alert>
       ) : null}
       <FieldGroup>
-        <TextField control={form.control} name="title" label="Title" maxLength={200} />
+        <TextField
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="For example Submit quarterly enrollment figures"
+          maxLength={200}
+        />
         <TextareaField
           control={form.control}
           name="body"
           label="Instructions"
+          placeholder="Step-by-step instructions for each office"
           description={`What each office must do. ${FORMATTED_TEXT_HINT}`}
           rows={10}
           maxLength={10_000}
         />
       </FieldGroup>
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField
+        <DateField
           control={form.control}
           name="dueDate"
           label="Due date"
-          type="date"
           description="The work is overdue from the next day."
         />
         <SelectField
           control={form.control}
           name="priority"
           label="Priority"
+          placeholder="Choose a priority"
           options={toOptions(DIRECTIVE_PRIORITY_LABELS)}
         />
       </FieldGroup>

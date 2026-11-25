@@ -1,4 +1,4 @@
-import { FilterBar, FilterInput, FilterSelect } from "@/components/portal/list-filters";
+import { FilterBar, FilterDate, FilterInput, FilterSelect } from "@/components/portal/list-filters";
 import {
   APPLICATION_STATUS_LABELS,
   APPLICATION_TYPE_LABELS,
@@ -62,21 +62,15 @@ export function ApplicationsFilter({ query, programs }: ApplicationsFilterProps)
         allLabel="All programs"
         size="lg"
       />
-      <FilterInput id="applications-city" name="city" label="City" value={query.city} />
       <FilterInput
-        id="applications-from"
-        name="from"
-        label="Submitted from"
-        type="date"
-        value={query.from}
+        id="applications-city"
+        name="city"
+        label="City"
+        placeholder="For example Lahore"
+        value={query.city}
       />
-      <FilterInput
-        id="applications-to"
-        name="to"
-        label="Submitted to"
-        type="date"
-        value={query.to}
-      />
+      <FilterDate id="applications-from" name="from" label="Submitted from" value={query.from} />
+      <FilterDate id="applications-to" name="to" label="Submitted to" value={query.to} />
       <FilterSelect
         id="applications-view"
         name="view"

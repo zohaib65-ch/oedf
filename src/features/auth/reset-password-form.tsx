@@ -42,6 +42,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         control={form.control}
         name="password"
         label="New password"
+        placeholder="Enter a new password"
         type="password"
         autoComplete="new-password"
         description={`At least ${MIN_PASSWORD_LENGTH} characters.`}
@@ -50,6 +51,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         control={form.control}
         name="confirmPassword"
         label="Confirm new password"
+        placeholder="Type the new password again"
         type="password"
         autoComplete="new-password"
       />

@@ -27,6 +27,7 @@ export function StepChoice({
         control={control}
         name="intakeSession"
         label="Intake session"
+        placeholder="For example Fall 2026"
         description="The session you are applying for, for example Fall 2026."
         maxLength={50}
       />

@@ -155,6 +155,7 @@ export default async function JobApplicationPage({
                 <NoteForm
                   endpoint={`/job-applications/${application.id}/notes`}
                   label="Internal note"
+                  placeholder="Only staff can see this note"
                 />
               ) : null}
               <Timeline items={toTimelineItems(application)} emptyText="Nothing recorded yet." />

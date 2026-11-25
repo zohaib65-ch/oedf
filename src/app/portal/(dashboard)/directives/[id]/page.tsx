@@ -210,6 +210,7 @@ export default async function DirectivePage({ params }: PageProps<"/portal/direc
                 <NoteForm
                   endpoint={`/directives/${directive.id}/assignments/${assignment.id}/notes`}
                   label={`Progress update for ${assignment.departmentName}`}
+                  placeholder="What was done, and what is next"
                   submitLabel="Post update"
                   successMessage="Update posted."
                 />

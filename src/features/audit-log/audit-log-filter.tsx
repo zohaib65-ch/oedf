@@ -1,4 +1,4 @@
-import { FilterBar, FilterInput } from "@/components/portal/list-filters";
+import { FilterBar, FilterDate, FilterInput } from "@/components/portal/list-filters";
 import type { AuditLogQuery } from "@/lib/validations/audit-log";
 
 export function AuditLogFilter({ query }: { query: AuditLogQuery }) {
@@ -23,8 +23,8 @@ export function AuditLogFilter({ query }: { query: AuditLogQuery }) {
         value={query.action}
         placeholder="For example user.created"
       />
-      <FilterInput id="audit-from" name="from" label="From" type="date" value={query.from} />
-      <FilterInput id="audit-to" name="to" label="To" type="date" value={query.to} />
+      <FilterDate id="audit-from" name="from" label="From" value={query.from} />
+      <FilterDate id="audit-to" name="to" label="To" value={query.to} />
     </FilterBar>
   );
 }

@@ -84,11 +84,18 @@ export function ContactForm() {
         </Alert>
       ) : null}
       <FieldGroup>
-        <TextField control={form.control} name="name" label="Name" autoComplete="name" />
+        <TextField
+          control={form.control}
+          name="name"
+          label="Name"
+          placeholder="Your full name"
+          autoComplete="name"
+        />
         <TextField
           control={form.control}
           name="email"
           label="Email"
+          placeholder="you@example.com"
           type="email"
           autoComplete="email"
         />
@@ -96,6 +103,7 @@ export function ContactForm() {
           control={form.control}
           name="phone"
           label="Phone (optional)"
+          placeholder="0300 1234567"
           type="tel"
           autoComplete="tel"
         />
@@ -103,9 +111,15 @@ export function ContactForm() {
           control={form.control}
           name="subject"
           label="Subject"
+          placeholder="Choose a subject"
           options={SUBJECT_OPTIONS}
         />
-        <TextareaField control={form.control} name="message" label="Message" />
+        <TextareaField
+          control={form.control}
+          name="message"
+          label="Message"
+          placeholder="How can we help you?"
+        />
       </FieldGroup>
       <HoneypotField register={form.register} />
       <SubmitButton isSubmitting={form.formState.isSubmitting}>Send message</SubmitButton>

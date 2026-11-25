@@ -94,17 +94,25 @@ export function ProgramForm({
         </Alert>
       ) : null}
       <FieldGroup className="sm:grid sm:grid-cols-2">
-        <TextField control={form.control} name="title" label="Title" maxLength={150} />
+        <TextField
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="Name of the program"
+          maxLength={150}
+        />
         <SelectField
           control={form.control}
           name="category"
           label="Category"
+          placeholder="Choose a category"
           options={toOptions(PROGRAM_CATEGORY_LABELS)}
         />
         <TextField
           control={form.control}
           name="duration"
           label="Duration"
+          placeholder="For example 6 months"
           description="Optional, for example “6 months”."
           maxLength={100}
         />
@@ -112,6 +120,7 @@ export function ProgramForm({
           control={form.control}
           name="status"
           label="Status"
+          placeholder="Choose a status"
           options={statusOptions}
           description={
             canPublish
@@ -125,6 +134,7 @@ export function ProgramForm({
           control={form.control}
           name="summary"
           label="Summary"
+          placeholder="One or two sentences about the program"
           description="One or two sentences for cards and search results."
           rows={2}
           maxLength={300}
@@ -133,6 +143,7 @@ export function ProgramForm({
           control={form.control}
           name="description"
           label="Description"
+          placeholder="What the program offers and how it works"
           description={`Optional. ${FORMATTED_TEXT_HINT}`}
           rows={10}
           maxLength={10_000}
@@ -141,6 +152,7 @@ export function ProgramForm({
           control={form.control}
           name="eligibility"
           label="Eligibility"
+          placeholder="Who can apply, and what they need"
           description={`Optional. ${FORMATTED_TEXT_HINT}`}
           rows={6}
           maxLength={10_000}
