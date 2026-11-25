@@ -15,6 +15,7 @@ import type {
   INSTITUTION_STATUSES,
   INSTITUTION_TYPES,
   JOB_APPLICATION_STATUSES,
+  MESSAGE_STATUSES,
   MESSAGE_SUBJECTS,
   NEWS_TYPES,
   PROGRAM_CATEGORIES,
@@ -80,6 +81,13 @@ export const MESSAGE_SUBJECT_LABELS = {
   PARTNERSHIPS: "Partnerships",
   OTHER: "Other",
 } satisfies Record<(typeof MESSAGE_SUBJECTS)[number], string>;
+
+export const MESSAGE_STATUS_LABELS = {
+  NEW: "New",
+  READ: "Read",
+  REPLIED: "Replied",
+  ARCHIVED: "Archived",
+} satisfies Record<(typeof MESSAGE_STATUSES)[number], string>;
 
 export const DOCUMENT_KIND_LABELS = {
   PHOTO: "Photograph",

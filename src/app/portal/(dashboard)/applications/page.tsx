@@ -1,12 +1,14 @@
 import { ClipboardListIcon } from "lucide-react";
 import type { Metadata } from "next";
 
+import { ExportCsvButton } from "@/components/portal/export-csv-button";
 import { ForbiddenView } from "@/components/portal/forbidden-view";
 import { PageHeader } from "@/components/portal/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { ApplicationsFilter } from "@/features/application-review/applications-filter";
 import { ApplicationsTable } from "@/features/application-review/applications-table";
+import { hasPermission } from "@/lib/constants/permissions";
 import { buildHref } from "@/lib/query-string";
 import { listApplicationsQuerySchema } from "@/lib/validations/application-review";
 import { checkPagePermission } from "@/server/auth/session";
@@ -47,6 +49,13 @@ export default async function ApplicationsPage({
       <PageHeader
         title="Applications"
         description="Admission and scholarship applications. Lists show only the last four CNIC digits."
+        actions={
+          hasPermission(access.staff, "applications:export") ? (
+            <ExportCsvButton
+              href={buildHref("/api/v1/applications/export", { ...params, sort: query.sort })}
+            />
+          ) : null
+        }
       />
       <ApplicationsFilter
         query={query}

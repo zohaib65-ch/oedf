@@ -72,18 +72,16 @@ export const ownerChoiceSchema = z.object({
 export const progressNoteSchema = z.object({ note: noteText });
 
 /** A progress update on one office's assignment. */
-export const directiveNoteSchema = noteInputSchema.extend({ assignmentId: objectIdText });
+export const directiveNoteSchema = noteInputSchema;
 
 /** An office asks the CEO Office to clarify, giving one of the reasons the policy allows. */
 export const clarificationRequestSchema = z.object({
-  assignmentId: objectIdText,
   reason: z.enum(CLARIFICATION_REASONS, { error: "Choose a reason" }),
   text: reasonText("Explain what needs clarifying"),
 });
 
 /** The CEO Office's answer to a clarification request. */
 export const clarificationResolutionSchema = z.object({
-  assignmentId: objectIdText,
   decision: z.enum(CLARIFICATION_DECISIONS, { error: "Choose a decision" }),
   note: reasonText("Explain the decision"),
 });

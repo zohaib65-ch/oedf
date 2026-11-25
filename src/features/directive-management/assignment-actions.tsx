@@ -89,11 +89,11 @@ export function AssignmentActions({
   });
   const clarificationForm = useForm<ClarificationRequestInput>({
     resolver: zodResolver(clarificationRequestSchema),
-    defaultValues: { assignmentId, text: "" },
+    defaultValues: { text: "" },
   });
   const resolutionForm = useForm<ClarificationResolutionInput>({
     resolver: zodResolver(clarificationResolutionSchema),
-    defaultValues: { assignmentId, note: "" },
+    defaultValues: { note: "" },
   });
 
   const hasAny =
@@ -192,7 +192,7 @@ export function AssignmentActions({
           knownFields={CLARIFICATION_FIELDS}
           variant="outline"
           onSubmit={async (values) => {
-            await apiPost(`${base}/clarification`, values);
+            await apiPost(`${base}/assignments/${assignmentId}/clarification`, values);
             toast.success("Clarification requested. The CEO Office has been told.");
             router.refresh();
           }}
@@ -223,7 +223,7 @@ export function AssignmentActions({
           form={resolutionForm}
           knownFields={RESOLUTION_FIELDS}
           onSubmit={async (values) => {
-            await apiPost(`${base}/resolve`, values);
+            await apiPost(`${base}/assignments/${assignmentId}/resolve`, values);
             toast.success("Clarification resolved.");
             router.refresh();
           }}

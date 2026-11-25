@@ -15,8 +15,6 @@ interface NoteFormProps {
   /** The API path that takes the note, for example `/applications/{id}/notes`. */
   endpoint: string;
   label: string;
-  /** Sent with the note, for example the office's part of a directive it belongs to. */
-  extraValues?: Record<string, string>;
   submitLabel?: string;
   successMessage?: string;
 }
@@ -25,7 +23,6 @@ interface NoteFormProps {
 export function NoteForm({
   endpoint,
   label,
-  extraValues,
   submitLabel = "Add note",
   successMessage = "Note added.",
 }: NoteFormProps) {
@@ -37,7 +34,7 @@ export function NoteForm({
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      await apiPost(endpoint, { ...extraValues, ...values });
+      await apiPost(endpoint, values);
       toast.success(successMessage);
       form.reset({ body: "" });
       router.refresh();

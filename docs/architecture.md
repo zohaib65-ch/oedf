@@ -173,6 +173,12 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **Publications** follow the program rules (Staff draft, a Director publishes, D39) and add a deletion by a Director. The full PDF is a private `PUBLICATION_PDF` file owned by the publication; staff open it like any private file, and visitors get it from `/research/{slug}/pdf`, a route handler that answers only for a published publication with a 5-minute link (D40). Replacing or removing the PDF deletes the old file after the save.
 - **Directives** (`directive.service.ts`) keep one assignment per target office, each with its own status, owner, clarification, `history[]` (status changes with reason) and `updates[]` (progress notes). Every change goes through `moveAssignment`, which writes only while the part still has the status the caller saw and records who, when and why; the allowed moves are in `src/lib/constants/directive-workflow.ts`. Who may act is decided per office (`actsForOffice`) plus the permission: `directives:issue` (Research & Policy), `respond` (the office's Director), `update` (anyone in the office), `resolve` (CEO Office). Overdue directives are counted on the overview, which links to the list filtered to them; overdue rows and parts carry an "Overdue" badge.
 
+## News, FAQs, messages and exports
+
+- **News and FAQs** belong to the CEO Office (`news:manage`, `faqs:manage`); deleting also needs `content:delete` (D43, D44). News follows the content pattern (cover via `resolveImage`, slug from `uniqueSlug`, `revalidateTag` on change). FAQs are short forms in a Dialog; `PATCH /faqs/order` saves one topic's order and refuses a list that does not match the topic, so a stale page cannot drop a question.
+- **Messages** are scoped like the dashboard: Super Admin and the CEO Office read every office's inbox, everyone else their own office's (`message-inbox.service.ts`, D45).
+- **CSV exports** (`export.service.ts`) reuse the list services with a larger page, so an export always matches what the list shows. `src/server/lib/csv.ts` writes UTF-8 with a byte-order mark and prefixes cells that start with `=`, `+`, `-`, `@` so a spreadsheet never runs them as formulas (D46).
+
 ## Coding standards
 
 - **No dead code:** no unused files, exports, components, hooks, dependencies, variables, routes, endpoints or CSS; no commented-out code, `console.log`, `TODO`/`FIXME`, demo pages or abstractions "for later". `npm run knip` reports nothing. (`console.info`, `warn`, `error` are allowed in `scripts/`.)

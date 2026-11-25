@@ -440,10 +440,11 @@ export async function updateAssignment(
 export async function addDirectiveNote(
   staff: StaffContext,
   id: string,
+  assignmentId: string,
   input: DirectiveNoteInput,
 ): Promise<DirectiveView> {
   assertPermission(staff, "directives:update", "You cannot update this directive.");
-  const { assignment } = await getAssignment(staff, id, input.assignmentId);
+  const { assignment } = await getAssignment(staff, id, assignmentId);
   assertOwnOffice(staff, assignment);
   if (isFinished(assignment.status)) {
     throw new AppError("CONFLICT", "This office's part is finished, so no more updates are added.");
@@ -463,10 +464,11 @@ export async function addDirectiveNote(
 export async function requestClarification(
   staff: StaffContext,
   id: string,
+  assignmentId: string,
   input: ClarificationRequestInput,
 ): Promise<DirectiveView> {
   assertPermission(staff, "directives:respond", "Only a Director can ask for clarification.");
-  const { directive, assignment } = await getAssignment(staff, id, input.assignmentId);
+  const { directive, assignment } = await getAssignment(staff, id, assignmentId);
   assertOwnOffice(staff, assignment);
   assertStatus(
     assignment,
@@ -523,10 +525,11 @@ export async function requestClarification(
 export async function resolveClarification(
   staff: StaffContext,
   id: string,
+  assignmentId: string,
   input: ClarificationResolutionInput,
 ): Promise<DirectiveView> {
   assertPermission(staff, "directives:resolve", "Only the CEO Office can resolve a clarification.");
-  const { assignment } = await getAssignment(staff, id, input.assignmentId);
+  const { assignment } = await getAssignment(staff, id, assignmentId);
   assertStatus(
     assignment,
     ["CLARIFICATION_REQUESTED"],
