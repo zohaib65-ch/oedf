@@ -20,6 +20,7 @@ export async function generateMetadata({
     title: d.title,
     description: `${d.title} at Omar Education Development Foundation, ${d.city}.`,
     path: `/careers/${slug}`,
+    hasOwnImage: true,
     type: "website",
   });
 }

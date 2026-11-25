@@ -20,6 +20,7 @@ export async function generateMetadata({
     title: d.name,
     description: d.purpose,
     path: `/departments/${slug}`,
+    hasOwnImage: true,
     type: "website",
   });
 }

@@ -12,7 +12,7 @@ import { ProseBlock } from "@/components/shared/prose-block";
 import { PublicImage } from "@/components/shared/public-image";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { PROGRAM_CATEGORY_LABELS } from "@/lib/constants/labels";
-import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { breadcrumbJsonLd, programJsonLd } from "@/lib/structured-data";
 import { getProgram } from "@/server/services/program.service";
 
 export async function ProgramDetail({ params }: { params: Promise<{ slug: string }> }) {
@@ -36,6 +36,7 @@ export async function ProgramDetail({ params }: { params: Promise<{ slug: string
           { name: program.title, path: `/programs/${program.slug}` },
         ])}
       />
+      <JsonLd data={programJsonLd(program)} />
       <PageHero
         eyebrow={PROGRAM_CATEGORY_LABELS[program.category]}
         title={program.title}

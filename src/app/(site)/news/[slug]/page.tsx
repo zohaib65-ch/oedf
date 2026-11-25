@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/news/[slug]">): P
     title: d.seoTitle || d.title,
     description: d.seoDescription || d.excerpt,
     path: `/news/${slug}`,
+    hasOwnImage: true,
     type: "article",
   });
 }

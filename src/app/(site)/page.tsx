@@ -18,12 +18,12 @@ import { StepsSection } from "@/features/home/steps-section";
 import { ValuesSection } from "@/features/home/values-section";
 import { WhyOedfSection } from "@/features/home/why-oedf-section";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants/site";
+import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...pageMetadata({ title: SITE_NAME, description: SITE_DESCRIPTION, path: "/" }),
+  // The home page shows the name alone, without the "| Omar Education…" ending.
   title: { absolute: SITE_NAME },
-  description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
-  openGraph: { title: SITE_NAME, description: SITE_DESCRIPTION, url: "/", type: "website" },
 };
 
 // Sections that read content are separate Suspense boundaries, so the rest of the page is served at once.

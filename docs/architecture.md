@@ -179,6 +179,12 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **Messages** are scoped like the dashboard: Super Admin and the CEO Office read every office's inbox, everyone else their own office's (`message-inbox.service.ts`, D45).
 - **CSV exports** (`export.service.ts`) reuse the list services with a larger page, so an export always matches what the list shows. `src/server/lib/csv.ts` writes UTF-8 with a byte-order mark and prefixes cells that start with `=`, `+`, `-`, `@` so a spreadsheet never runs them as formulas (D46).
 
+## Search engines (SEO)
+
+- **Metadata:** every public page uses `pageMetadata()` (`src/lib/seo.ts`): title, description, canonical link, Open Graph (site name, `en_PK`, share image) and a large X card. A page's own `openGraph` replaces the layout's, so pages without an `opengraph-image.tsx` name the site-wide one; detail pages pass `hasOwnImage` and use their generated image. The root layout sets large image previews for Google; the portal, its sign-in pages and the status lookup are `noindex`.
+- **Files:** `robots.ts` (portal and API disallowed), `sitemap.ts` (static pages plus every published detail page, read on request), `manifest.ts`, `icon.png`, `apple-icon.png`.
+- **Structured data** (`src/lib/structured-data.ts`, JSON-LD): home has the organisation (NGO and educational organisation, one `@id`, contact point, social profiles) and the website; detail pages add breadcrumbs (starting at Home) plus a news article or event, report, job posting or educational program; the FAQ page has `FAQPage`.
+
 ## Security headers
 
 `next.config.ts` sends the headers from `src/lib/security-headers.ts` on every response: a Content-Security-Policy allowing only Cloudinary besides the site, no frames (`frame-src` and `frame-ancestors` `'none'`), HSTS (two years, preload), `nosniff`, `strict-origin-when-cross-origin`, a Permissions-Policy that turns off camera, microphone, location and payments, and `Cross-Origin-Opener-Policy: same-origin`. Cache Components prerender a static shell that cannot carry a per-request nonce, so `script-src` uses `'unsafe-inline'` as the Next.js guide describes (D47); `'unsafe-eval'` is added only in development, and Zod runs `jitless` so it never probes `eval`. `upgrade-insecure-requests` is sent only when the site URL is https. `dark:` styles are tied to a `.dark` class that is never set: the site has one light theme even on a device in dark mode.
