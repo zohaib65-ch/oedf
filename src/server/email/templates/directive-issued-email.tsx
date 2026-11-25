@@ -1,9 +1,9 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
 import { absoluteUrl } from "@/lib/seo";
 import {
+  EmailButton,
   EmailLayout,
-  linkStyle,
   referenceStyle,
   textStyle,
 } from "@/server/email/templates/email-layout";
@@ -44,13 +44,9 @@ export function DirectiveIssuedEmail({
         Due: {dueLabel}
       </Text>
       <Text style={textStyle}>
-        Please acknowledge it in the portal and name who will carry it out:
+        Please acknowledge it in the portal and name who will carry it out.
       </Text>
-      <Text style={textStyle}>
-        <Link href={link} style={linkStyle}>
-          {link}
-        </Link>
-      </Text>
+      <EmailButton href={link}>Open the directive</EmailButton>
     </EmailLayout>
   );
 }

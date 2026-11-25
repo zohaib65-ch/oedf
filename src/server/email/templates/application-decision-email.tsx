@@ -1,7 +1,7 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
 import { absoluteUrl } from "@/lib/seo";
-import { EmailLayout, linkStyle, textStyle } from "@/server/email/templates/email-layout";
+import { EmailButton, EmailLayout, textStyle } from "@/server/email/templates/email-layout";
 
 interface ApplicationDecisionEmailProps {
   applicantName: string;
@@ -39,12 +39,8 @@ export function ApplicationDecisionEmail({
           was not successful this time.
         </Text>
       )}
-      <Text style={textStyle}>
-        If you have questions, contact us:{" "}
-        <Link href={contactUrl} style={linkStyle}>
-          {contactUrl}
-        </Link>
-      </Text>
+      <Text style={textStyle}>If you have questions, we are happy to help.</Text>
+      <EmailButton href={contactUrl}>Contact us</EmailButton>
     </EmailLayout>
   );
 }

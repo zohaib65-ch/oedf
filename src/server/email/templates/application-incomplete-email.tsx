@@ -1,7 +1,7 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
 import { absoluteUrl } from "@/lib/seo";
-import { EmailLayout, linkStyle, textStyle } from "@/server/email/templates/email-layout";
+import { EmailButton, EmailLayout, textStyle } from "@/server/email/templates/email-layout";
 
 interface ApplicationIncompleteEmailProps {
   applicantName: string;
@@ -35,13 +35,9 @@ export function ApplicationIncompleteEmail({
       </Text>
       <Text style={textStyle}>
         Upload them on the application status page, using your reference number and this email
-        address:
+        address.
       </Text>
-      <Text style={textStyle}>
-        <Link href={statusUrl} style={linkStyle}>
-          {statusUrl}
-        </Link>
-      </Text>
+      <EmailButton href={statusUrl}>Upload your documents</EmailButton>
     </EmailLayout>
   );
 }

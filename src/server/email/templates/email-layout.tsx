@@ -1,36 +1,64 @@
 import type { ReactNode } from "react";
-import { Body, Container, Head, Hr, Html, Img, Preview, Section, Text } from "react-email";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Hr,
+  Html,
+  Img,
+  Link,
+  Preview,
+  Section,
+  Text,
+} from "react-email";
 
 import { publicEnv } from "@/env";
 import { SECP_REGISTRATION_NUMBER, SITE_NAME } from "@/lib/constants/site";
 import { absoluteUrl } from "@/lib/seo";
 
 // Email clients ignore stylesheets and CSS variables, so email styles are inline. These values
-// repeat the design tokens (navy, gold, ink, page) in src/app/globals.css.
+// repeat the design tokens (navy, gold, primary button, ink, page) in src/app/globals.css.
 const colors = {
   navy: "#0b1120",
   gold: "#846932",
+  primary: "#c9a355",
   ink: "#111827",
   muted: "#646b79",
-  page: "#f9fafb",
+  border: "#e5e7eb",
+  page: "#f3f4f6",
+  panel: "#f9fafb",
 } as const;
 
 const styles = {
   body: {
     backgroundColor: colors.page,
-    fontFamily: "Inter, Arial, sans-serif",
+    fontFamily: "Inter, 'Segoe UI', Arial, sans-serif",
     margin: 0,
-    padding: "24px 0",
+    padding: "32px 12px",
   },
   container: {
     backgroundColor: "#ffffff",
-    borderRadius: 12,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 16,
+    borderTop: `6px solid ${colors.primary}`,
     margin: "0 auto",
     maxWidth: 560,
-    padding: "32px",
+    overflow: "hidden",
   },
-  heading: { color: colors.navy, fontSize: 22, fontWeight: 800, margin: "24px 0 12px" },
-  footer: { color: colors.muted, fontSize: 12, lineHeight: "18px" },
+  header: { padding: "28px 40px 8px", textAlign: "center" },
+  content: { padding: "8px 40px 32px" },
+  heading: {
+    color: colors.navy,
+    fontSize: 24,
+    fontWeight: 800,
+    lineHeight: "32px",
+    margin: "16px 0 16px",
+    textAlign: "center",
+  },
+  footer: { padding: "0 40px 28px", textAlign: "center" },
+  footerText: { color: colors.muted, fontSize: 12, lineHeight: "18px", margin: "0 0 4px" },
+  footerLink: { color: colors.gold, fontSize: 12, fontWeight: 600, textDecoration: "none" },
 } as const;
 
 interface EmailLayoutProps {
@@ -39,29 +67,35 @@ interface EmailLayoutProps {
   children: ReactNode;
 }
 
-/** The frame of every email: logo, heading, content and the foundation's registration line. */
+/** The frame of every email: gold top bar, logo, heading, content and the foundation's details. */
 export function EmailLayout({ preview, heading, children }: EmailLayoutProps) {
+  const siteHost = new URL(publicEnv.NEXT_PUBLIC_SITE_URL).host;
   return (
     <Html lang="en">
       <Head />
       <Preview>{preview}</Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
-          <Img
-            src={absoluteUrl("/brand/logo-full.jpeg")}
-            alt={SITE_NAME}
-            width={160}
-            style={{ display: "block" }}
-          />
-          <Text style={styles.heading}>{heading}</Text>
-          {children}
-          <Hr style={{ borderColor: "#e5e7eb", margin: "24px 0" }} />
-          <Section>
-            <Text style={styles.footer}>
-              {SITE_NAME}. SECP Registration No. {SECP_REGISTRATION_NUMBER}.
+          <Section style={styles.header}>
+            <Img
+              src={absoluteUrl("/brand/logo-full.jpeg")}
+              alt={SITE_NAME}
+              width={150}
+              style={{ display: "block", margin: "0 auto" }}
+            />
+            <Text style={styles.heading}>{heading}</Text>
+          </Section>
+          <Section style={styles.content}>{children}</Section>
+          <Section style={styles.footer}>
+            <Hr style={{ borderColor: colors.border, margin: "0 0 24px" }} />
+            <Text style={styles.footerText}>
+              {SITE_NAME}
               <br />
-              {publicEnv.NEXT_PUBLIC_SITE_URL}
+              SECP Registration No. {SECP_REGISTRATION_NUMBER}
             </Text>
+            <Link href={publicEnv.NEXT_PUBLIC_SITE_URL} style={styles.footerLink}>
+              {siteHost}
+            </Link>
           </Section>
         </Container>
       </Body>
@@ -69,16 +103,46 @@ export function EmailLayout({ preview, heading, children }: EmailLayoutProps) {
   );
 }
 
+/** The one action an email asks for, as a gold button in the middle. */
+export function EmailButton({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Section style={{ margin: "8px 0 24px", textAlign: "center" }}>
+      <Button
+        href={href}
+        style={{
+          backgroundColor: colors.primary,
+          borderRadius: 10,
+          color: colors.navy,
+          display: "inline-block",
+          fontSize: 16,
+          fontWeight: 700,
+          padding: "14px 32px",
+          textDecoration: "none",
+        }}
+      >
+        {children}
+      </Button>
+    </Section>
+  );
+}
+
 export const textStyle = {
   color: colors.ink,
   fontSize: 15,
   lineHeight: "24px",
-  margin: "0 0 12px",
+  margin: "0 0 16px",
+} as const;
+export const noteStyle = {
+  color: colors.muted,
+  fontSize: 13,
+  lineHeight: "20px",
+  margin: "0 0 8px",
+  textAlign: "center",
 } as const;
 export const referenceStyle = {
-  backgroundColor: colors.page,
-  border: "1px solid #e5e7eb",
-  borderRadius: 8,
+  backgroundColor: colors.panel,
+  border: `1px solid ${colors.border}`,
+  borderRadius: 10,
   color: colors.navy,
   fontSize: 20,
   fontWeight: 800,
@@ -87,4 +151,3 @@ export const referenceStyle = {
   padding: "14px 16px",
   textAlign: "center",
 } as const;
-export const linkStyle = { color: colors.gold, fontWeight: 600 } as const;

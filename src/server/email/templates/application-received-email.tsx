@@ -1,9 +1,9 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
 import { absoluteUrl } from "@/lib/seo";
 import {
+  EmailButton,
   EmailLayout,
-  linkStyle,
   referenceStyle,
   textStyle,
 } from "@/server/email/templates/email-layout";
@@ -33,13 +33,11 @@ export function ApplicationReceivedEmail({
       <Text style={referenceStyle}>{referenceNumber}</Text>
       <Text style={textStyle}>
         Keep this number. With the email address you used, it lets you check where your application
-        stands at any time:
+        stands at any time.
       </Text>
-      <Text style={textStyle}>
-        <Link href={absoluteUrl("/application-status")} style={linkStyle}>
-          {absoluteUrl("/application-status")}
-        </Link>
-      </Text>
+      <EmailButton href={absoluteUrl("/application-status")}>
+        Check your application status
+      </EmailButton>
       <Text style={textStyle}>
         Our team will review your application. If we need anything more from you, we will say so on
         that page.

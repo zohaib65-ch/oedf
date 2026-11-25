@@ -1,6 +1,11 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
-import { EmailLayout, linkStyle, textStyle } from "@/server/email/templates/email-layout";
+import {
+  EmailButton,
+  EmailLayout,
+  noteStyle,
+  textStyle,
+} from "@/server/email/templates/email-layout";
 
 interface PasswordLinkEmailProps {
   name: string;
@@ -13,13 +18,15 @@ const COPY = {
   INVITATION: {
     preview: "You have been invited to the OEDF staff portal.",
     heading: "You have been invited to the staff portal",
+    action: "Set your password",
     intro:
-      "An account has been created for you on the OEDF staff portal. Set your password to sign in:",
+      "An account has been created for you on the OEDF staff portal. Set your password to sign in.",
   },
   RESET: {
     preview: "Reset your OEDF staff portal password.",
     heading: "Reset your password",
-    intro: "We received a request to reset your staff portal password. Choose a new one here:",
+    action: "Reset your password",
+    intro: "We received a request to reset your staff portal password. Choose a new one below.",
   },
 } as const;
 
@@ -30,15 +37,11 @@ export function PasswordLinkEmail({ name, link, kind }: PasswordLinkEmailProps) 
     <EmailLayout preview={copy.preview} heading={copy.heading}>
       <Text style={textStyle}>Dear {name},</Text>
       <Text style={textStyle}>{copy.intro}</Text>
-      <Text style={textStyle}>
-        <Link href={link} style={linkStyle}>
-          {link}
-        </Link>
-      </Text>
-      <Text style={textStyle}>
-        The link works for 24 hours and only once.{" "}
-        {kind === "RESET" ? "If you did not ask for this, you can ignore this email." : ""}
-      </Text>
+      <EmailButton href={link}>{copy.action}</EmailButton>
+      <Text style={noteStyle}>The button works for 24 hours and only once.</Text>
+      {kind === "RESET" ? (
+        <Text style={noteStyle}>If you did not ask for this, you can ignore this email.</Text>
+      ) : null}
     </EmailLayout>
   );
 }

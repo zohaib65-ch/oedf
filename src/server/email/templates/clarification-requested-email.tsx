@@ -1,9 +1,9 @@
-import { Link, Text } from "react-email";
+import { Text } from "react-email";
 
 import { absoluteUrl } from "@/lib/seo";
 import {
+  EmailButton,
   EmailLayout,
-  linkStyle,
   referenceStyle,
   textStyle,
 } from "@/server/email/templates/email-layout";
@@ -38,13 +38,9 @@ export function ClarificationRequestedEmail({
         Reason: {reasonLabel}
       </Text>
       <Text style={textStyle}>
-        Read the explanation and decide whether to reopen or close the office&apos;s part:
+        Read the explanation and decide whether to reopen or close the office&apos;s part.
       </Text>
-      <Text style={textStyle}>
-        <Link href={link} style={linkStyle}>
-          {link}
-        </Link>
-      </Text>
+      <EmailButton href={link}>Review the directive</EmailButton>
     </EmailLayout>
   );
 }
