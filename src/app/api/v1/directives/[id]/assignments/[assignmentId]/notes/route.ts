@@ -7,10 +7,13 @@ import { addDirectiveNote } from "@/server/services/directive.service";
 
 // A progress update on the caller's office's part of the directive.
 export const POST = withApiHandler(
-  async (request, { params }: RouteContext<"/api/v1/directives/[id]/notes">) => {
+  async (
+    request,
+    { params }: RouteContext<"/api/v1/directives/[id]/assignments/[assignmentId]/notes">,
+  ) => {
     const staff = await requireApiPermission(request, "directives:update");
-    const { id } = await params;
+    const { id, assignmentId } = await params;
     const input = await readJson(request, directiveNoteSchema);
-    return ok(await addDirectiveNote(staff, id, input), 201);
+    return ok(await addDirectiveNote(staff, id, assignmentId, input), 201);
   },
 );

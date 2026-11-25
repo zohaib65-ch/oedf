@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { breadcrumbJsonLd, jobPostingJsonLd, newsJsonLd } from "@/lib/structured-data";
-import type { NewsDetail } from "@/server/repositories/news.repository";
 import type { VacancyDetail } from "@/server/repositories/vacancy.repository";
+import type { PublicNewsDetail } from "@/server/services/news.service";
 
 const vacancy: VacancyDetail = {
   id: "1",
@@ -18,7 +18,7 @@ const vacancy: VacancyDetail = {
   publishedAt: null,
 };
 
-const post: NewsDetail = {
+const post: PublicNewsDetail = {
   id: "1",
   slug: "open-day",
   title: "Open day",
@@ -27,7 +27,9 @@ const post: NewsDetail = {
   body: "",
   publishedAt: null,
   eventDate: new Date("2026-12-01T09:00:00Z"),
+  eventStartTime: "",
   venue: "Hall",
+  image: null,
   authorName: "Staff",
   seoTitle: "",
   seoDescription: "",
@@ -44,6 +46,13 @@ describe("structured data", () => {
   it("describes an event as an Event and an article as a NewsArticle", () => {
     expect(newsJsonLd(post)["@type"]).toBe("Event");
     expect(newsJsonLd({ ...post, type: "NEWS" })["@type"]).toBe("NewsArticle");
+  });
+
+  it("gives an all-day event a date, and a timed one its start in Pakistan time", () => {
+    expect(newsJsonLd(post)).toMatchObject({ startDate: "2026-12-01" });
+    expect(newsJsonLd({ ...post, eventStartTime: "10:30" })).toMatchObject({
+      startDate: "2026-12-01T10:30:00+05:00",
+    });
   });
 
   it("numbers breadcrumb items from one and makes their links absolute", () => {

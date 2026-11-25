@@ -24,7 +24,11 @@ export async function expectNoSeriousAccessibilityIssues(page: Page): Promise<vo
     // Wait for running transitions so axe does not measure colors halfway through a fade. A
     // cancelled transition rejects `finished`, which is fine: it is no longer running.
     Promise.all(
-      document.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+      document
+        .getAnimations()
+        // A looping animation (a loading pulse or spinner) never finishes, so it is not waited for.
+        .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
   const content = await new AxeBuilder({ page })

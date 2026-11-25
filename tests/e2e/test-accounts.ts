@@ -66,7 +66,11 @@ async function deleteTestFiles(db: Db): Promise<void> {
     .collection("publications")
     .find({ title: /^E2E / }, { projection: { cover: 1 } })
     .toArray();
-  const coverIds = publications
+  const news = await db
+    .collection("newsPosts")
+    .find({ title: /^E2E /, cover: { $exists: true } }, { projection: { cover: 1 } })
+    .toArray();
+  const coverIds = [...publications, ...news]
     .map((record) => (record.cover as { publicId?: string } | undefined)?.publicId)
     .filter((publicId): publicId is string => typeof publicId === "string");
   photoIds.push(...coverIds);
@@ -133,6 +137,8 @@ async function clean(): Promise<void> {
     db.collection("institutions").deleteMany({ name: /^E2E / }),
     db.collection("publications").deleteMany({ title: /^E2E / }),
     db.collection("directives").deleteMany({ title: /^E2E / }),
+    db.collection("newsPosts").deleteMany({ title: /^E2E / }),
+    db.collection("faqs").deleteMany({ category: /^E2E / }),
     db.collection("contactMessages").deleteMany({ email: { $in: TEST_MESSAGE_EMAILS } }),
   ]);
   await db.collection("user").deleteMany({ _id: { $in: userIds } });

@@ -100,6 +100,11 @@ test.describe("the API refuses people it should", () => {
       "/institutions",
       "/publications",
       "/directives",
+      "/news",
+      "/faqs",
+      "/contact-messages",
+      "/applications/export",
+      "/job-applications/export",
     ]) {
       expect((await request.get(`/api/v1${path}`)).status(), path).toBe(401);
     }
@@ -121,6 +126,9 @@ test.describe("signed in as Super Admin", () => {
     ["/portal/institutions", "Institutions"],
     ["/portal/publications", "Publications"],
     ["/portal/directives", "Directives"],
+    ["/portal/news", "News and events"],
+    ["/portal/faqs", "FAQs"],
+    ["/portal/messages", "Messages"],
   ] as const) {
     test(`${path} opens and has no serious accessibility problems`, async ({ page }) => {
       await page.goto(path);
@@ -141,6 +149,9 @@ test.describe("signed in as Super Admin", () => {
       "Directives",
       "Vacancies",
       "Job applications",
+      "News and events",
+      "FAQs",
+      "Messages",
       "Users",
       "Settings",
       "Audit log",
@@ -247,6 +258,10 @@ test.describe("invited staff", () => {
       "/job-applications",
       "/programs",
       "/institutions",
+      "/news",
+      "/faqs",
+      "/applications/export",
+      "/job-applications/export",
     ]) {
       expect(
         (await staffContext.request.get(`${baseURL ?? ""}/api/v1${path}`)).status(),

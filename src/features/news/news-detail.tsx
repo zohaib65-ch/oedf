@@ -6,6 +6,7 @@ import { FactsCard } from "@/components/shared/facts-card";
 import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
+import { PublicImage } from "@/components/shared/public-image";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { NEWS_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDate } from "@/lib/format";
@@ -22,7 +23,16 @@ export async function NewsDetail({ params }: { params: Promise<{ slug: string }>
 
   const facts = [
     ...(post.publishedAt ? [{ label: "Published", value: formatDate(post.publishedAt) }] : []),
-    ...(post.eventDate ? [{ label: "Event date", value: formatDate(post.eventDate) }] : []),
+    ...(post.eventDate
+      ? [
+          {
+            label: "Event date",
+            value: post.eventStartTime
+              ? `${formatDate(post.eventDate)}, ${post.eventStartTime} (Pakistan time)`
+              : formatDate(post.eventDate),
+          },
+        ]
+      : []),
     ...(post.venue ? [{ label: "Venue", value: post.venue }] : []),
     { label: "Posted by", value: post.authorName },
   ];
@@ -46,6 +56,7 @@ export async function NewsDetail({ params }: { params: Promise<{ slug: string }>
         backLabel="All news and events"
         aside={<FactsCard title="Details" facts={facts} />}
       >
+        {post.image ? <PublicImage image={post.image} /> : null}
         <FormattedText text={post.body} />
       </DetailSection>
       <ClosingCta />

@@ -7,10 +7,13 @@ import { requestClarification } from "@/server/services/directive.service";
 
 // The target office's Director asks the CEO Office to clarify. The CEO Office is emailed.
 export const POST = withApiHandler(
-  async (request, { params }: RouteContext<"/api/v1/directives/[id]/clarification">) => {
+  async (
+    request,
+    { params }: RouteContext<"/api/v1/directives/[id]/assignments/[assignmentId]/clarification">,
+  ) => {
     const staff = await requireApiPermission(request, "directives:respond");
-    const { id } = await params;
+    const { id, assignmentId } = await params;
     const input = await readJson(request, clarificationRequestSchema);
-    return ok(await requestClarification(staff, id, input));
+    return ok(await requestClarification(staff, id, assignmentId, input));
   },
 );

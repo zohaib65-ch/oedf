@@ -4,6 +4,7 @@ import type { NEWS_TYPES } from "@/lib/constants/enums";
 import { PAGE_SIZE, type NewsFilters } from "@/lib/validations/list-params";
 import { connectDb } from "@/server/db/connection";
 import { NewsPostModel } from "@/server/db/models/news-post.model";
+import type { StoredImage } from "@/server/services/image.service";
 
 export interface NewsSummary {
   id: string;
@@ -13,10 +14,13 @@ export interface NewsSummary {
   excerpt: string;
   publishedAt: Date | null;
   eventDate: Date | null;
+  cover: StoredImage | null;
 }
 
 export interface NewsDetail extends NewsSummary {
   body: string;
+  /** "HH:mm" in Pakistan time, or empty for an all-day event. */
+  eventStartTime: string;
   venue: string;
   authorName: string;
   seoTitle: string;
@@ -35,6 +39,7 @@ const SUMMARY_FIELDS = {
   excerpt: 1,
   publishedAt: 1,
   eventDate: 1,
+  cover: 1,
 } as const;
 
 function toSummary(post: {
@@ -45,6 +50,7 @@ function toSummary(post: {
   excerpt: string;
   publishedAt?: Date | null;
   eventDate?: Date | null;
+  cover?: StoredImage | null;
 }): NewsSummary {
   return {
     id: post._id.toString(),
@@ -54,6 +60,14 @@ function toSummary(post: {
     excerpt: post.excerpt,
     publishedAt: post.publishedAt ?? null,
     eventDate: post.eventDate ?? null,
+    cover: post.cover
+      ? {
+          publicId: post.cover.publicId,
+          width: post.cover.width,
+          height: post.cover.height,
+          alt: post.cover.alt,
+        }
+      : null,
   };
 }
 
@@ -84,12 +98,13 @@ export async function findPublishedNewsBySlug(slug: string): Promise<NewsDetail 
   await connectDb();
   const post = await NewsPostModel.findOne(
     { slug, status: "PUBLISHED" },
-    { ...SUMMARY_FIELDS, body: 1, venue: 1, authorName: 1, seo: 1 },
+    { ...SUMMARY_FIELDS, body: 1, eventStartTime: 1, venue: 1, authorName: 1, seo: 1 },
   ).lean();
   return post
     ? {
         ...toSummary(post),
         body: post.body,
+        eventStartTime: post.eventStartTime,
         venue: post.venue,
         authorName: post.authorName,
         seoTitle: post.seo.title,
