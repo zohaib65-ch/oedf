@@ -69,36 +69,39 @@ export async function VacancyList({ searchParams }: { searchParams: Promise<Sear
         ) : null}
       </div>
       {vacancies.length > 0 ? (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {vacancies.map((vacancy) => (
-            <LinkCard
-              key={vacancy.id}
-              href={`/careers/${vacancy.slug}`}
-              eyebrow={vacancy.departmentName}
-              title={vacancy.title}
-              meta={
-                <ul className="space-y-2">
-                  <li className="flex items-center gap-2">
-                    <MapPinIcon className="size-4 text-gold-text" aria-hidden="true" />
-                    {vacancy.city}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <BriefcaseIcon className="size-4 text-gold-text" aria-hidden="true" />
-                    {EMPLOYMENT_TYPE_LABELS[vacancy.employmentType]}
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CalendarClockIcon className="size-4 text-gold-text" aria-hidden="true" />
-                    Apply by{" "}
-                    <time dateTime={vacancy.deadline.toISOString()}>
-                      {formatDate(vacancy.deadline)}
-                    </time>
-                  </li>
-                </ul>
-              }
-              cta="View vacancy"
-            />
-          ))}
-        </div>
+        <>
+          <h2 className="sr-only">Open vacancies</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {vacancies.map((vacancy) => (
+              <LinkCard
+                key={vacancy.id}
+                href={`/careers/${vacancy.slug}`}
+                eyebrow={vacancy.departmentName}
+                title={vacancy.title}
+                meta={
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2">
+                      <MapPinIcon className="size-4 text-gold-text" aria-hidden="true" />
+                      {vacancy.city}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <BriefcaseIcon className="size-4 text-gold-text" aria-hidden="true" />
+                      {EMPLOYMENT_TYPE_LABELS[vacancy.employmentType]}
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CalendarClockIcon className="size-4 text-gold-text" aria-hidden="true" />
+                      Apply by{" "}
+                      <time dateTime={vacancy.deadline.toISOString()}>
+                        {formatDate(vacancy.deadline)}
+                      </time>
+                    </li>
+                  </ul>
+                }
+                cta="View vacancy"
+              />
+            ))}
+          </div>
+        </>
       ) : (
         <EmptyState
           icon={BriefcaseIcon}

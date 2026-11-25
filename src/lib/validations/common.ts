@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { RESOURCE_TYPES } from "@/lib/constants/uploads";
 
+// Zod otherwise probes `new Function` to speed up parsing, which the Content-Security-Policy
+// blocks (no 'unsafe-eval') and browsers report as a CSP issue. Every schema imports this file.
+z.config({ jitless: true });
+
 const MAX_NAME_LENGTH = 100;
 const MAX_LINE_LENGTH = 200;
 const MAX_TEXT_LENGTH = 2000;

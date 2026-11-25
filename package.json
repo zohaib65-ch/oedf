@@ -20,6 +20,7 @@
     "test:e2e": "playwright test",
     "db:indexes": "tsx --env-file-if-exists=.env --conditions=react-server scripts/sync-indexes.ts",
     "db:seed": "tsx --env-file-if-exists=.env --conditions=react-server scripts/seed.ts",
+    "db:reset-for-launch": "tsx --env-file-if-exists=.env scripts/reset-for-launch.ts",
     "db:seed:sample": "tsx --env-file-if-exists=.env --conditions=react-server scripts/seed-sample.ts",
     "check": "npm run lint && npm run typecheck && npm run knip && npm run test",
     "prepare": "husky"
@@ -82,5 +83,10 @@
     "mongodb-memory-server@11.4.0": true,
     "esbuild@0.28.2": true,
     "fsevents": false
+  },
+  "overrides": {
+    "@ts-morph/common": {
+      "minimatch": "^11.0.9"
+    }
   }
 }

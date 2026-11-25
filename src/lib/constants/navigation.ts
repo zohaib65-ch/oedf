@@ -1,5 +1,6 @@
 import {
   Award,
+  BookOpen,
   BriefcaseBusiness,
   Building2,
   ClipboardList,
@@ -195,6 +196,7 @@ export const PORTAL_NAV: readonly PortalNavLink[] = [
   { label: "Users", href: "/portal/users", icon: UsersIcon, permission: "users:manage" },
   { label: "Settings", href: "/portal/settings", icon: SettingsIcon, permission: "settings:read" },
   { label: "Audit log", href: "/portal/audit-log", icon: ScrollTextIcon, permission: "audit:read" },
+  { label: "Staff guide", href: "/portal/guide", icon: BookOpen, permission: "dashboard:read" },
 ];
 
 /** Pages reached from the user menu rather than the sidebar. */

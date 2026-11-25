@@ -33,11 +33,14 @@ export async function NewsList({ searchParams }: { searchParams: Promise<SearchP
       />
       {items.length > 0 ? (
         <>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((post) => (
-              <NewsCard key={post.id} post={post} />
-            ))}
-          </div>
+          <>
+            <h2 className="sr-only">News and events</h2>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {items.map((post) => (
+                <NewsCard key={post.id} post={post} />
+              ))}
+            </div>
+          </>
           <Pagination
             page={filters.page}
             pageCount={Math.ceil(total / PAGE_SIZE)}
