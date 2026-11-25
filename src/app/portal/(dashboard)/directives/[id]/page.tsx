@@ -208,8 +208,7 @@ export default async function DirectivePage({ params }: PageProps<"/portal/direc
               hasPermission(staff, "directives:update") &&
               !isFinished(assignment.status) ? (
                 <NoteForm
-                  endpoint={`/directives/${directive.id}/notes`}
-                  extraValues={{ assignmentId: assignment.id }}
+                  endpoint={`/directives/${directive.id}/assignments/${assignment.id}/notes`}
                   label={`Progress update for ${assignment.departmentName}`}
                   submitLabel="Post update"
                   successMessage="Update posted."

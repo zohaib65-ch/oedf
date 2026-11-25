@@ -1,12 +1,14 @@
 import { FileUserIcon } from "lucide-react";
 import type { Metadata } from "next";
 
+import { ExportCsvButton } from "@/components/portal/export-csv-button";
 import { ForbiddenView } from "@/components/portal/forbidden-view";
 import { PageHeader } from "@/components/portal/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { JobApplicationsFilter } from "@/features/job-application-review/job-applications-filter";
 import { JobApplicationsTable } from "@/features/job-application-review/job-applications-table";
+import { hasPermission } from "@/lib/constants/permissions";
 import { buildHref } from "@/lib/query-string";
 import { listJobApplicationsQuerySchema } from "@/lib/validations/job-application-review";
 import { checkPagePermission } from "@/server/auth/session";
@@ -43,6 +45,13 @@ export default async function JobApplicationsPage({
       <PageHeader
         title="Job applications"
         description="Candidates for every vacancy. Lists show only the last four CNIC digits."
+        actions={
+          hasPermission(access.staff, "job-applications:export") ? (
+            <ExportCsvButton
+              href={buildHref("/api/v1/job-applications/export", { ...params, sort: query.sort })}
+            />
+          ) : null
+        }
       />
       <JobApplicationsFilter
         query={query}

@@ -83,7 +83,9 @@ export async function getDashboardSummary(staff: StaffContext): Promise<Dashboar
     });
   }
   if (hasScope && can("messages:read")) {
-    add("unreadMessages", "Unread messages", countUnreadMessages(officeId));
+    add("unreadMessages", "Unread messages", countUnreadMessages(officeId), {
+      href: "/portal/messages?status=NEW",
+    });
   }
 
   const [metrics, applicationsByMonth] = await Promise.all([

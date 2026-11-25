@@ -186,8 +186,7 @@ describe("directives", () => {
       updateAssignment(hrStaff, directive.id, hrPart.id, { status: "COMPLETED", note: "" }),
     ).rejects.toMatchObject({ code: "CONFLICT" });
     await updateAssignment(hrStaff, directive.id, hrPart.id, { status: "IN_PROGRESS", note: "" });
-    await addDirectiveNote(hrStaff, directive.id, {
-      assignmentId: hrPart.id,
+    await addDirectiveNote(hrStaff, directive.id, hrPart.id, {
       body: "Half the schools have sent figures.",
     });
     const done = await updateAssignment(hrStaff, directive.id, hrPart.id, {
@@ -206,7 +205,9 @@ describe("directives", () => {
     // Owner note and progress update.
     expect(finished?.updates).toHaveLength(2);
     await expect(
-      addDirectiveNote(hrStaff, directive.id, { assignmentId: hrPart.id, body: "Late note" }),
+      addDirectiveNote(hrStaff, directive.id, hrPart.id, {
+        body: "Late note",
+      }),
     ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 
@@ -228,8 +229,7 @@ describe("directives", () => {
       note: "",
     });
     vi.mocked(sendEmail).mockClear();
-    await requestClarification(directorOf(first.departmentId), directive.id, {
-      assignmentId: first.id,
+    await requestClarification(directorOf(first.departmentId), directive.id, first.id, {
       reason: "DONOR_RESTRICTION",
       text: "The donor funds may not be used for this.",
     });
@@ -237,15 +237,13 @@ describe("directives", () => {
       `${ceo.id}@example.org`,
     ]);
     await expect(
-      resolveClarification(researchDirector, directive.id, {
-        assignmentId: first.id,
+      resolveClarification(researchDirector, directive.id, first.id, {
         decision: "CLOSE",
         note: "No",
       }),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
 
-    const reopened = await resolveClarification(ceo, directive.id, {
-      assignmentId: first.id,
+    const reopened = await resolveClarification(ceo, directive.id, first.id, {
       decision: "REOPEN",
       note: "Use the general fund instead.",
     });
@@ -253,13 +251,11 @@ describe("directives", () => {
     expect(back?.status).toBe("IN_PROGRESS");
     expect(back?.clarification?.resolution?.decision).toBe("REOPEN");
 
-    await requestClarification(directorOf(second.departmentId), directive.id, {
-      assignmentId: second.id,
+    await requestClarification(directorOf(second.departmentId), directive.id, second.id, {
       reason: "OPERATIONAL_IMPOSSIBILITY",
       text: "We have no staff for this.",
     });
-    const closed = await resolveClarification(ceo, directive.id, {
-      assignmentId: second.id,
+    const closed = await resolveClarification(ceo, directive.id, second.id, {
       decision: "CLOSE",
       note: "Released.",
     });

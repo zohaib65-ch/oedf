@@ -1,9 +1,9 @@
 import { SECP_REGISTRATION_NUMBER, SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants/site";
 import { absoluteUrl } from "@/lib/seo";
-import type { NewsDetail } from "@/server/repositories/news.repository";
 import type { PublicSiteSettingsRecord } from "@/server/repositories/site-settings.repository";
 import type { VacancyDetail } from "@/server/repositories/vacancy.repository";
 import type { FaqGroup } from "@/server/services/faq.service";
+import type { PublicNewsDetail } from "@/server/services/news.service";
 import type { PublicPublicationDetail } from "@/server/services/publication.service";
 
 // schema.org structured data for search engines. Every builder returns plain JSON-LD.
@@ -86,14 +86,21 @@ export function jobPostingJsonLd(vacancy: VacancyDetail) {
   };
 }
 
-export function newsJsonLd(post: NewsDetail) {
+export function newsJsonLd(post: PublicNewsDetail) {
   if (post.type === "EVENT") {
     return {
       "@context": CONTEXT,
       "@type": "Event",
       name: post.title,
       description: post.excerpt,
-      ...(post.eventDate ? { startDate: post.eventDate.toISOString() } : {}),
+      // A day alone is a date; with a start time it is a moment in Pakistan time (UTC+5).
+      ...(post.eventDate
+        ? {
+            startDate: post.eventStartTime
+              ? `${post.eventDate.toISOString().slice(0, 10)}T${post.eventStartTime}:00+05:00`
+              : post.eventDate.toISOString().slice(0, 10),
+          }
+        : {}),
       ...(post.venue ? { location: { "@type": "Place", name: post.venue } } : {}),
       organizer: { "@type": "Organization", name: SITE_NAME, url: absoluteUrl("/") },
     };

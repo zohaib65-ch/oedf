@@ -21,6 +21,8 @@ const newsPostSchema = new Schema(
     excerpt: { type: String, required: true },
     body: { type: String, required: true },
     eventDate: { type: Date },
+    /** Optional, "HH:mm" in Pakistan time; the date alone means an all-day event. */
+    eventStartTime: { type: String, default: "" },
     venue: { type: String, default: "" },
     status: { type: String, enum: CONTENT_STATUSES, default: "DRAFT" },
     publishedAt: { type: Date },

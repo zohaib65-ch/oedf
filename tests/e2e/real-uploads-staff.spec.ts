@@ -11,6 +11,9 @@ import { capture } from "./screenshots";
 test.skip(!process.env.E2E_REAL_UPLOADS, "Set E2E_REAL_UPLOADS=1 to run the real-upload tests.");
 test.use({ storageState: ADMIN_STATE_FILE });
 
+/** Saving checks each file with Cloudinary first, which can take a while. */
+const SAVE_TIMEOUT = { timeout: 30_000 };
+
 const suffix = () => String(randomInt(100_000, 999_999));
 
 async function choose(page: Page, label: string, option: string) {
@@ -52,7 +55,7 @@ test("a program photo shows on the public site, and a signed agreement opens thr
   await expect(page.getByText("photo.png")).toBeVisible({ timeout: 30_000 });
   await page.getByLabel("Photo description").fill("A navy test banner");
   await page.getByRole("button", { name: "Save program" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible(SAVE_TIMEOUT);
 
   const href = await page
     .getByRole("link", { name: /View on the public site/ })
@@ -75,7 +78,7 @@ test("a program photo shows on the public site, and a signed agreement opens thr
   await choose(page, "Type", "College");
   await page.getByLabel("City").fill("Multan");
   await page.getByRole("button", { name: "Save institution" }).click();
-  await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name })).toBeVisible(SAVE_TIMEOUT);
 
   await page.getByRole("button", { name: "Add agreement" }).click();
   const dialog = page.getByRole("dialog");
@@ -89,7 +92,7 @@ test("a program photo shows on the public site, and a signed agreement opens thr
   });
   await expect(dialog.getByText("signed.pdf")).toBeVisible({ timeout: 30_000 });
   await dialog.getByRole("button", { name: "Save agreement" }).click();
-  await expect(dialog).toBeHidden();
+  await expect(dialog).toBeHidden(SAVE_TIMEOUT);
   await capture(page, "real-upload-agreement");
 
   const fileHref = await page
@@ -137,7 +140,7 @@ test("a published publication's PDF downloads through a short-lived link, and it
   await expect(page.getByText("cover.png")).toBeVisible({ timeout: 30_000 });
   await page.getByLabel("Photo description").fill("A navy test cover");
   await page.getByRole("button", { name: "Save publication" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible(SAVE_TIMEOUT);
 
   const href = await page
     .getByRole("link", { name: /View on the public site/ })

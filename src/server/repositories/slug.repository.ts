@@ -2,6 +2,7 @@ import "server-only";
 
 import { connectDb } from "@/server/db/connection";
 import { InstitutionModel } from "@/server/db/models/institution.model";
+import { NewsPostModel } from "@/server/db/models/news-post.model";
 import { ProgramModel } from "@/server/db/models/program.model";
 import { PublicationModel } from "@/server/db/models/publication.model";
 import { VacancyModel } from "@/server/db/models/vacancy.model";
@@ -12,6 +13,7 @@ const MODELS = {
   program: ProgramModel,
   institution: InstitutionModel,
   publication: PublicationModel,
+  news: NewsPostModel,
 };
 
 export type SlugOwner = keyof typeof MODELS;

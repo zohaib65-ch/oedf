@@ -33,7 +33,11 @@ export async function capture(page: Page, name: string): Promise<void> {
     }
     await Promise.all(images.map((image) => image.decode().catch(() => undefined)));
     await Promise.all(
-      document.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+      document
+        .getAnimations()
+        // A looping animation (a loading pulse or spinner) never finishes, so it is not waited for.
+        .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => undefined)),
     );
   });
   await page.screenshot({
