@@ -31,11 +31,14 @@ export async function ProgramList({ searchParams }: { searchParams: Promise<Sear
         ]}
       />
       {programs.length > 0 ? (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
-            <ProgramCard key={program.id} program={program} />
-          ))}
-        </div>
+        <>
+          <h2 className="sr-only">Programs</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {programs.map((program) => (
+              <ProgramCard key={program.id} program={program} />
+            ))}
+          </div>
+        </>
       ) : (
         <EmptyState
           icon={GraduationCapIcon}

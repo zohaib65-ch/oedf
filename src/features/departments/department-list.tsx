@@ -8,10 +8,13 @@ export async function DepartmentList() {
   const departments = await getDepartments();
 
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {departments.map((department) => (
-        <DepartmentCard key={department.id} department={department} />
-      ))}
-    </div>
+    <>
+      <h2 className="sr-only">Offices</h2>
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {departments.map((department) => (
+          <DepartmentCard key={department.id} department={department} />
+        ))}
+      </div>
+    </>
   );
 }

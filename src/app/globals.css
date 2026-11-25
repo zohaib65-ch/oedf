@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* The site has one light theme. shadcn components carry `dark:` styles; tying them to a `.dark`
+   class (never set) stops a device in dark mode from greying out inputs on the light pages. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * OEDF theme tokens. Values come from docs/design-system.md (approved 24 November 2026).
  * One light theme: the reference has no dark mode toggle, only dark sections (.surface-dark).

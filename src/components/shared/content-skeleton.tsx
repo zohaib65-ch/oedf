@@ -17,7 +17,9 @@ export function CardGridSkeleton() {
 /** Shown while a detail page loads: a banner and a text block. */
 export function DetailSkeleton() {
   return (
-    <div aria-hidden="true">
+    // At least a screen tall, so the footer starts below the fold and does not jump when the page
+    // streams in (a layout shift Lighthouse counts).
+    <div aria-hidden="true" className="min-h-svh">
       <Skeleton className="h-96 rounded-none" />
       <Container className="max-w-3xl space-y-4 py-16">
         <Skeleton className="h-6 w-2/3" />

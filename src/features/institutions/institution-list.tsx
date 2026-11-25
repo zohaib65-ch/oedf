@@ -57,11 +57,14 @@ export async function InstitutionList({ searchParams }: { searchParams: Promise<
         ) : null}
       </div>
       {institutions.length > 0 ? (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {institutions.map((institution) => (
-            <InstitutionCard key={institution.id} institution={institution} />
-          ))}
-        </div>
+        <>
+          <h2 className="sr-only">Institutions</h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {institutions.map((institution) => (
+              <InstitutionCard key={institution.id} institution={institution} />
+            ))}
+          </div>
+        </>
       ) : (
         <EmptyState
           icon={SchoolIcon}

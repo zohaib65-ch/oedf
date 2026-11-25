@@ -179,6 +179,10 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 - **Messages** are scoped like the dashboard: Super Admin and the CEO Office read every office's inbox, everyone else their own office's (`message-inbox.service.ts`, D45).
 - **CSV exports** (`export.service.ts`) reuse the list services with a larger page, so an export always matches what the list shows. `src/server/lib/csv.ts` writes UTF-8 with a byte-order mark and prefixes cells that start with `=`, `+`, `-`, `@` so a spreadsheet never runs them as formulas (D46).
 
+## Security headers
+
+`next.config.ts` sends the headers from `src/lib/security-headers.ts` on every response: a Content-Security-Policy allowing only Cloudflare Turnstile and Cloudinary besides the site, `frame-ancestors 'none'`, HSTS (two years, preload), `nosniff`, `strict-origin-when-cross-origin`, a Permissions-Policy that turns off camera, microphone, location and payments, and `Cross-Origin-Opener-Policy: same-origin`. Cache Components prerender a static shell that cannot carry a per-request nonce, so `script-src` uses `'unsafe-inline'` as the Next.js guide describes (D47); `'unsafe-eval'` is added only in development, and Zod runs `jitless` so it never probes `eval`. `upgrade-insecure-requests` is sent only when the site URL is https. `dark:` styles are tied to a `.dark` class that is never set: the site has one light theme even on a device in dark mode.
+
 ## Coding standards
 
 - **No dead code:** no unused files, exports, components, hooks, dependencies, variables, routes, endpoints or CSS; no commented-out code, `console.log`, `TODO`/`FIXME`, demo pages or abstractions "for later". `npm run knip` reports nothing. (`console.info`, `warn`, `error` are allowed in `scripts/`.)

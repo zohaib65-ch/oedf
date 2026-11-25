@@ -129,6 +129,7 @@ test.describe("signed in as Super Admin", () => {
     ["/portal/news", "News and events"],
     ["/portal/faqs", "FAQs"],
     ["/portal/messages", "Messages"],
+    ["/portal/guide", "Staff guide"],
   ] as const) {
     test(`${path} opens and has no serious accessibility problems`, async ({ page }) => {
       await page.goto(path);
@@ -152,6 +153,7 @@ test.describe("signed in as Super Admin", () => {
       "News and events",
       "FAQs",
       "Messages",
+      "Staff guide",
       "Users",
       "Settings",
       "Audit log",
@@ -247,6 +249,11 @@ test.describe("invited staff", () => {
 
     await page.goto("/portal/applications");
     await expect(page.getByRole("heading", { level: 1, name: "Access denied" })).toBeVisible();
+
+    // The guide shows the parts for this person's role and office only.
+    await page.goto("/portal/guide");
+    await expect(page.getByRole("button", { name: "Publications" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Users, settings/ })).toHaveCount(0);
 
     for (const path of [
       "/users",

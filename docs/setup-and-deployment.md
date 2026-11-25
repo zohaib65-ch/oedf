@@ -63,12 +63,47 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 - **After fixing a failure, run the whole suite again**, not only the fixed spec, before reporting.
 - **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
 
-## Deployment (planned, Phase 7)
+## Deployment (Vercel, MongoDB Atlas, Cloudinary)
 
-Default host: Vercel with MongoDB Atlas and Cloudinary. To be confirmed with the client and written up step by step in Phase 7. Checklist:
+The owner connects the GitHub repository to Vercel and pushes; nothing is deployed from a developer machine. Production deploys from `main`; the `staging` branch deploys to `https://staging.oed-foundation.org` (D50). The domain and sending address are placeholders until the client confirms them (C1).
 
-- **MongoDB Atlas:** cluster, database user, network access for the host, backups on; run `npm run db:indexes` on every deploy.
-- **Cloudinary:** PDF and ZIP delivery on; **no unsigned upload preset** (every upload is signed); **Strict Transformations off, on purpose** (see architecture.md, "Files"); one folder per environment, derived from `NODE_ENV` (`oedf` in production, `oedf-dev` otherwise); personal documents and signed agreements stored as authenticated assets; photos for the public site are ordinary (public) uploads, resized on delivery.
-- **Upload cleanup:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `CRON_SECRET` (`vercel.json` when on Vercel).
-- **Turnstile and SMTP:** production keys and provider; **domain and SSL**; set every environment variable in the host.
-- **After deploy:** health probe on `/api/v1/health`, Super Admin can sign in, apply each monthly Next.js security release.
+**Environment variables** (Vercel, Settings, Environment Variables). The owner enters every secret there directly; secrets are never pasted into chat, email or a ticket. The app refuses to build when one is missing or malformed, and names it without printing the value.
+
+| Variable                                                 | Production                                                    | Preview                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                                   | `https://www.oed-foundation.org` (C1)                         | `https://staging.oed-foundation.org` (the same-origin check compares against it) |
+| `MONGODB_URI`                                            | Atlas string ending `/oedf`                                   | Same cluster, ending `/oedf-preview` (never `/oedf`)                             |
+| `BETTER_AUTH_SECRET`                                     | 32+ random characters (`openssl rand -base64 32`)             | A different value                                                                |
+| `CLOUDINARY_URL`                                         | `cloudinary://<key>:<secret>@<cloud>`                         | Same account                                                                     |
+| `CLOUDINARY_FOLDER`                                      | `oedf`                                                        | `oedf-preview`                                                                   |
+| `SMTP_URL`                                               | `smtps://<user>:<password>@<host>:465` from the mail provider | Same, or a test inbox                                                            |
+| `EMAIL_FROM`                                             | `OEDF <no-reply@oed-foundation.org>`                          | Same                                                                             |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile widget for the domain                    | The same widget with `staging.oed-foundation.org` added as a hostname            |
+| `CRON_SECRET`                                            | 32+ random characters; Vercel sends it to the cron job        | A different value                                                                |
+
+**Atlas:** Network Access must allow Vercel's functions. Their addresses change, so this is `0.0.0.0/0` with a long database password, unless the Vercel plan has static outbound IPs. Turn on backups. The production database starts empty except for the offices, settings and Super Admin: `npm run db:reset-for-launch -- --database=oedf` shows what it would remove, and `--confirm` removes it. Run `npm run db:indexes` against each database after a deploy that changes a schema.
+
+**DNS** (at the domain's registrar): the apex `A` record and the `www` `CNAME` that Vercel's Domains page shows (usually `A @ 76.76.21.21` and `CNAME www cname.vercel-dns.com`), with the apex redirecting to `www`, and `CNAME staging cname.vercel-dns.com` for the preview. In Vercel, Domains, add `staging.oed-foundation.org` and assign it to the `staging` Git branch, so only that branch uses it; other preview deployments get a per-commit address, where forms fail the same-origin check. For email, the SPF, DKIM and DMARC records the mail provider gives for the sending domain. Vercel issues the HTTPS certificate.
+
+**Cloudinary:** PDF delivery on; no unsigned upload preset; Strict Transformations off on purpose (see architecture.md, "Files").
+
+**Cron:** `vercel.json` runs `/api/v1/internal/cleanup-uploads` daily at 02:00 Pakistan time; it removes uploads never saved with a form.
+
+**Security headers** come from `src/lib/security-headers.ts` (see architecture.md). After a deploy, `curl -I https://www.oed-foundation.org` shows them.
+
+**Go-live smoke test** (after each deploy to production or staging, about 10 minutes). Use an email inbox you can read; on staging, the same steps check the preview setup.
+
+1. `https://<domain>/api/v1/health` answers `ok`, and `curl -I https://<domain>` shows the security headers.
+2. Sign in at `/portal` as the Super Admin. In Settings, check that "Scholarships are open" is on (turn it on for the test if needed, and back off afterwards).
+3. Submit a test scholarship application at `/scholarships/apply`: the name "Smoke Test", your own email, any CNIC, and one small PDF as a document. The Turnstile check must pass, and the page shows a reference such as `OEDF-SCH-2026-000001`. Note it.
+4. The confirmation email with that reference reaches your inbox within a few minutes (check spam too; if it never comes, check `SMTP_URL`, `EMAIL_FROM` and the domain's SPF and DKIM records).
+5. At `/application-status`, enter the reference and your email: the status shows "Submitted".
+6. In the portal, open Applications, find the reference, and open the document: it opens in a new tab through the 5-minute link. The audit log shows the opening.
+7. Delete the test data:
+   - **Before launch** (no real records yet): `npm run db:reset-for-launch -- --database=oedf` shows what it would remove (only the test application, its file record, the audit entries and the sessions), then add `--confirm`. On staging, use `--database=oedf-preview`. It signs everyone out.
+   - **After launch** (real records exist): do **not** run the reset. Archive the test application in the portal instead; applications are never deleted.
+   - Either way, delete the uploaded PDF in the Cloudinary console, under `oedf/applications` (`oedf-preview/applications` on staging).
+
+Apply each monthly Next.js security release.
+
+**Lighthouse:** `npx lighthouse <url>` (mobile by default) against `npm run build && npm run start`. The simulated LCP is a pessimistic estimate for a Next.js page (it counts every script fetched before the first paint); `--throttling-method=devtools` measures with throttling actually applied.

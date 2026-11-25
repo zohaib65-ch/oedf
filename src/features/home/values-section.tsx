@@ -8,6 +8,7 @@ export function ValuesSection() {
   return (
     <Section>
       <Container>
+        <h2 className="sr-only">What we stand for</h2>
         <div className="grid gap-8 md:grid-cols-3">
           {VALUE_CARDS.map((card) => (
             <IconCard key={card.title} {...card} />

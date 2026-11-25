@@ -73,11 +73,14 @@ export async function PublicationList({ searchParams }: { searchParams: Promise<
       </div>
       {items.length > 0 ? (
         <>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((publication) => (
-              <PublicationCard key={publication.id} publication={publication} />
-            ))}
-          </div>
+          <>
+            <h2 className="sr-only">Publications</h2>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {items.map((publication) => (
+                <PublicationCard key={publication.id} publication={publication} />
+              ))}
+            </div>
+          </>
           <Pagination
             page={filters.page}
             pageCount={Math.ceil(total / PAGE_SIZE)}
