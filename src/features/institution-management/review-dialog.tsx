@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -73,30 +74,36 @@ export function ReviewDialog({ institutionId }: { institutionId: string }) {
           <DialogTitle>Add a performance review</DialogTitle>
           <DialogDescription>Internal. Reviews never appear on the public site.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FieldGroup>
-            <DateField control={form.control} name="reviewDate" label="Review date" />
-            <SelectField
-              control={form.control}
-              name="rating"
-              label="Rating"
-              placeholder="Choose a rating"
-              options={RATING_OPTIONS}
-            />
-            <TextareaField
-              control={form.control}
-              name="summary"
-              label="Summary"
-              placeholder="What was reviewed and what was found"
-              rows={4}
-              maxLength={2000}
-            />
-          </FieldGroup>
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <FieldGroup>
+              <DateField control={form.control} name="reviewDate" label="Review date" />
+              <SelectField
+                control={form.control}
+                name="rating"
+                label="Rating"
+                placeholder="Choose a rating"
+                options={RATING_OPTIONS}
+              />
+              <TextareaField
+                control={form.control}
+                name="summary"
+                label="Summary"
+                placeholder="What was reviewed and what was found"
+                rows={4}
+                maxLength={2000}
+              />
+            </FieldGroup>
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

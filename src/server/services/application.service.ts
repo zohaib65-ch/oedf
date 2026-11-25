@@ -2,6 +2,7 @@ import "server-only";
 
 import { PUBLIC_APPLICATION_STATUS } from "@/lib/constants/application-status";
 import type { DOCUMENT_KINDS } from "@/lib/constants/enums";
+import { formatDate } from "@/lib/format";
 import type {
   ApplicationInput,
   MissingDocumentsInput,
@@ -140,6 +141,8 @@ export interface PublicApplicationStatus {
   nextStep: string;
   /** What staff asked for. Only filled while the application is Incomplete. */
   missingItems: string[];
+  /** Why the scholarship ended, when staff ended it after approving. */
+  endedReason: string | null;
 }
 
 /** Finds an application by reference number and email. A mismatch of either gives the same answer. */
@@ -159,12 +162,22 @@ export async function lookupApplicationStatus(
   input: StatusLookupInput,
 ): Promise<PublicApplicationStatus> {
   const application = await findOwnedApplication(input);
+  if (application.scholarshipEnded) {
+    return {
+      status: application.status,
+      label: "Scholarship ended",
+      nextStep: `Your scholarship ended on ${formatDate(new Date(application.scholarshipEnded.endedAt))}. If you have questions, contact us.`,
+      missingItems: [],
+      endedReason: application.scholarshipEnded.reason,
+    };
+  }
   const { label, nextStep } = PUBLIC_APPLICATION_STATUS[application.status];
   return {
     status: application.status,
     label,
     nextStep,
     missingItems: application.status === "INCOMPLETE" ? application.missingItems : [],
+    endedReason: null,
   };
 }
 
@@ -204,5 +217,5 @@ export async function submitMissingDocuments(
   await markUploadsConfirmed(verified.map(({ file }) => file));
 
   const { label, nextStep } = PUBLIC_APPLICATION_STATUS.UNDER_REVIEW;
-  return { status: "UNDER_REVIEW", label, nextStep, missingItems: [] };
+  return { status: "UNDER_REVIEW", label, nextStep, missingItems: [], endedReason: null };
 }

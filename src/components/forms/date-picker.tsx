@@ -111,12 +111,16 @@ export function DatePicker({
             variant="outline"
             onBlur={onBlur}
             {...aria}
-            className={cn("w-full justify-between font-normal", className)}
+            // Looks like a text field (same border, background, padding and text), not a button.
+            className={cn(
+              "w-full justify-between border-input bg-transparent px-2.5 text-base font-normal text-foreground hover:bg-transparent hover:text-foreground aria-expanded:bg-transparent md:text-sm dark:border-input dark:bg-input/30 dark:hover:bg-input/30",
+              className,
+            )}
           >
             <span className={cn("truncate", selected ? "" : "text-muted-foreground")}>
               {selected ? formatDay(day) : placeholder}
             </span>
-            <CalendarIcon className="opacity-60" aria-hidden="true" />
+            <CalendarIcon className="text-muted-foreground" aria-hidden="true" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

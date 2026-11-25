@@ -1,10 +1,12 @@
 import "server-only";
 
+import { hasPermission } from "@/lib/constants/permissions";
 import { parseSort } from "@/lib/validations/common";
 import type { ListMessagesQuery, MessageUpdateInput } from "@/lib/validations/message";
 import type { StaffContext } from "@/server/auth/api-session";
 import { AppError } from "@/server/http/errors";
 import {
+  deleteMessage,
   findMessage,
   listMessages,
   updateMessageStatus,
@@ -85,4 +87,24 @@ export async function changeMessageStatus(
     metadata: { from: message.status, to: input.status },
   });
   return getMessage(staff, id);
+}
+
+/**
+ * Deletes a message for good, after a confirmation. Needs `content:delete` as well as
+ * `messages:manage`, so Directors, the CEO Office and Super Admin can; Staff cannot.
+ */
+export async function removeMessage(staff: StaffContext, id: string): Promise<void> {
+  if (!hasPermission(staff, "content:delete")) {
+    throw new AppError("FORBIDDEN", "You cannot delete messages.");
+  }
+  const message = await getMessage(staff, id);
+  if (!(await deleteMessage(id))) {
+    throw new AppError("NOT_FOUND", NOT_FOUND_MESSAGE);
+  }
+  await recordAudit(staff, {
+    action: "message.deleted",
+    entityType: ENTITY_TYPE,
+    entityId: id,
+    metadata: { subject: message.subject },
+  });
 }

@@ -131,3 +131,10 @@ export async function updateMessageStatus(
   );
   return result.matchedCount === 1;
 }
+
+/** Removes a message for good. Returns false when it was already gone. */
+export async function deleteMessage(id: string): Promise<boolean> {
+  await connectDb();
+  const result = await ContactMessageModel.deleteOne({ _id: id });
+  return result.deletedCount === 1;
+}

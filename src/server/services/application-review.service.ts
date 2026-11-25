@@ -25,6 +25,7 @@ import { toDayRange } from "@/server/lib/day-range";
 import {
   addApplicationNote,
   changeApplicationStatus,
+  deleteApplication as deleteApplicationRecord,
   findApplicationDetail,
   listApplicationsForReview,
   saveChecklist,
@@ -34,6 +35,7 @@ import {
 } from "@/server/repositories/application-review.repository";
 import { createAward } from "@/server/repositories/scholarship-award.repository";
 import { recordAudit } from "@/server/services/audit-log.service";
+import { deleteUploads } from "@/server/storage/cloudinary";
 
 const ENTITY_TYPE = "Application";
 const STALE_MESSAGE =
@@ -252,8 +254,8 @@ export async function addNote(
 }
 
 /**
- * Archives an application, or restores it. Applications are never deleted; an archived one is
- * hidden from the default list and read-only until it is restored.
+ * Archives an application, or restores it. An archived one is hidden from the default list and
+ * read-only until it is restored.
  */
 export async function updateApplication(
   staff: StaffContext,
@@ -276,4 +278,33 @@ export async function updateApplication(
     entityId: id,
   });
   return getApplicationDetail(id);
+}
+
+/**
+ * Deletes an application and its uploaded documents for good, after a confirmation. Needs
+ * `applications:decide` and `content:delete` (the Admissions Director, the CEO Office, Super Admin).
+ * One with a scholarship award is kept, because the award points to it.
+ */
+export async function deleteApplication(staff: StaffContext, id: string): Promise<void> {
+  if (!hasPermission(staff, "applications:decide") || !hasPermission(staff, "content:delete")) {
+    throw new AppError("FORBIDDEN", "You do not have permission to delete applications.");
+  }
+  const application = await getApplicationDetail(id);
+  if (application.awardId) {
+    throw new AppError(
+      "CONFLICT",
+      "This application has a scholarship award, so it cannot be deleted. Archive it instead.",
+    );
+  }
+  const files = await withTransaction((session) => deleteApplicationRecord(id, session));
+  if (!files) {
+    throw new AppError("CONFLICT", STALE_MESSAGE);
+  }
+  await deleteUploads(files);
+  await recordAudit(staff, {
+    action: "application.deleted",
+    entityType: ENTITY_TYPE,
+    entityId: id,
+    metadata: { referenceNumber: application.referenceNumber, status: application.status },
+  });
 }

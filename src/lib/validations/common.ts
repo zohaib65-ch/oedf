@@ -61,6 +61,11 @@ export const uploadedFileSchema = z.object(
 
 export type UploadedFile = z.infer<typeof uploadedFileSchema>;
 
+/** A file that may be left out. A removed one arrives as `null` and means "no file". */
+export const optionalUploadSchema = uploadedFileSchema
+  .nullish()
+  .transform((file) => file ?? undefined);
+
 /** The honeypot every public form carries. Real visitors never see it, so a filled one means a bot. */
 export const spamProtectionShape = {
   faxNumber: z.string().max(200).optional(),
@@ -156,7 +161,7 @@ const MAX_ALT_LENGTH = 200;
 
 /** An optional image and its description, for forms that have one. */
 export const imageShape = {
-  image: uploadedFileSchema.optional(),
+  image: optionalUploadSchema,
   imageAlt: z.string().trim().max(MAX_ALT_LENGTH, "Keep the description under 200 characters"),
 };
 

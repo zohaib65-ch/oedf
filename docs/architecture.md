@@ -87,7 +87,7 @@ scripts/                      seed.ts, sync-indexes.ts
 src/
   app/                        (site)/ (layout, home, error), portal/(dashboard)/, api/auth/[...all], api/v1/health, not-found, global-error, layout, globals.css, icons
   components/                 ui/ (shadcn), shared/, site/ (header, footer, cards), portal/
-  features/                   one folder per public page group: home, about, governance, departments, programs, institutions, careers, research, news, faqs, contact, admissions, legal
+  features/                   one folder per public page group: home, about, team, governance, departments, programs, institutions, careers, research, news, faqs, contact, admissions, legal
   content/                    typed draft copy (home, about, governance, admissions, legal)
   hooks/                      use-mobile.ts (shadcn)
   lib/                        constants/ (enums, departments, site, navigation, labels, cache-tags), validations/ (list-params), seo, structured-data, og-image, format, query-string, auth-client
@@ -138,7 +138,7 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 | Role          | Who                                   | Scope                                                                 |
 | ------------- | ------------------------------------- | --------------------------------------------------------------------- |
 | `SUPER_ADMIN` | Technical administrator               | Everything, including users and settings                              |
-| `CEO_OFFICE`  | Prof. Omar Farooq and executive staff | Sees all offices, makes final decisions, reads the audit log          |
+| `CEO_OFFICE`  | Prof. Omar Farooq and executive staff | Sees all offices, makes final decisions                               |
 | `DIRECTOR`    | Head of one office                    | Full control of their office's modules, publishes, makes decisions    |
 | `STAFF`       | Office team member                    | Works on their office's items; cannot publish or make final decisions |
 
@@ -156,7 +156,7 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 ## Vacancies and job applications
 
 - **Vacancies:** Staff write drafts; publishing, closing, reopening and editing a published vacancy need `vacancies:publish` (a Director). A long form gets its own page (`/portal/vacancies/new`, and the form on the detail page). The deadline is a day; it is stored as the last moment of that day in Pakistan time, so the public pages and `effectiveVacancyStatus` close it on time without a job. Every change to a published vacancy expires the `vacancies` cache tag. Description and requirements are plain text shown by `FormattedText`.
-- **Archiving:** applications and job applications are never deleted. `PATCH /{resource}/{id}` with `{ isArchived }` (the shared `ArchiveButton`) hides one from the default list (`view=ARCHIVED` shows them) and makes it read-only: status moves, the checklist, notes, the interview time and the applicant's document upload are refused with `409` until it is restored. Each archive and restore is audit-logged.
+- **Archiving:** job applications are never deleted. An application can be deleted for good by those with `applications:decide` and `content:delete`, unless it has a scholarship award (delete the award first); a scholarship award by those with `awards:manage` and `content:delete`. `PATCH /{resource}/{id}` with `{ isArchived }` (the shared `ArchiveButton`) hides one from the default list (`view=ARCHIVED` shows them) and makes it read-only: status moves, the checklist, notes, the interview time and the applicant's document upload are refused with `409` until it is restored. Each archive and restore is audit-logged.
 - **Job applications** follow `JOB_APPLICATION_TRANSITIONS` with the same conditional write as applications (`409` when someone changed it first). They are archived, never deleted; an archived one is hidden from the default list and read-only until restored. The CV opens like any private file (`PrivateFileLink`, 5-minute link, audit-logged).
 - **Shared portal pieces** added here: `ConfirmButton` (an Alert Dialog before publishing, closing, archiving or deleting), `PrivateFileLink`, `apiDelete`, `buildTimeline` (`src/server/lib/timeline.ts`) for every status-and-notes history, and `escapeRegExp` (`src/server/lib/escape-regexp.ts`) for search text.
 
@@ -175,6 +175,7 @@ The cookie is `Secure` in production, so over plain `http://localhost` use Chrom
 ## News, FAQs, messages and exports
 
 - **News and FAQs** belong to the CEO Office (`news:manage`, `faqs:manage`); deleting also needs `content:delete` (D43, D44). News follows the content pattern (cover via `resolveImage`, slug from `uniqueSlug`, `revalidateTag` on change). FAQs are short forms in a Dialog; `PATCH /faqs/order` saves one topic's order and refuses a list that does not match the topic, so a stale page cannot drop a question.
+- **Team** (`team-management.service.ts`) is the Super Admin's only (`team:manage`, held by no other role): a Dialog form with an optional photo (`resolveImage`/`settleImage`), up/down ordering like FAQs (`PATCH /team-members/order` refuses a list that does not match), and the public `/team` page cached under the `team` tag (D53).
 - **Messages** are scoped like the dashboard: Super Admin and the CEO Office read every office's inbox, everyone else their own office's (`message-inbox.service.ts`, D45).
 - **CSV exports** (`export.service.ts`) reuse the list services with a larger page, so an export always matches what the list shows. `src/server/lib/csv.ts` writes UTF-8 with a byte-order mark and prefixes cells that start with `=`, `+`, `-`, `@` so a spreadsheet never runs them as formulas (D46).
 

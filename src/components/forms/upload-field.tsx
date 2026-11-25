@@ -43,7 +43,7 @@ export function UploadField<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const uploaded = field.value as UploadedFile | undefined;
+        const uploaded = field.value as UploadedFile | null | undefined;
         const errorMessage =
           uploadError ?? (fieldState.invalid ? fieldErrorMessage(fieldState.error) : undefined);
         const isUploading = progress !== undefined;
@@ -85,7 +85,9 @@ export function UploadField<T extends FieldValues>({
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    field.onChange(undefined);
+                    // `null`, not `undefined`: react-hook-form reads `undefined` as "use the
+                    // default", which would bring a saved file straight back.
+                    field.onChange(null);
                   }}
                 >
                   <Trash2Icon aria-hidden="true" />

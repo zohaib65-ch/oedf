@@ -38,9 +38,9 @@ const PERMISSIONS = [
   "messages:read",
   "messages:manage",
   "users:manage",
+  "team:manage",
   "settings:read",
   "settings:manage",
-  "audit:read",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -101,7 +101,6 @@ const CEO_OFFICE_PERMISSIONS = [
   "content:delete",
   "messages:read",
   "messages:manage",
-  "audit:read",
 ] as const satisfies readonly Permission[];
 
 /** What each role may do. The one place access is decided. */

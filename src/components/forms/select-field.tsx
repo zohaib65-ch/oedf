@@ -46,7 +46,7 @@ export function SelectField<T extends FieldValues>({
                 hasDescription: Boolean(description),
                 hasError: fieldState.invalid,
               })}
-              className="h-11 w-full"
+              className="w-full"
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>

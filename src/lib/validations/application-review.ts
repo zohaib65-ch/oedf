@@ -125,6 +125,15 @@ export const awardFormSchema = z
   .object({ ...awardFields, status: z.enum(AWARD_STATUSES, { error: "Choose a status" }) })
   .refine(renewalAfterStart, RENEWAL_RULE);
 
+/** Deleting an award ends the scholarship: the reason is emailed to the student and shown to them. */
+export const awardDeleteSchema = z.object({
+  reason: z
+    .string()
+    .trim()
+    .min(1, "Give a reason")
+    .max(MAX_REASON_LENGTH, "Keep the reason under 1,000 characters"),
+});
+
 export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
 export type ApplicationUpdateInput = z.infer<typeof applicationUpdateSchema>;
 export type ChecklistInput = z.infer<typeof checklistSchema>;
@@ -133,3 +142,4 @@ export type ApplicationStatusChangeFormValues = z.input<typeof applicationStatus
 export type ListAwardsQuery = z.infer<typeof listAwardsQuerySchema>;
 export type AwardFormInput = z.infer<typeof awardFormSchema>;
 export type AwardFormValues = z.input<typeof awardFormSchema>;
+export type AwardDeleteInput = z.infer<typeof awardDeleteSchema>;

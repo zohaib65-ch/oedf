@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { emailText, nameText, phoneText } from "@/lib/validations/common";
+import { emailText, nameText } from "@/lib/validations/common";
 
 const MAX_IMPACT_NUMBERS = 8;
 const MAX_VALUE = 1_000_000_000;
@@ -16,13 +16,11 @@ const optionalUrl = z
   .refine((value) => value === "" || URL.canParse(value), "Enter a valid web address");
 
 const optionalEmail = z.union([z.literal(""), emailText]);
-const optionalPhone = z.union([z.literal(""), phoneText]);
 const optionalText = (max: number) => z.string().trim().max(max, "This is too long");
 
 export const updateSettingsSchema = z.object({
   contact: z.object({
     address: optionalText(MAX_TEXT),
-    phone: optionalPhone,
     email: optionalEmail,
     officeHours: optionalText(MAX_LINE),
   }),

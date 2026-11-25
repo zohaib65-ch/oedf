@@ -3,6 +3,7 @@ import mongoose, { type ClientSession } from "mongoose";
 
 import type { AWARD_PERIODS, AWARD_STATUSES } from "@/lib/constants/enums";
 import { connectDb } from "@/server/db/connection";
+import { ApplicationModel } from "@/server/db/models/application.model";
 import { ScholarshipAwardModel } from "@/server/db/models/scholarship-award.model";
 import { escapeRegExp } from "@/server/lib/escape-regexp";
 
@@ -189,4 +190,41 @@ export async function addAwardNote(
     },
   );
   return result.matchedCount === 1;
+}
+
+/**
+ * Removes an award for good and marks its application's scholarship as ended, with the reason, in
+ * the caller's transaction. Returns false when the award was already gone.
+ */
+export async function deleteAward(
+  award: { id: string; applicationId: string },
+  ended: { reason: string; actor: { id: string; name: string } },
+  session: ClientSession,
+): Promise<boolean> {
+  const result = await ScholarshipAwardModel.deleteOne({ _id: award.id }, { session });
+  if (result.deletedCount !== 1) {
+    return false;
+  }
+  await ApplicationModel.updateOne(
+    { _id: award.applicationId },
+    {
+      $set: {
+        scholarshipEnded: {
+          reason: ended.reason,
+          endedById: ended.actor.id,
+          endedByName: ended.actor.name,
+          endedAt: new Date(),
+        },
+      },
+      $push: {
+        notes: {
+          authorId: ended.actor.id,
+          authorName: ended.actor.name,
+          body: `Scholarship award deleted and the scholarship ended. Reason sent to the student: ${ended.reason}`,
+        },
+      },
+    },
+    { session },
+  );
+  return true;
 }

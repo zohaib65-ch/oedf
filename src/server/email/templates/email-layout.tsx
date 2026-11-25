@@ -1,21 +1,8 @@
 import type { ReactNode } from "react";
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Hr,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "react-email";
+import { Body, Button, Container, Head, Hr, Html, Link, Preview, Section, Text } from "react-email";
 
 import { publicEnv } from "@/env";
 import { SECP_REGISTRATION_NUMBER, SITE_NAME } from "@/lib/constants/site";
-import { absoluteUrl } from "@/lib/seo";
 
 // Email clients ignore stylesheets and CSS variables, so email styles are inline. These values
 // repeat the design tokens (navy, gold, primary button, ink, page) in src/app/globals.css.
@@ -47,6 +34,15 @@ const styles = {
     overflow: "hidden",
   },
   header: { padding: "28px 40px 8px", textAlign: "center" },
+  brand: {
+    color: colors.gold,
+    fontSize: 13,
+    fontWeight: 700,
+    letterSpacing: 1,
+    lineHeight: "20px",
+    margin: 0,
+    textTransform: "uppercase",
+  },
   content: { padding: "8px 40px 32px" },
   heading: {
     color: colors.navy,
@@ -67,7 +63,7 @@ interface EmailLayoutProps {
   children: ReactNode;
 }
 
-/** The frame of every email: gold top bar, logo, heading, content and the foundation's details. */
+/** The frame of every email: gold top bar, the foundation's name, heading, content and the foundation's details. */
 export function EmailLayout({ preview, heading, children }: EmailLayoutProps) {
   const siteHost = new URL(publicEnv.NEXT_PUBLIC_SITE_URL).host;
   return (
@@ -77,12 +73,7 @@ export function EmailLayout({ preview, heading, children }: EmailLayoutProps) {
       <Body style={styles.body}>
         <Container style={styles.container}>
           <Section style={styles.header}>
-            <Img
-              src={absoluteUrl("/brand/logo-full.jpeg")}
-              alt={SITE_NAME}
-              width={150}
-              style={{ display: "block", margin: "0 auto" }}
-            />
+            <Text style={styles.brand}>{SITE_NAME}</Text>
             <Text style={styles.heading}>{heading}</Text>
           </Section>
           <Section style={styles.content}>{children}</Section>

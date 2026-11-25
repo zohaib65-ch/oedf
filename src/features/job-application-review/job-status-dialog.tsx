@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -82,21 +83,27 @@ export function JobStatusDialog({ applicationId, target }: JobStatusDialogProps)
             {EXPLANATION[target] ?? ""}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <TextareaField
-            control={form.control}
-            name="reason"
-            label="Reason"
-            placeholder="Why the status is changing"
-            description="Recorded with your name in the application's history. The candidate does not see it."
-            rows={3}
-            maxLength={1000}
-          />
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <TextareaField
+              control={form.control}
+              name="reason"
+              label="Reason"
+              placeholder="Why the status is changing"
+              description="Recorded with your name in the application's history. The candidate does not see it."
+              rows={3}
+              maxLength={1000}
+            />
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

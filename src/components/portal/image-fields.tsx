@@ -26,7 +26,7 @@ export function ImageFields<T extends FieldValues>({ control, currentImage }: Im
           width={currentImage.width}
           height={currentImage.height}
           sizes="320px"
-          className="h-auto w-80 max-w-full rounded-lg border border-border"
+          className="h-auto max-h-56 w-auto max-w-full rounded-lg border border-border object-contain"
         />
       ) : null}
       <UploadField

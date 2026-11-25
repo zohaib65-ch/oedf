@@ -1,9 +1,9 @@
-import { awardFormSchema } from "@/lib/validations/application-review";
+import { awardDeleteSchema, awardFormSchema } from "@/lib/validations/application-review";
 import { requireApiPermission } from "@/server/auth/api-session";
 import { withApiHandler } from "@/server/http/handler";
 import { readJson } from "@/server/http/request";
 import { ok } from "@/server/http/responses";
-import { getAward, saveAward } from "@/server/services/scholarship-award.service";
+import { deleteAward, getAward, saveAward } from "@/server/services/scholarship-award.service";
 
 export const GET = withApiHandler(
   async (request, { params }: RouteContext<"/api/v1/scholarship-awards/[id]">) => {
@@ -20,5 +20,17 @@ export const PATCH = withApiHandler(
     const { id } = await params;
     const input = await readJson(request, awardFormSchema);
     return ok(await saveAward(staff, id, input));
+  },
+);
+
+// `{ reason }`: deletes the award and ends the scholarship. The student is emailed the reason and
+// sees it on the status page. Also needs `content:delete` (checked in the service). Audit-logged.
+export const DELETE = withApiHandler(
+  async (request, { params }: RouteContext<"/api/v1/scholarship-awards/[id]">) => {
+    const staff = await requireApiPermission(request, "awards:manage");
+    const { id } = await params;
+    const input = await readJson(request, awardDeleteSchema);
+    await deleteAward(staff, id, input);
+    return new Response(null, { status: 204 });
   },
 );

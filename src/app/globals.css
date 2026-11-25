@@ -156,6 +156,21 @@
     @apply bg-background text-foreground antialiased;
   }
 
+  /* Tailwind v4 dropped the pointer cursor on buttons. Every clickable control gets it back here:
+     buttons, icon buttons, select and popover triggers, checkboxes, tabs and menu items. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not(:disabled),
+  [role="radio"]:not(:disabled),
+  [role="switch"]:not(:disabled),
+  [role="tab"]:not(:disabled),
+  [role="menuitem"]:not([data-disabled]),
+  [role="option"]:not([data-disabled]),
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

@@ -8,7 +8,6 @@ export const SITE_SETTINGS_KEY = "site";
 const contactSchema = new Schema(
   {
     address: { type: String, default: "" },
-    phone: { type: String, default: "" },
     email: { type: String, default: "" },
     officeHours: { type: String, default: "" },
   },

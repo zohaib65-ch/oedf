@@ -30,7 +30,6 @@ const SUPER_ADMIN_DEPARTMENT_CODE = "CEO_OFFICE";
 const DEFAULT_SETTINGS = {
   contact: {
     address: "",
-    phone: "",
     email: "",
     officeHours: "",
   },

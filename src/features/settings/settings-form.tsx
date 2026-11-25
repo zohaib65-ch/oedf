@@ -12,7 +12,6 @@ import { SaveButton } from "@/components/portal/save-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FieldGroup } from "@/components/ui/field";
 import { useUpdateSettings } from "@/features/settings/hooks/use-settings-mutations";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
 import {
@@ -66,21 +65,16 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
           <CardDescription>Shown in the site header, footer and contact page.</CardDescription>
         </CardHeader>
         <CardContent>
-          <FieldGroup>
-            <TextareaField
-              control={form.control}
-              name="contact.address"
-              label="Address"
-              placeholder="Street, area and city"
-              rows={3}
-            />
-            <TextField
-              control={form.control}
-              name="contact.phone"
-              label="Phone"
-              placeholder="+92 42 1234567"
-              type="tel"
-            />
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <TextareaField
+                control={form.control}
+                name="contact.address"
+                label="Address"
+                placeholder="Street, area and city"
+                rows={3}
+              />
+            </div>
             <TextField
               control={form.control}
               name="contact.email"
@@ -94,14 +88,16 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
               label="Office hours"
               placeholder="For example Mon–Fri, 9 am to 5 pm"
             />
-            <TextField
-              control={form.control}
-              name="mapUrl"
-              label="Map link"
-              placeholder="https://maps.app.goo.gl/…"
-              description="A Google Maps share link."
-            />
-          </FieldGroup>
+            <div className="md:col-span-2">
+              <TextField
+                control={form.control}
+                name="mapUrl"
+                label="Map link"
+                placeholder="https://maps.app.goo.gl/…"
+                description="A Google Maps share link."
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -111,7 +107,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
           <CardDescription>An icon shows in the footer only when its link is set.</CardDescription>
         </CardHeader>
         <CardContent>
-          <FieldGroup>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {SOCIAL_FIELDS.map(([key, label, placeholder]) => (
               <TextField
                 key={key}
@@ -121,7 +117,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
                 placeholder={placeholder}
               />
             ))}
-          </FieldGroup>
+          </div>
         </CardContent>
       </Card>
 
@@ -133,39 +129,44 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {impact.fields.map((item, index) => (
-            <div key={item.id} className="flex flex-wrap items-start gap-3">
-              <div className="min-w-48 flex-1">
-                <TextField
-                  control={form.control}
-                  name={`impactNumbers.${index}.label`}
-                  label="Label"
-                  placeholder="For example Students supported"
-                />
-              </div>
-              <div className="w-40">
-                <TextField
-                  control={form.control}
-                  name={`impactNumbers.${index}.value`}
-                  label="Number"
-                  placeholder="For example 1200"
-                  inputMode="numeric"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="mt-7"
-                aria-label={`Remove figure ${index + 1}`}
-                onClick={() => {
-                  impact.remove(index);
-                }}
+          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            {impact.fields.map((item, index) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-3 rounded-lg border border-border p-3"
               >
-                <Trash2Icon aria-hidden="true" />
-              </Button>
-            </div>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <TextField
+                    control={form.control}
+                    name={`impactNumbers.${index}.label`}
+                    label="Label"
+                    placeholder="For example Students supported"
+                  />
+                </div>
+                <div className="w-32 shrink-0">
+                  <TextField
+                    control={form.control}
+                    name={`impactNumbers.${index}.value`}
+                    label="Number"
+                    placeholder="For example 1200"
+                    inputMode="numeric"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="mt-7"
+                  aria-label={`Remove figure ${index + 1}`}
+                  onClick={() => {
+                    impact.remove(index);
+                  }}
+                >
+                  <Trash2Icon aria-hidden="true" />
+                </Button>
+              </div>
+            ))}
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -185,17 +186,19 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
           <CardTitle>Announcement bar</CardTitle>
           <CardDescription>A one-line notice above the header.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <CheckboxField control={form.control} name="announcement.isActive">
-              Show the announcement bar
-            </CheckboxField>
-            <TextField
-              control={form.control}
-              name="announcement.text"
-              label="Text"
-              placeholder="For example Admissions for Fall 2026 are open"
-            />
+        <CardContent className="space-y-5">
+          <CheckboxField control={form.control} name="announcement.isActive">
+            Show the announcement bar
+          </CheckboxField>
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <TextField
+                control={form.control}
+                name="announcement.text"
+                label="Text"
+                placeholder="For example Admissions for Fall 2026 are open"
+              />
+            </div>
             <TextField
               control={form.control}
               name="announcement.linkUrl"
@@ -203,7 +206,7 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
               placeholder="For example /admissions"
               description="A page on this site (starting with /) or a full web address. Optional."
             />
-          </FieldGroup>
+          </div>
         </CardContent>
       </Card>
 
@@ -215,20 +218,32 @@ export function SettingsForm({ settings }: { settings: PublicSiteSettingsRecord 
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <FieldGroup>
-            <CheckboxField control={form.control} name="admissionsOpen">
-              Admissions are open
-            </CheckboxField>
-            <CheckboxField control={form.control} name="scholarshipsOpen">
-              Scholarships are open
-            </CheckboxField>
-          </FieldGroup>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border p-4">
+              <CheckboxField control={form.control} name="admissionsOpen">
+                Admissions are open
+              </CheckboxField>
+            </div>
+            <div className="rounded-lg border border-border p-4">
+              <CheckboxField control={form.control} name="scholarshipsOpen">
+                Scholarships are open
+              </CheckboxField>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <SaveButton isPending={form.formState.isSubmitting} size="lg">
-        Save settings
-      </SaveButton>
+      {/* Pinned to the bottom of the screen, so the one save button is in reach from every card. */}
+      <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center justify-between gap-3 rounded-t-xl border border-b-0 border-border bg-background/95 px-4 py-3 shadow-card backdrop-blur">
+        <p className="text-sm text-muted-foreground">
+          {form.formState.isDirty
+            ? "You have unsaved changes."
+            : "Saves contact details, social links, impact numbers, the announcement bar and intake."}
+        </p>
+        <SaveButton isPending={form.formState.isSubmitting} size="lg">
+          Save settings
+        </SaveButton>
+      </div>
     </form>
   );
 }

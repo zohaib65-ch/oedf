@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { MessagesFilter } from "@/features/message-inbox/messages-filter";
 import { MessagesTable } from "@/features/message-inbox/messages-table";
+import { hasPermission } from "@/lib/constants/permissions";
 import { buildHref } from "@/lib/query-string";
 import { listMessagesQuerySchema } from "@/lib/validations/message";
 import { checkPagePermission } from "@/server/auth/session";
@@ -59,6 +60,10 @@ export default async function MessagesPage({ searchParams }: PageProps<"/portal/
             officeName: officeName.get(message.departmentId) ?? "",
           }))}
           showOffice={isAllOffices}
+          canDelete={
+            hasPermission(access.staff, "messages:manage") &&
+            hasPermission(access.staff, "content:delete")
+          }
           sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
         />
       )}

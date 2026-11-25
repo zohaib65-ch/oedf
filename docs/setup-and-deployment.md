@@ -84,7 +84,7 @@ The owner connects the GitHub repository to Vercel and pushes; nothing is deploy
 3. Submit a test scholarship application at `/scholarships/apply`: the name "Smoke Test", your own email, any CNIC, and one small PDF as a document. The page shows a reference such as `OEDF-SCH-2026-000001`. Note it.
 4. The confirmation email with that reference reaches your inbox within a few minutes (check spam too; if it never comes, check `SMTP_URL`, that `EMAIL_FROM` is verified in Brevo, and the domain's SPF and DKIM records from Brevo).
 5. At `/application-status`, enter the reference and your email: the status shows "Submitted".
-6. In the portal, open Applications, find the reference, and open the document: it opens in a new tab through the 5-minute link. The audit log shows the opening.
+6. In the portal, open Applications, find the reference, and open the document: it opens in a new tab through the 5-minute link. The opening is recorded in the `auditLogs` collection.
 7. Delete the test data:
    - **Before launch** (no real records yet): `npm run db:reset-for-launch -- --database=oedf` shows what it would remove (only the test application, its file record, the audit entries and the sessions), then add `--confirm`. On staging, use `--database=oedf-preview`. It signs everyone out.
    - **After launch** (real records exist): do **not** run the reset. Archive the test application in the portal instead; applications are never deleted.

@@ -16,6 +16,7 @@ import { PublicationModel } from "@/server/db/models/publication.model";
 import { RateLimitModel } from "@/server/db/models/rate-limit.model";
 import { ScholarshipAwardModel } from "@/server/db/models/scholarship-award.model";
 import { SiteSettingsModel } from "@/server/db/models/site-settings.model";
+import { TeamMemberModel } from "@/server/db/models/team-member.model";
 import { VacancyModel } from "@/server/db/models/vacancy.model";
 
 /** Every collection this app owns (Better Auth creates its own). Used by index sync and its test. */
@@ -36,5 +37,6 @@ export const ALL_MODELS = [
   RateLimitModel,
   ScholarshipAwardModel,
   SiteSettingsModel,
+  TeamMemberModel,
   VacancyModel,
 ];

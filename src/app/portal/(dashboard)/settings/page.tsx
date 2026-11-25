@@ -21,7 +21,7 @@ export default async function SettingsPage() {
         title="Settings"
         description="Site-wide details, the intake switches and each office's notification email."
       />
-      <div className="max-w-3xl space-y-6">
+      <div className="space-y-6">
         <SettingsForm settings={settings} />
         <OfficesForm offices={offices} />
       </div>

@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -99,7 +100,7 @@ export function StatusChangeDialog({
       <DialogTrigger asChild>
         <Button variant={isClosing ? "outline" : "default"}>{STATUS_ACTION_LABELS[target]}</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-svh overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{STATUS_ACTION_LABELS[target]}</DialogTitle>
           <DialogDescription>
@@ -107,58 +108,64 @@ export function StatusChangeDialog({
             {EXPLANATION[target] ?? ""}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FieldGroup>
-            {target === "INCOMPLETE" ? (
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <FieldGroup>
+              {target === "INCOMPLETE" ? (
+                <TextareaField
+                  control={form.control}
+                  name="missingItems"
+                  label="What the applicant must send"
+                  placeholder={"Attested result card\nCopy of guardian's CNIC"}
+                  description="One item per line. The applicant sees this list."
+                  rows={4}
+                />
+              ) : null}
+              {needsAwardTerms ? (
+                <>
+                  <TextField
+                    control={form.control}
+                    name="award.amountPkr"
+                    label="Amount (whole rupees)"
+                    placeholder="For example 25000"
+                    inputMode="numeric"
+                  />
+                  <SelectField
+                    control={form.control}
+                    name="award.period"
+                    label="Paid"
+                    placeholder="Choose how often it is paid"
+                    options={toOptions(AWARD_PERIOD_LABELS)}
+                  />
+                  <DateField control={form.control} name="award.startDate" label="Start date" />
+                  <DateField
+                    control={form.control}
+                    name="award.renewalDate"
+                    label="Renewal date"
+                    description="Optional. When the award is next reviewed."
+                  />
+                </>
+              ) : null}
               <TextareaField
                 control={form.control}
-                name="missingItems"
-                label="What the applicant must send"
-                placeholder={"Attested result card\nCopy of guardian's CNIC"}
-                description="One item per line. The applicant sees this list."
-                rows={4}
+                name="reason"
+                label="Reason"
+                placeholder="Why the status is changing"
+                description="Recorded with your name in the application's history. Not sent to the applicant."
+                rows={3}
+                maxLength={1000}
               />
-            ) : null}
-            {needsAwardTerms ? (
-              <>
-                <TextField
-                  control={form.control}
-                  name="award.amountPkr"
-                  label="Amount (whole rupees)"
-                  placeholder="For example 25000"
-                  inputMode="numeric"
-                />
-                <SelectField
-                  control={form.control}
-                  name="award.period"
-                  label="Paid"
-                  placeholder="Choose how often it is paid"
-                  options={toOptions(AWARD_PERIOD_LABELS)}
-                />
-                <DateField control={form.control} name="award.startDate" label="Start date" />
-                <DateField
-                  control={form.control}
-                  name="award.renewalDate"
-                  label="Renewal date"
-                  description="Optional. When the award is next reviewed."
-                />
-              </>
-            ) : null}
-            <TextareaField
-              control={form.control}
-              name="reason"
-              label="Reason"
-              placeholder="Why the status is changing"
-              description="Recorded with your name in the application's history. Not sent to the applicant."
-              rows={3}
-              maxLength={1000}
-            />
-          </FieldGroup>
+            </FieldGroup>
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

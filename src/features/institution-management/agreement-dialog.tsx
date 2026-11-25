@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -26,7 +27,11 @@ import { FieldGroup } from "@/components/ui/field";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
 import { apiPatch, apiPost } from "@/lib/api/client";
 import { AGREEMENT_STATUS_LABELS, toOptions } from "@/lib/constants/labels";
-import { agreementFormSchema, type AgreementFormInput } from "@/lib/validations/institution";
+import {
+  agreementFormSchema,
+  type AgreementFormInput,
+  type AgreementFormValues,
+} from "@/lib/validations/institution";
 import type { AgreementRecord } from "@/server/repositories/institution-management.repository";
 
 const KNOWN_FIELDS: ReadonlySet<string> = new Set([
@@ -50,7 +55,7 @@ export function AgreementDialog({ institutionId, agreement }: AgreementDialogPro
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
-  const form = useForm<AgreementFormInput>({
+  const form = useForm<AgreementFormValues, unknown, AgreementFormInput>({
     resolver: zodResolver(agreementFormSchema),
     defaultValues: {
       title: agreement?.title ?? "",
@@ -100,62 +105,68 @@ export function AgreementDialog({ institutionId, agreement }: AgreementDialogPro
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-svh overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             The signed copy stays private: staff open it through a link that lasts five minutes.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FieldGroup>
-            <TextField
-              control={form.control}
-              name="title"
-              label="Title"
-              placeholder="For example Scholarship partnership agreement"
-              maxLength={150}
-            />
-            <TextField
-              control={form.control}
-              name="partner"
-              label="Partner"
-              placeholder="Name of the partner organization"
-              maxLength={150}
-            />
-            <DateField control={form.control} name="startDate" label="Start date" />
-            <DateField
-              control={form.control}
-              name="endDate"
-              label="End date"
-              description="Optional."
-            />
-            <DateField
-              control={form.control}
-              name="renewalDate"
-              label="Renewal date"
-              description="Optional. Listed on the institutions page as the next renewal."
-            />
-            <SelectField
-              control={form.control}
-              name="status"
-              label="Status"
-              placeholder="Choose a status"
-              options={toOptions(AGREEMENT_STATUS_LABELS)}
-            />
-            <UploadField
-              control={form.control}
-              name="document"
-              label="Signed copy"
-              purpose="AGREEMENT"
-              description="Optional. PDF, up to 5 MB."
-            />
-          </FieldGroup>
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <FieldGroup>
+              <TextField
+                control={form.control}
+                name="title"
+                label="Title"
+                placeholder="For example Scholarship partnership agreement"
+                maxLength={150}
+              />
+              <TextField
+                control={form.control}
+                name="partner"
+                label="Partner"
+                placeholder="Name of the partner organization"
+                maxLength={150}
+              />
+              <DateField control={form.control} name="startDate" label="Start date" />
+              <DateField
+                control={form.control}
+                name="endDate"
+                label="End date"
+                description="Optional."
+              />
+              <DateField
+                control={form.control}
+                name="renewalDate"
+                label="Renewal date"
+                description="Optional. Listed on the institutions page as the next renewal."
+              />
+              <SelectField
+                control={form.control}
+                name="status"
+                label="Status"
+                placeholder="Choose a status"
+                options={toOptions(AGREEMENT_STATUS_LABELS)}
+              />
+              <UploadField
+                control={form.control}
+                name="document"
+                label="Signed copy"
+                purpose="AGREEMENT"
+                description="Optional. PDF, up to 5 MB."
+              />
+            </FieldGroup>
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

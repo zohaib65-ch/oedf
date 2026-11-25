@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ClampedText } from "@/components/shared/clamped-text";
+
 interface LinkCardProps {
   href: string;
   title: string;
@@ -49,7 +51,12 @@ export function LinkCard({
         </Link>
       </h3>
       {description ? (
-        <p className="mt-3 line-clamp-4 leading-relaxed text-muted-foreground">{description}</p>
+        <ClampedText
+          text={description}
+          lines={4}
+          href={href}
+          className="mt-3 leading-relaxed text-muted-foreground"
+        />
       ) : null}
       {meta ? <div className="mt-4 text-sm text-muted-foreground">{meta}</div> : null}
       <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-semibold text-navy">

@@ -207,6 +207,8 @@ export interface ApplicationDetail {
   checklist: { identity: boolean; education: boolean; eligibility: boolean; documents: boolean };
   missingItems: string[];
   decision: { reason: string; decidedByName: string; decidedAt: string } | null;
+  /** Set when the scholarship's award was deleted: why, who and when. */
+  scholarshipEnded: { reason: string; endedByName: string; endedAt: string } | null;
   awardId: string | null;
   archivedAt: string | null;
   timeline: TimelineEntry<ApplicationStatus>[];
@@ -262,6 +264,13 @@ export async function findApplicationDetail(id: string): Promise<ApplicationDeta
           reason: application.decision.reason,
           decidedByName: application.decision.decidedByName,
           decidedAt: application.decision.decidedAt.toISOString(),
+        }
+      : null,
+    scholarshipEnded: application.scholarshipEnded
+      ? {
+          reason: application.scholarshipEnded.reason,
+          endedByName: application.scholarshipEnded.endedByName,
+          endedAt: application.scholarshipEnded.endedAt.toISOString(),
         }
       : null,
     awardId: award ? award._id.toString() : null,
@@ -372,7 +381,7 @@ export async function addApplicationNote(id: string, actor: Actor, body: string)
   return result.matchedCount === 1;
 }
 
-/** Archives the application, or restores it. Nothing is ever deleted. */
+/** Archives the application, or restores it. */
 export async function setApplicationArchived(id: string, isArchived: boolean): Promise<boolean> {
   await connectDb();
   const result = await ApplicationModel.updateOne(
@@ -380,4 +389,36 @@ export async function setApplicationArchived(id: string, isArchived: boolean): P
     isArchived ? { $set: { archivedAt: new Date() } } : { $unset: { archivedAt: 1 } },
   );
   return result.matchedCount === 1;
+}
+
+/** A file to remove from Cloudinary once the database no longer points to it. */
+export interface DeletedFile {
+  publicId: string;
+  resourceType: "image" | "raw";
+}
+
+/**
+ * Deletes an application and its file records, in the caller's transaction. Returns the files to
+ * remove from Cloudinary, or null when the application is gone or has a scholarship award.
+ */
+export async function deleteApplication(
+  id: string,
+  session: ClientSession,
+): Promise<DeletedFile[] | null> {
+  if (await ScholarshipAwardModel.exists({ applicationId: id }).session(session)) {
+    return null;
+  }
+  const owner = { "owner.type": "Application", "owner.id": id };
+  const files = await FileAssetModel.find(owner, { publicId: 1, resourceType: 1 })
+    .session(session)
+    .lean();
+  const result = await ApplicationModel.deleteOne({ _id: id }, { session });
+  if (result.deletedCount !== 1) {
+    return null;
+  }
+  await FileAssetModel.deleteMany(owner, { session });
+  return files.map((file) => ({
+    publicId: file.publicId,
+    resourceType: file.resourceType === "raw" ? "raw" : "image",
+  }));
 }

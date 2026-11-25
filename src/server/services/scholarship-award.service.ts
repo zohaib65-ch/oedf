@@ -1,13 +1,23 @@
 import "server-only";
 
 import { AWARD_PERIOD_LABELS, AWARD_STATUS_LABELS } from "@/lib/constants/labels";
-import type { AwardFormInput, ListAwardsQuery } from "@/lib/validations/application-review";
+import { hasPermission } from "@/lib/constants/permissions";
+import type {
+  AwardDeleteInput,
+  AwardFormInput,
+  ListAwardsQuery,
+} from "@/lib/validations/application-review";
 import { parseSort } from "@/lib/validations/common";
 import type { StaffContext } from "@/server/auth/api-session";
+import { withTransaction } from "@/server/db/transaction";
+import { sendEmail } from "@/server/email/send-email";
+import { ScholarshipEndedEmail } from "@/server/email/templates/scholarship-ended-email";
 import { AppError } from "@/server/http/errors";
 import { toDayRange } from "@/server/lib/day-range";
+import { findApplicationDetail } from "@/server/repositories/application-review.repository";
 import {
   addAwardNote,
+  deleteAward as deleteAwardRecord,
   findAwardById,
   listAwards,
   updateAward,
@@ -100,4 +110,52 @@ export async function addAwardProgressNote(
   }
   await recordAudit(staff, { action: "award.note_added", entityType: ENTITY_TYPE, entityId: id });
   return getAward(id);
+}
+
+/**
+ * Deletes an award and ends the scholarship, after a confirmation with a reason. Needs
+ * `awards:manage` and `content:delete` (the Admissions Director, Super Admin). The application is
+ * marked as ended with the reason, the student is emailed the reason, and the status page shows it.
+ */
+export async function deleteAward(
+  staff: StaffContext,
+  id: string,
+  input: AwardDeleteInput,
+): Promise<void> {
+  if (!hasPermission(staff, "awards:manage") || !hasPermission(staff, "content:delete")) {
+    throw new AppError("FORBIDDEN", "You do not have permission to delete awards.");
+  }
+  const award = await getAward(id);
+  const application = await findApplicationDetail(award.applicationId);
+  const isDeleted = await withTransaction((session) =>
+    deleteAwardRecord(
+      { id, applicationId: award.applicationId },
+      { reason: input.reason, actor: { id: staff.id, name: staff.name } },
+      session,
+    ),
+  );
+  if (!isDeleted) {
+    throw new AppError("NOT_FOUND", NOT_FOUND);
+  }
+  if (application) {
+    await sendEmail({
+      to: application.applicant.email,
+      subject: `Your scholarship has ended (${award.referenceNumber})`,
+      template: ScholarshipEndedEmail({
+        applicantName: application.applicant.fullName,
+        referenceNumber: award.referenceNumber,
+        reason: input.reason,
+      }),
+    });
+  }
+  await recordAudit(staff, {
+    action: "award.deleted",
+    entityType: ENTITY_TYPE,
+    entityId: id,
+    metadata: {
+      referenceNumber: award.referenceNumber,
+      studentName: award.studentName,
+      reason: input.reason,
+    },
+  });
 }

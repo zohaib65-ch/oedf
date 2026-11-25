@@ -8,6 +8,7 @@ import {
   type DataTableSorting,
 } from "@/components/portal/data-table";
 import { StatusBadge } from "@/components/portal/status-badge";
+import { DeleteApplicationButton } from "@/features/application-review/delete-application-button";
 import { applicationStatusTone } from "@/lib/constants/application-workflow";
 import { APPLICATION_STATUS_LABELS, APPLICATION_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDateTime } from "@/lib/format";
@@ -56,16 +57,31 @@ const columns: DataTableColumn<ApplicationListItem>[] = [
   },
 ];
 
+const deleteColumn: DataTableColumn<ApplicationListItem> = {
+  id: "actions",
+  header: "Actions",
+  isActions: true,
+  cell: (application) => (
+    <DeleteApplicationButton
+      applicationId={application.id}
+      referenceNumber={application.referenceNumber}
+      isCompact
+    />
+  ),
+};
+
 interface ApplicationsTableProps {
   applications: ApplicationListItem[];
   sorting: DataTableSorting;
+  /** May delete applications (`applications:decide` and `content:delete`). */
+  canDelete: boolean;
 }
 
-export function ApplicationsTable({ applications, sorting }: ApplicationsTableProps) {
+export function ApplicationsTable({ applications, sorting, canDelete }: ApplicationsTableProps) {
   return (
     <DataTable
       label="Applications"
-      columns={columns}
+      columns={canDelete ? [...columns, deleteColumn] : columns}
       rows={applications}
       getRowId={(application) => application.id}
       sorting={sorting}

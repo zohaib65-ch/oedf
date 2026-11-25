@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { AwardsFilter } from "@/features/scholarship-awards/awards-filter";
 import { AwardsTable } from "@/features/scholarship-awards/awards-table";
+import { hasPermission } from "@/lib/constants/permissions";
 import { buildHref } from "@/lib/query-string";
 import { listAwardsQuerySchema } from "@/lib/validations/application-review";
 import { checkPagePermission } from "@/server/auth/session";
@@ -42,7 +43,14 @@ export default async function AwardsPage({
           description="Awards appear here when scholarship applications are approved."
         />
       ) : (
-        <AwardsTable awards={items} sorting={{ basePath: BASE_PATH, sort: query.sort, params }} />
+        <AwardsTable
+          awards={items}
+          sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
+          canDelete={
+            hasPermission(access.staff, "awards:manage") &&
+            hasPermission(access.staff, "content:delete")
+          }
+        />
       )}
       <Pagination
         page={query.page}

@@ -3,7 +3,11 @@ import { requireApiPermission } from "@/server/auth/api-session";
 import { withApiHandler } from "@/server/http/handler";
 import { readJson } from "@/server/http/request";
 import { ok } from "@/server/http/responses";
-import { changeMessageStatus, getMessage } from "@/server/services/message-inbox.service";
+import {
+  changeMessageStatus,
+  getMessage,
+  removeMessage,
+} from "@/server/services/message-inbox.service";
 
 export const GET = withApiHandler(
   async (request, { params }: RouteContext<"/api/v1/contact-messages/[id]">) => {
@@ -20,5 +24,15 @@ export const PATCH = withApiHandler(
     const { id } = await params;
     const input = await readJson(request, messageUpdateSchema);
     return ok(await changeMessageStatus(staff, id, input));
+  },
+);
+
+// Deleting also needs `content:delete` (checked in the service) and is audit-logged.
+export const DELETE = withApiHandler(
+  async (request, { params }: RouteContext<"/api/v1/contact-messages/[id]">) => {
+    const staff = await requireApiPermission(request, "messages:manage");
+    const { id } = await params;
+    await removeMessage(staff, id);
+    return new Response(null, { status: 204 });
   },
 );

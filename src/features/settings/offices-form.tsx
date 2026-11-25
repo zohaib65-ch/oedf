@@ -41,7 +41,7 @@ function OfficeForm({ office }: { office: StaffDepartmentRecord }) {
       onSubmit={(event) => void handleSubmit(event)}
       noValidate
       aria-label={office.name}
-      className="space-y-4 border-t pt-6 first:border-t-0 first:pt-0"
+      className="space-y-4 rounded-lg border border-border p-4"
     >
       <h3 className="font-semibold">{office.name}</h3>
       {formError ? (
@@ -49,7 +49,7 @@ function OfficeForm({ office }: { office: StaffDepartmentRecord }) {
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       ) : null}
-      <FieldGroup className="sm:grid sm:grid-cols-2">
+      <FieldGroup>
         <TextField
           control={form.control}
           name="directorName"
@@ -82,7 +82,7 @@ export function OfficesForm({ offices }: { offices: StaffDepartmentRecord[] }) {
           Each office&rsquo;s director and the email that receives its contact messages.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {offices.map((office) => (
           <OfficeForm key={office.id} office={office} />
         ))}

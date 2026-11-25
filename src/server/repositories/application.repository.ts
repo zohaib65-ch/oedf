@@ -79,6 +79,8 @@ export interface ApplicationStatusRecord {
   missingItems: string[];
   /** Archived by staff: read-only until restored, so it takes no documents either. */
   isArchived: boolean;
+  /** Set when staff deleted the scholarship's award: the reason the student is shown. */
+  scholarshipEnded: { reason: string; endedAt: string } | null;
 }
 
 export async function findApplicationForLookup(
@@ -87,7 +89,14 @@ export async function findApplicationForLookup(
   await connectDb();
   const application = await ApplicationModel.findOne(
     { referenceNumber },
-    { type: 1, status: 1, "applicant.email": 1, missingItems: 1, archivedAt: 1 },
+    {
+      type: 1,
+      status: 1,
+      "applicant.email": 1,
+      missingItems: 1,
+      archivedAt: 1,
+      scholarshipEnded: 1,
+    },
   ).lean();
   return application
     ? {
@@ -97,6 +106,12 @@ export async function findApplicationForLookup(
         email: application.applicant.email,
         missingItems: application.missingItems,
         isArchived: application.archivedAt != null,
+        scholarshipEnded: application.scholarshipEnded
+          ? {
+              reason: application.scholarshipEnded.reason,
+              endedAt: application.scholarshipEnded.endedAt.toISOString(),
+            }
+          : null,
       }
     : null;
 }

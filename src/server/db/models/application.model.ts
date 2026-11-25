@@ -73,6 +73,17 @@ const decisionSchema = new Schema(
   { _id: false },
 );
 
+// Set when a scholarship's award is deleted: why, shown to the applicant on the status page.
+const scholarshipEndedSchema = new Schema(
+  {
+    reason: { type: String, required: true },
+    endedById: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    endedByName: { type: String, required: true },
+    endedAt: { type: Date, default: () => new Date() },
+  },
+  { _id: false },
+);
+
 const applicationSchema = new Schema(
   {
     referenceNumber: { type: String, required: true, unique: true },
@@ -87,6 +98,7 @@ const applicationSchema = new Schema(
     checklist: { type: checklistSchema, default: () => ({}) },
     missingItems: { type: [String], default: [] },
     decision: decisionSchema,
+    scholarshipEnded: scholarshipEndedSchema,
     archivedAt: { type: Date },
     notes: { type: [noteSchema], default: [] },
     statusHistory: { type: [createStatusHistorySchema(APPLICATION_STATUSES)], default: [] },

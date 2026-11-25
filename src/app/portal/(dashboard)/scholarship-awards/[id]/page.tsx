@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/portal/page-header";
 import { Timeline } from "@/components/portal/timeline";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AwardForm } from "@/features/scholarship-awards/award-form";
+import { DeleteAwardButton } from "@/features/scholarship-awards/delete-award-button";
 import { AWARD_PERIOD_LABELS, AWARD_STATUS_LABELS } from "@/lib/constants/labels";
 import { hasPermission } from "@/lib/constants/permissions";
 import { formatDay, formatPkr } from "@/lib/format";
@@ -25,12 +26,18 @@ export default async function AwardPage({ params }: PageProps<"/portal/scholarsh
   const { id } = await params;
   const award = await orNotFound(getAward(id));
   const canManage = hasPermission(access.staff, "awards:manage");
+  const canDelete = canManage && hasPermission(access.staff, "content:delete");
 
   return (
     <>
       <PageHeader
         title={award.studentName}
         description={`Scholarship award for application ${award.referenceNumber}.`}
+        actions={
+          canDelete ? (
+            <DeleteAwardButton awardId={award.id} studentName={award.studentName} />
+          ) : null
+        }
       />
       <p>
         <Link

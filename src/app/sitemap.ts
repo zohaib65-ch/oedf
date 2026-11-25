@@ -8,6 +8,7 @@ import { getSitemapRecords } from "@/server/services/sitemap.service";
 const STATIC_PATHS = [
   "/",
   "/about",
+  "/team",
   "/governance",
   "/departments",
   "/programs",

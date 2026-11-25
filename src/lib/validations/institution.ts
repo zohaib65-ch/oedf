@@ -9,7 +9,7 @@ import {
   requireImageAlt,
   shortText,
   sortParam,
-  uploadedFileSchema,
+  optionalUploadSchema,
 } from "@/lib/validations/common";
 
 const MAX_NAME_LENGTH = 150;
@@ -48,7 +48,7 @@ export const agreementFormSchema = z
     endDate: optionalDay,
     renewalDate: optionalDay,
     status: z.enum(AGREEMENT_STATUSES, { error: "Choose a status" }),
-    document: uploadedFileSchema.optional(),
+    document: optionalUploadSchema,
   })
   .superRefine((value, context) => {
     for (const field of ["endDate", "renewalDate"] as const) {
@@ -77,5 +77,6 @@ export type ListInstitutionsQuery = z.infer<typeof listInstitutionsQuerySchema>;
 export type InstitutionFormInput = z.infer<typeof institutionFormSchema>;
 export type InstitutionFormValues = z.input<typeof institutionFormSchema>;
 export type AgreementFormInput = z.infer<typeof agreementFormSchema>;
+export type AgreementFormValues = z.input<typeof agreementFormSchema>;
 export type ReviewFormInput = z.infer<typeof reviewFormSchema>;
 export type ReviewFormValues = z.input<typeof reviewFormSchema>;

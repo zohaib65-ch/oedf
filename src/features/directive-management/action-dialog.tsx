@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -71,13 +72,19 @@ export function ActionDialog<T extends FieldValues>({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          {children}
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            {children}
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

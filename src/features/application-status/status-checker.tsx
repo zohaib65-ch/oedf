@@ -95,6 +95,12 @@ export function StatusChecker() {
               {result.label}
             </h2>
             <p className="mt-3 text-lg text-muted-foreground">{result.nextStep}</p>
+            {result.endedReason ? (
+              <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+                <p className="text-sm font-bold text-foreground">Reason</p>
+                <p className="mt-1 whitespace-pre-line text-foreground">{result.endedReason}</p>
+              </div>
+            ) : null}
           </div>
           {result.status === "INCOMPLETE" ? (
             <MissingDocumentsForm

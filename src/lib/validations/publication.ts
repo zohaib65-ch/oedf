@@ -9,7 +9,7 @@ import {
   requireImageAlt,
   shortText,
   sortParam,
-  uploadedFileSchema,
+  optionalUploadSchema,
 } from "@/lib/validations/common";
 
 const MAX_TITLE_LENGTH = 200;
@@ -59,7 +59,7 @@ export const publicationFormSchema = z
     tags: textList("topic", MAX_TAG_LENGTH),
     /** Empty means "the day it is published". */
     publishedOn: z.union([z.literal(""), isoDateText]),
-    pdf: uploadedFileSchema.optional(),
+    pdf: optionalUploadSchema,
     status: z.enum(CONTENT_STATUSES, { error: "Choose a status" }),
     ...imageShape,
   })

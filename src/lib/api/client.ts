@@ -65,7 +65,7 @@ export function apiPatch<T>(path: string, body: unknown): Promise<T> {
   return apiSend("PATCH", path, body);
 }
 
-/** Deletes the record at `path`. Throws an `ApiError` when the server refuses. */
-export async function apiDelete(path: string): Promise<void> {
-  await apiSend("DELETE", path);
+/** Deletes the record at `path`, with an optional JSON body (a reason). Throws an `ApiError` when the server refuses. */
+export async function apiDelete(path: string, body?: unknown): Promise<void> {
+  await apiSend("DELETE", path, body);
 }

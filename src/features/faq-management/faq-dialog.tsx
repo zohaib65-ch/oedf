@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -109,41 +110,47 @@ export function FaqDialog({ faq, topics }: FaqDialogProps) {
             topic.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FieldGroup>
-            <TextField
-              control={form.control}
-              name="question"
-              label="Question"
-              placeholder="For example How do I apply for a scholarship?"
-              maxLength={300}
-            />
-            <TextareaField
-              control={form.control}
-              name="answer"
-              label="Answer"
-              placeholder="A clear, complete answer to the question"
-              description={FORMATTED_TEXT_HINT}
-              rows={6}
-              maxLength={5000}
-            />
-            <ComboboxField
-              control={form.control}
-              name="category"
-              label="Topic"
-              noun="topic"
-              options={topics}
-              description="Choose an existing topic, or type a new one to add it."
-            />
-            <CheckboxField control={form.control} name="isPublished">
-              Published (shown on the public FAQs page)
-            </CheckboxField>
-          </FieldGroup>
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <FieldGroup>
+              <TextField
+                control={form.control}
+                name="question"
+                label="Question"
+                placeholder="For example How do I apply for a scholarship?"
+                maxLength={300}
+              />
+              <TextareaField
+                control={form.control}
+                name="answer"
+                label="Answer"
+                placeholder="A clear, complete answer to the question"
+                description={FORMATTED_TEXT_HINT}
+                rows={6}
+                maxLength={5000}
+              />
+              <ComboboxField
+                control={form.control}
+                name="category"
+                label="Topic"
+                noun="topic"
+                options={topics}
+                description="Choose an existing topic, or type a new one to add it."
+              />
+              <CheckboxField control={form.control} name="isPublished">
+                Published (shown on the public FAQs page)
+              </CheckboxField>
+            </FieldGroup>
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ApplicationDetails } from "@/features/application-review/application-details";
 import { ApplicationDocuments } from "@/features/application-review/application-documents";
 import { ChecklistForm } from "@/features/application-review/checklist-form";
+import { DeleteApplicationButton } from "@/features/application-review/delete-application-button";
 import { StatusChangeDialog } from "@/features/application-review/status-change-dialog";
 import {
   allowedNextStatuses,
@@ -58,6 +59,11 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
   const canReview = hasPermission(staff, "applications:review");
   const isArchived = application.archivedAt !== null;
   const nextStatuses = isArchived ? [] : allowedNextStatuses(staff, application.status);
+  // One with a scholarship award is kept, because the award points to it.
+  const canDelete =
+    hasPermission(staff, "applications:decide") &&
+    hasPermission(staff, "content:delete") &&
+    application.awardId === null;
 
   return (
     <>
@@ -75,7 +81,7 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
         }
       />
 
-      {nextStatuses.length > 0 || canReview ? (
+      {nextStatuses.length > 0 || canReview || canDelete ? (
         <section aria-label="Application actions" className="flex flex-wrap gap-2">
           {nextStatuses.map((target) => (
             <StatusChangeDialog
@@ -88,7 +94,27 @@ export default async function ApplicationPage({ params }: PageProps<"/portal/app
           {canReview ? (
             <ArchiveButton endpoint={`/applications/${application.id}`} isArchived={isArchived} />
           ) : null}
+          {canDelete ? (
+            <DeleteApplicationButton
+              applicationId={application.id}
+              referenceNumber={application.referenceNumber}
+            />
+          ) : null}
         </section>
+      ) : null}
+
+      {application.scholarshipEnded ? (
+        <Alert variant="destructive">
+          <AlertTitle>
+            Scholarship ended on {formatDateTime(application.scholarshipEnded.endedAt)} by{" "}
+            {application.scholarshipEnded.endedByName}
+          </AlertTitle>
+          <AlertDescription>
+            <p className="whitespace-pre-line">
+              Reason sent to the student: {application.scholarshipEnded.reason}
+            </p>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {application.archivedAt ? (

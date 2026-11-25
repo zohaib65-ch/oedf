@@ -1,14 +1,7 @@
 import "server-only";
 
-import type { AuditLogQuery } from "@/lib/validations/audit-log";
-import { parseSort } from "@/lib/validations/common";
 import type { StaffContext } from "@/server/auth/api-session";
-import { toDayRange } from "@/server/lib/day-range";
-import {
-  createAuditEntry,
-  listAuditEntries,
-  type AuditLogRecord,
-} from "@/server/repositories/audit-log.repository";
+import { createAuditEntry } from "@/server/repositories/audit-log.repository";
 
 interface AuditEvent {
   action: string;
@@ -26,17 +19,4 @@ export async function recordAudit(staff: StaffContext, event: AuditEvent): Promi
     userAgent: staff.userAgent,
     ...event,
   });
-}
-
-export async function getAuditLog(
-  query: AuditLogQuery,
-): Promise<{ items: AuditLogRecord[]; total: number }> {
-  return listAuditEntries(
-    {
-      ...(query.entityType ? { entityType: query.entityType } : {}),
-      ...(query.action ? { action: query.action } : {}),
-      ...toDayRange(query.from, query.to),
-    },
-    { page: query.page, pageSize: query.pageSize, direction: parseSort(query.sort).direction },
-  );
 }

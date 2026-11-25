@@ -15,9 +15,9 @@ import {
   School,
   LayoutDashboard,
   type LucideIcon,
-  ScrollTextIcon,
   SettingsIcon,
   UsersIcon,
+  UsersRound,
 } from "lucide-react";
 
 import { DEPARTMENTS } from "@/lib/constants/departments";
@@ -97,6 +97,7 @@ export const FOOTER_NAV: readonly { title: string; links: readonly NavLink[] }[]
     title: "Foundation",
     links: [
       { label: "About", href: "/about" },
+      { label: "Team", href: "/team" },
       { label: "Governance", href: "/governance" },
       { label: "Departments", href: "/departments" },
       { label: "Programs", href: "/programs" },
@@ -193,9 +194,9 @@ export const PORTAL_NAV: readonly PortalNavLink[] = [
   { label: "News and events", href: "/portal/news", icon: Newspaper, permission: "news:manage" },
   { label: "FAQs", href: "/portal/faqs", icon: CircleHelp, permission: "faqs:manage" },
   { label: "Messages", href: "/portal/messages", icon: Inbox, permission: "messages:read" },
+  { label: "Team", href: "/portal/team", icon: UsersRound, permission: "team:manage" },
   { label: "Users", href: "/portal/users", icon: UsersIcon, permission: "users:manage" },
   { label: "Settings", href: "/portal/settings", icon: SettingsIcon, permission: "settings:read" },
-  { label: "Audit log", href: "/portal/audit-log", icon: ScrollTextIcon, permission: "audit:read" },
   { label: "Staff guide", href: "/portal/guide", icon: BookOpen, permission: "dashboard:read" },
 ];
 

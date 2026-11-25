@@ -74,6 +74,10 @@ export default async function ApplicationsPage({
         <ApplicationsTable
           applications={items}
           sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
+          canDelete={
+            hasPermission(access.staff, "applications:decide") &&
+            hasPermission(access.staff, "content:delete")
+          }
         />
       )}
       <Pagination

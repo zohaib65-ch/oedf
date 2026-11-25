@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -83,47 +84,53 @@ export function UserFormDialog({ user, departments, children }: UserFormDialogPr
               : "They receive an email with a link to set their own password."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-5">
-          {formError ? (
-            <Alert variant="destructive" role="alert">
-              <AlertDescription>{formError}</AlertDescription>
-            </Alert>
-          ) : null}
-          <FieldGroup>
-            <TextField
-              control={form.control}
-              name="name"
-              label="Name"
-              placeholder="Full name"
-              autoComplete="off"
-            />
-            {isEditing ? (
-              <p className="text-sm text-muted-foreground">Email: {user.email}</p>
-            ) : (
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          noValidate
+          className="flex min-h-0 flex-1 flex-col gap-5"
+        >
+          <DialogBody className="space-y-5">
+            {formError ? (
+              <Alert variant="destructive" role="alert">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+            <FieldGroup>
               <TextField
                 control={form.control}
-                name="email"
-                label="Email"
-                placeholder="name@example.com"
-                type="email"
+                name="name"
+                label="Name"
+                placeholder="Full name"
                 autoComplete="off"
               />
-            )}
-            <SelectField
-              control={form.control}
-              name="role"
-              label="Role"
-              placeholder="Choose a role"
-              options={ROLE_OPTIONS}
-            />
-            <SelectField
-              control={form.control}
-              name="departmentId"
-              label="Office"
-              placeholder="Choose an office"
-              options={departments}
-            />
-          </FieldGroup>
+              {isEditing ? (
+                <p className="text-sm text-muted-foreground">Email: {user.email}</p>
+              ) : (
+                <TextField
+                  control={form.control}
+                  name="email"
+                  label="Email"
+                  placeholder="name@example.com"
+                  type="email"
+                  autoComplete="off"
+                />
+              )}
+              <SelectField
+                control={form.control}
+                name="role"
+                label="Role"
+                placeholder="Choose a role"
+                options={ROLE_OPTIONS}
+              />
+              <SelectField
+                control={form.control}
+                name="departmentId"
+                label="Office"
+                placeholder="Choose an office"
+                options={departments}
+              />
+            </FieldGroup>
+          </DialogBody>
           <DialogFooter>
             <Button
               type="button"

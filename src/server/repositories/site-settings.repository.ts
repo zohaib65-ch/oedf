@@ -16,7 +16,7 @@ export async function ensureSiteSettings(defaults: SettingsDefaults): Promise<bo
 }
 
 export interface PublicSiteSettingsRecord {
-  contact: { address: string; phone: string; email: string; officeHours: string };
+  contact: { address: string; email: string; officeHours: string };
   social: { facebook: string; instagram: string; linkedin: string; x: string; youtube: string };
   announcement: { isActive: boolean; text: string; linkUrl: string };
   mapUrl: string;
@@ -46,7 +46,6 @@ export async function findPublicSiteSettings(): Promise<PublicSiteSettingsRecord
   return {
     contact: {
       address: settings.contact.address,
-      phone: settings.contact.phone,
       email: settings.contact.email,
       officeHours: settings.contact.officeHours,
     },
