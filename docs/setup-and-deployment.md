@@ -2,12 +2,11 @@
 
 ## Local setup
 
-Prerequisites: Node.js 24+, npm, access to the project's MongoDB Atlas cluster (your IP address added under Atlas → Network Access), and Docker for Mailpit, the local email inbox.
+Prerequisites: Node.js 24+, npm, access to the project's MongoDB Atlas cluster (your IP address added under Atlas → Network Access), and a Brevo SMTP login and key for outgoing email (Brevo is used locally too).
 
 ```bash
 npm install
 cp .env.example .env            # then fill in the empty values
-docker compose up -d mailpit    # Mailpit, the local email inbox (http://localhost:8025)
 npm run db:indexes              # create the indexes
 npm run db:seed                 # offices, settings; asks once for the first Super Admin's email and password
 npm run db:seed:sample          # optional: labelled sample content so public pages have data
@@ -25,7 +24,7 @@ npm run dev                     # http://localhost:3000
 
 ## Environment variables
 
-Validated by `src/env.ts` and checked on every start and build; the error names the variable and never prints its value. Copy `.env.example` to `.env` and never commit it. **Local development needs six lines** (`NEXT_PUBLIC_SITE_URL`, `MONGODB_URI`, `BETTER_AUTH_SECRET`, `CLOUDINARY_FOLDER`, `SMTP_URL`, `EMAIL_FROM`; `.env.example` has the Mailpit values for the last two; add `CLOUDINARY_URL` to try uploads). Nothing has a built-in default. The rest become required only on a real deployment (a site URL that is not `localhost`).
+Validated by `src/env.ts` and checked on every start and build; the error names the variable and never prints its value. Copy `.env.example` to `.env` and never commit it. **Local development needs six lines** (`NEXT_PUBLIC_SITE_URL`, `MONGODB_URI`, `BETTER_AUTH_SECRET`, `CLOUDINARY_FOLDER`, `SMTP_URL`, `EMAIL_FROM`; `.env.example` shows the Brevo format for the last two; add `CLOUDINARY_URL` to try uploads). Nothing has a built-in default. The rest become required only on a real deployment (a site URL that is not `localhost`).
 
 | Variable               | Where                                                     | Purpose                                                                                                                                                                   |
 | ---------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -34,8 +33,8 @@ Validated by `src/env.ts` and checked on every start and build; the error names 
 | `BETTER_AUTH_SECRET`   | Always                                                    | Session signing secret, 32+ characters (`openssl rand -base64 32`)                                                                                                        |
 | `CLOUDINARY_FOLDER`    | Always                                                    | Folder for every upload: `oedf-dev` locally, `oedf-preview` on previews, `oedf` in production. Never derived from the site URL, so a preview cannot write into production |
 | `CLOUDINARY_URL`       | Deployment (dev: uploads say "not configured" until set)  | `cloudinary://<key>:<secret>@<cloud>`; Cloudinary console, Settings, API Keys, "API environment variable"                                                                 |
-| `SMTP_URL`             | Always (locally Mailpit, `smtp://localhost:1025`)         | Mail server, for example `smtps://user:password@host:465`                                                                                                                 |
-| `EMAIL_FROM`           | Always (locally `OEDF <no-reply@localhost>`)              | The "from" address on every email                                                                                                                                         |
+| `SMTP_URL`             | Always                                                    | Brevo: `smtps://<SMTP login>:<SMTP key>@smtp-relay.brevo.com:465`, from Brevo, SMTP & API. An `@` in the login is written `%40`                                           |
+| `EMAIL_FROM`           | Always                                                    | The "from" address on every email, for example `OEDF <no-reply@oed-foundation.org>`; must be a sender or domain verified in Brevo                                         |
 | `CRON_SECRET`          | Deployment (dev: the cleanup endpoint refuses every call) | Protects the daily upload cleanup call; 32+ characters                                                                                                                    |
 
 Derived, so not variables: the log level (debug in development, info in production), the Cloudinary cloud name (from `CLOUDINARY_URL`), and the auth base URL (the site URL). The first Super Admin's email and password are **not** configuration: `npm run db:seed` asks for them once (or takes `--email` and `--password`) and stores the account in the database. Secrets are never pasted into chat or committed.
@@ -48,7 +47,7 @@ A phase is done when `npm run check` (lint, typecheck, Knip) and `npm run build`
 
 ## Uploads, email and the cleanup job
 
-- **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
+- **Email** goes through Brevo everywhere, including local development, so every email really arrives: use your own address when you try a form locally.
 - **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
 
 ## Deployment (Vercel, MongoDB Atlas, Cloudinary)
@@ -57,16 +56,16 @@ The owner connects the GitHub repository to Vercel and pushes; nothing is deploy
 
 **Environment variables** (Vercel, Settings, Environment Variables). The owner enters every secret there directly; secrets are never pasted into chat, email or a ticket. The app refuses to build when one is missing or malformed, and names it without printing the value.
 
-| Variable               | Production                                                    | Preview                                                                          |
-| ---------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL` | `https://www.oed-foundation.org` (C1)                         | `https://staging.oed-foundation.org` (the same-origin check compares against it) |
-| `MONGODB_URI`          | Atlas string ending `/oedf`                                   | Same cluster, ending `/oedf-preview` (never `/oedf`)                             |
-| `BETTER_AUTH_SECRET`   | 32+ random characters (`openssl rand -base64 32`)             | A different value                                                                |
-| `CLOUDINARY_URL`       | `cloudinary://<key>:<secret>@<cloud>`                         | Same account                                                                     |
-| `CLOUDINARY_FOLDER`    | `oedf`                                                        | `oedf-preview`                                                                   |
-| `SMTP_URL`             | `smtps://<user>:<password>@<host>:465` from the mail provider | Same, or a test inbox                                                            |
-| `EMAIL_FROM`           | `OEDF <no-reply@oed-foundation.org>`                          | Same                                                                             |
-| `CRON_SECRET`          | 32+ random characters; Vercel sends it to the cron job        | A different value                                                                |
+| Variable               | Production                                                                                   | Preview                                                                          |
+| ---------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | `https://www.oed-foundation.org` (C1)                                                        | `https://staging.oed-foundation.org` (the same-origin check compares against it) |
+| `MONGODB_URI`          | Atlas string ending `/oedf`                                                                  | Same cluster, ending `/oedf-preview` (never `/oedf`)                             |
+| `BETTER_AUTH_SECRET`   | 32+ random characters (`openssl rand -base64 32`)                                            | A different value                                                                |
+| `CLOUDINARY_URL`       | `cloudinary://<key>:<secret>@<cloud>`                                                        | Same account                                                                     |
+| `CLOUDINARY_FOLDER`    | `oedf`                                                                                       | `oedf-preview`                                                                   |
+| `SMTP_URL`             | Brevo `smtps://<SMTP login>:<SMTP key>@smtp-relay.brevo.com:465` (`@` in the login as `%40`) | Same                                                                             |
+| `EMAIL_FROM`           | `OEDF <no-reply@oed-foundation.org>`                                                         | Same                                                                             |
+| `CRON_SECRET`          | 32+ random characters; Vercel sends it to the cron job                                       | A different value                                                                |
 
 **Atlas:** Network Access must allow Vercel's functions. Their addresses change, so this is `0.0.0.0/0` with a long database password, unless the Vercel plan has static outbound IPs. Turn on backups. The production database starts empty except for the offices, settings and Super Admin: `npm run db:reset-for-launch -- --database=oedf` shows what it would remove, and `--confirm` removes it. Run `npm run db:indexes` against each database after a deploy that changes a schema.
 
@@ -83,7 +82,7 @@ The owner connects the GitHub repository to Vercel and pushes; nothing is deploy
 1. `https://<domain>/api/v1/health` answers `ok`, and `curl -I https://<domain>` shows the security headers.
 2. Sign in at `/portal` as the Super Admin. In Settings, check that "Scholarships are open" is on (turn it on for the test if needed, and back off afterwards).
 3. Submit a test scholarship application at `/scholarships/apply`: the name "Smoke Test", your own email, any CNIC, and one small PDF as a document. The page shows a reference such as `OEDF-SCH-2026-000001`. Note it.
-4. The confirmation email with that reference reaches your inbox within a few minutes (check spam too; if it never comes, check `SMTP_URL`, `EMAIL_FROM` and the domain's SPF and DKIM records).
+4. The confirmation email with that reference reaches your inbox within a few minutes (check spam too; if it never comes, check `SMTP_URL`, that `EMAIL_FROM` is verified in Brevo, and the domain's SPF and DKIM records from Brevo).
 5. At `/application-status`, enter the reference and your email: the status shows "Submitted".
 6. In the portal, open Applications, find the reference, and open the document: it opens in a new tab through the 5-minute link. The audit log shows the opening.
 7. Delete the test data:

@@ -1,8 +1,0 @@
-# Local development service: Mailpit, an inbox that catches every outgoing email
-# (SMTP on localhost:1025, web interface on http://localhost:8025). The database is MongoDB Atlas.
-services:
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - "1025:1025"
-      - "8025:8025"

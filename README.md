@@ -6,12 +6,11 @@ The official website, staff portal and REST API of the Omar Education Developmen
 
 ## Quick start
 
-Needs Node.js 24+, npm, the project's MongoDB Atlas cluster (with your IP allowed) and Docker for Mailpit.
+Needs Node.js 24+, npm, the project's MongoDB Atlas cluster (with your IP allowed) and a Brevo SMTP key for outgoing email.
 
 ```bash
 npm install
 cp .env.example .env            # then fill in the values
-docker compose up -d mailpit    # local email inbox
 npm run db:indexes
 npm run db:seed
 npm run dev                     # http://localhost:3000

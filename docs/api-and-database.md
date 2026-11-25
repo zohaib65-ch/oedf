@@ -87,7 +87,7 @@ Endpoints are added, with request and response examples, in the phase that build
 
 ## Database
 
-MongoDB 8+ with Mongoose 9, as a replica set (Atlas always is; `compose.yaml` runs a single-node set locally). One model per collection in `src/server/db/models/`; every schema is `strict` with `timestamps: true`, and collection names are set explicitly to match this table.
+MongoDB 8+ with Mongoose 9, as a replica set (Atlas clusters always are). One model per collection in `src/server/db/models/`; every schema is `strict` with `timestamps: true`, and collection names are set explicitly to match this table.
 
 | Collection                                   | Embedded inside                                                                                             | Notes                                                            |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
