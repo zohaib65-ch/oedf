@@ -5,6 +5,7 @@ import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
+import { fieldErrorMessage } from "@/components/forms/field-error-message";
 import { describedBy, fieldId } from "@/components/forms/field-ids";
 import { Button } from "@/components/ui/button";
 import {
@@ -135,7 +136,9 @@ export function ComboboxField<T extends FieldValues>({
               <FieldDescription id={`${fieldId(name)}-description`}>{description}</FieldDescription>
             ) : null}
             {fieldState.invalid ? (
-              <FieldError id={`${fieldId(name)}-error`} errors={[fieldState.error]} />
+              <FieldError id={`${fieldId(name)}-error`}>
+                {fieldErrorMessage(fieldState.error)}
+              </FieldError>
             ) : null}
           </Field>
         );

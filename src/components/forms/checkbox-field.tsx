@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
+import { fieldErrorMessage } from "@/components/forms/field-error-message";
 import { describedBy, fieldId } from "@/components/forms/field-ids";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -46,7 +47,9 @@ export function CheckboxField<T extends FieldValues>({
               {children}
             </FieldLabel>
             {fieldState.invalid ? (
-              <FieldError id={`${fieldId(name)}-error`} errors={[fieldState.error]} />
+              <FieldError id={`${fieldId(name)}-error`}>
+                {fieldErrorMessage(fieldState.error)}
+              </FieldError>
             ) : null}
           </div>
         </Field>

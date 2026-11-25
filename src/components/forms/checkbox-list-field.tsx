@@ -1,5 +1,6 @@
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
+import { fieldErrorMessage } from "@/components/forms/field-error-message";
 import { fieldId } from "@/components/forms/field-ids";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -70,7 +71,9 @@ export function CheckboxListField<T extends FieldValues>({
                 })}
               </div>
             )}
-            {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
+            {fieldState.invalid ? (
+              <FieldError>{fieldErrorMessage(fieldState.error)}</FieldError>
+            ) : null}
           </FieldSet>
         );
       }}

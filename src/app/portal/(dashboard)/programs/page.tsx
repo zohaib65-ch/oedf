@@ -59,6 +59,8 @@ export default async function ProgramsPage({ searchParams }: PageProps<"/portal/
         <ProgramsTable
           programs={items}
           sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
+          canDelete={hasPermission(access.staff, "programs:write")}
+          canPublish={hasPermission(access.staff, "programs:publish")}
         />
       )}
       <Pagination

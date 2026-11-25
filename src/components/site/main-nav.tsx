@@ -22,7 +22,7 @@ function NavDropdown({ item }: { item: NavItem }) {
       <NavigationMenuTrigger className={TRIGGER_CLASSES} data-nav-item={item.href}>
         {item.label}
       </NavigationMenuTrigger>
-      <NavigationMenuContent className="mt-3 rounded-2xl border-t-4 border-gold bg-white p-3 text-ink shadow-band md:w-160">
+      <NavigationMenuContent className="surface-light mt-3 rounded-2xl border-t-4 border-gold bg-white p-3 text-ink shadow-band md:w-160">
         <ul className="grid grid-cols-2 gap-1">
           {item.children?.map((child) => (
             <li key={child.href}>

@@ -8,6 +8,7 @@ import { PrivateFileLink } from "@/components/portal/private-file-link";
 import { FormattedText } from "@/components/shared/formatted-text";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AgreementDialog } from "@/features/institution-management/agreement-dialog";
+import { DeleteInstitutionButton } from "@/features/institution-management/delete-institution-button";
 import { InstitutionForm } from "@/features/institution-management/institution-form";
 import { InstitutionStatus } from "@/features/institution-management/institution-status";
 import { ReviewDialog } from "@/features/institution-management/review-dialog";
@@ -35,6 +36,12 @@ export default async function InstitutionPage({ params }: PageProps<"/portal/ins
   const canPublish = hasPermission(staff, "institutions:publish");
   const canEdit = canWrite && (!institution.isPublic || canPublish);
   const isOnPublicSite = institution.isPublic && institution.status === "ACTIVE";
+  // Agreements and reviews are history, so an institution that has them is closed, not deleted.
+  const canDelete =
+    canEdit &&
+    hasPermission(staff, "content:delete") &&
+    institution.agreements.length === 0 &&
+    institution.reviews.length === 0;
 
   return (
     <>
@@ -43,6 +50,11 @@ export default async function InstitutionPage({ params }: PageProps<"/portal/ins
         description={`${INSTITUTION_TYPE_LABELS[institution.type]}, ${institution.city}.`}
         actions={<InstitutionStatus status={institution.status} isPublic={institution.isPublic} />}
       />
+      {canDelete ? (
+        <section aria-label="Institution actions" className="flex flex-wrap gap-2">
+          <DeleteInstitutionButton institutionId={institution.id} name={institution.name} />
+        </section>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-2">

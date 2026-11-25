@@ -5,7 +5,13 @@ import { Container } from "@/components/shared/container";
 import { DraftNotice } from "@/components/shared/draft-notice";
 import { Section } from "@/components/shared/section";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { GOVERNANCE_INTRO, KEY_POLICIES, POLICY_DRAFT_NOTICE } from "@/content/governance";
+import {
+  CERTIFICATES,
+  GOVERNANCE_INTRO,
+  KEY_POLICIES,
+  POLICY_DRAFT_NOTICE,
+} from "@/content/governance";
+import { CertificateCard } from "@/features/governance/certificate-card";
 import { SECP_REGISTRATION_NUMBER } from "@/lib/constants/site";
 import { getDepartments } from "@/server/services/department.service";
 
@@ -43,13 +49,20 @@ export async function GovernanceContent() {
           </ul>
         </Container>
       </Section>
-      <Section tone="warm">
-        <Container className="max-w-3xl text-center">
+      <Section tone="warm" id="certificates">
+        <Container>
           <SectionHeading
             eyebrow="Registration"
-            title={`SECP Registration No. ${SECP_REGISTRATION_NUMBER}`}
-            description="The foundation is registered with the Securities and Exchange Commission of Pakistan."
+            title="Registered, licensed and tax-registered"
+            description={`The foundation is incorporated with the Securities and Exchange Commission of Pakistan (Registration No. ${SECP_REGISTRATION_NUMBER}), licensed as a not-for-profit company under Section 42 of the Companies Act 2017, and registered with the Federal Board of Revenue. Each certificate opens in full.`}
           />
+          <ul className="mx-auto mt-14 grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {CERTIFICATES.map((certificate) => (
+              <li key={certificate.number} className="flex">
+                <CertificateCard certificate={certificate} />
+              </li>
+            ))}
+          </ul>
         </Container>
       </Section>
       <Section>

@@ -89,7 +89,7 @@ export const STAFF_GUIDE: readonly GuideSection[] = [
       "Staff save drafts; a Director publishes them or changes published ones.",
       "Programs marked “Accepts applications” appear in the admission form while published.",
       "A program with applications cannot be deleted: archive it instead.",
-      "Institutions are never deleted: set them to Closed. Only Active institutions marked public show on the website.",
+      "A Director can delete an institution that has no agreements or reviews; otherwise set it to Closed. Only Active institutions marked “Show on the public website” (the Website box on its page) appear on the website. A Director is asked this when creating one.",
       "Agreements (with a signed PDF) and performance reviews stay inside the portal.",
     ],
   },

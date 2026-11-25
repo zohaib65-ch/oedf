@@ -19,6 +19,7 @@ import {
   addAgreement as addAgreementRecord,
   addReview as addReviewRecord,
   createInstitution as createInstitutionRecord,
+  deleteInstitution as deleteInstitutionRecord,
   findInstitutionForStaff,
   listInstitutionsForStaff,
   updateAgreement as updateAgreementRecord,
@@ -168,6 +169,43 @@ export async function updateInstitution(
     expirePublicPages();
   }
   return getInstitutionForStaff(id);
+}
+
+/**
+ * Deletes an institution that has no agreements or reviews (those are history: close it instead).
+ * Needs the delete permission, and a public one needs a Director too. Programs that list it drop
+ * it in the same transaction, and its photo is removed.
+ */
+export async function deleteInstitution(staff: StaffContext, id: string): Promise<void> {
+  assertMayWrite(staff);
+  if (!hasPermission(staff, "content:delete")) {
+    throw forbidden("You do not have permission to delete institutions.");
+  }
+  const institution = await getInstitutionForStaff(id);
+  if (institution.isPublic && !hasPermission(staff, "institutions:publish")) {
+    throw forbidden("Only a Director can delete an institution on the public site.");
+  }
+  if (institution.agreements.length > 0 || institution.reviews.length > 0) {
+    throw new AppError(
+      "CONFLICT",
+      "This institution has agreements or reviews, so it cannot be deleted. Set its status to Closed instead.",
+    );
+  }
+  const isDeleted = await withTransaction((session) =>
+    deleteInstitutionRecord(id, institution.isPublic, session),
+  );
+  if (!isDeleted) {
+    throw new AppError("CONFLICT", STALE_MESSAGE);
+  }
+  await settleImage(institution.image, null);
+  await recordAudit(staff, {
+    action: "institution.deleted",
+    entityType: ENTITY_TYPE,
+    entityId: id,
+    metadata: { name: institution.name },
+  });
+  // Program pages list their institutions, so they change even when this one was not public.
+  expirePublicPages();
 }
 
 /**

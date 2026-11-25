@@ -1,22 +1,21 @@
-import { ClockIcon, ExternalLinkIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { ClockIcon, ExternalLinkIcon, MailIcon, MapPinIcon } from "lucide-react";
 import { connection } from "next/server";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { getPublicSiteSettings } from "@/server/services/site-settings.service";
 
-/** Address, phone, email, office hours and a map link, all from portal Settings. */
+/** Address, email, office hours and a map link, all from portal Settings. */
 export async function ContactDetails() {
   await connection();
   const settings = await getPublicSiteSettings();
-  const { address, phone, email, officeHours } = settings?.contact ?? {
+  const { address, email, officeHours } = settings?.contact ?? {
     address: "",
-    phone: "",
     email: "",
     officeHours: "",
   };
   const mapUrl = settings?.mapUrl ?? "";
 
-  if (!address && !phone && !email && !officeHours) {
+  if (!address && !email && !officeHours) {
     return (
       <EmptyState
         icon={MailIcon}
@@ -28,7 +27,6 @@ export async function ContactDetails() {
 
   const rows = [
     { icon: MapPinIcon, label: "Address", value: address, href: undefined },
-    { icon: PhoneIcon, label: "Phone", value: phone, href: `tel:${phone.replaceAll(" ", "")}` },
     { icon: MailIcon, label: "Email", value: email, href: `mailto:${email}` },
     { icon: ClockIcon, label: "Office hours", value: officeHours, href: undefined },
   ].filter((row) => row.value !== "");

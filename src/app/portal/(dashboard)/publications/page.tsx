@@ -61,6 +61,10 @@ export default async function PublicationsPage({
         <PublicationsTable
           publications={items}
           sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
+          canDelete={
+            hasPermission(access.staff, "publications:publish") &&
+            hasPermission(access.staff, "content:delete")
+          }
         />
       )}
       <Pagination

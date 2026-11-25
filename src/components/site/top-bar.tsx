@@ -1,4 +1,4 @@
-import { MailIcon, PhoneIcon } from "lucide-react";
+import { MailIcon } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
 
@@ -22,12 +22,12 @@ export function TopBarFallback() {
 
 /**
  * The bar above the header: contact details, plus an optional announcement (text and link managed in
- * portal Settings). It shows whenever Settings has a phone number or an email address.
+ * portal Settings). It shows whenever Settings has an email address.
  */
 export async function TopBar() {
   await connection();
   const settings = await getPublicSiteSettings();
-  if (!settings?.contact.phone && !settings?.contact.email) {
+  if (!settings?.contact.email) {
     return null;
   }
   const { announcement, contact } = settings;
@@ -49,21 +49,10 @@ export async function TopBar() {
           </p>
         ) : null}
         <div className="ml-auto flex items-center gap-6">
-          {contact.phone ? (
-            <a
-              href={`tel:${contact.phone.replaceAll(" ", "")}`}
-              className="flex items-center gap-2 hover:text-gold"
-            >
-              <PhoneIcon className="size-3.5 text-gold" aria-hidden="true" />
-              {contact.phone}
-            </a>
-          ) : null}
-          {contact.email ? (
-            <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-gold">
-              <MailIcon className="size-3.5 text-gold" aria-hidden="true" />
-              {contact.email}
-            </a>
-          ) : null}
+          <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-gold">
+            <MailIcon className="size-3.5 text-gold" aria-hidden="true" />
+            {contact.email}
+          </a>
         </div>
       </Container>
     </div>

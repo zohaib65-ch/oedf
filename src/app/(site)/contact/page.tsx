@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description:
-    "How to reach Omar Education Development Foundation: address, phone, email and office hours.",
+    "How to reach Omar Education Development Foundation: address, email and office hours.",
   path: "/contact",
 });
 

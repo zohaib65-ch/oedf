@@ -20,6 +20,7 @@ import { apiPatch, apiPost } from "@/lib/api/client";
 import { CONTENT_STATUS_LABELS, PUBLICATION_TYPE_LABELS, toOptions } from "@/lib/constants/labels";
 import { FORMATTED_TEXT_HINT } from "@/lib/formatted-text";
 import {
+  MAX_TAG_LENGTH,
   publicationFormSchema,
   type PublicationFormInput,
   type PublicationFormValues,
@@ -146,6 +147,7 @@ export function PublicationForm({
           control={form.control}
           name="tags"
           label="Topics"
+          itemLimit={{ max: MAX_TAG_LENGTH, noun: "topic" }}
           placeholder="For example literacy, rural schools"
           description="Optional. Separate topics with commas, for example “literacy, rural schools”."
           maxLength={1000}

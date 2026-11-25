@@ -16,7 +16,7 @@ const MAX_TITLE_LENGTH = 200;
 const MAX_SUMMARY_LENGTH = 10_000;
 const MAX_LIST_ITEMS = 20;
 const MAX_AUTHOR_LENGTH = 100;
-const MAX_TAG_LENGTH = 50;
+export const MAX_TAG_LENGTH = 50;
 
 export const listPublicationsQuerySchema = listQuerySchema.extend({
   status: filterEnum(CONTENT_STATUSES),
@@ -38,11 +38,15 @@ const textList = (label: string, maxLength: number) =>
       return [...new Set(items)];
     })
     .pipe(
+      // Checked on the whole list, not per item, so the message belongs to the field itself
+      // (a per-item error lands on `tags.0`, which the form marks red but cannot show).
       z
-        .array(
-          z.string().max(maxLength, `Keep each ${label} under ${String(maxLength)} characters`),
-        )
-        .max(MAX_LIST_ITEMS, `List at most ${String(MAX_LIST_ITEMS)} ${label}s`),
+        .array(z.string())
+        .max(MAX_LIST_ITEMS, `List at most ${String(MAX_LIST_ITEMS)} ${label}s`)
+        .refine(
+          (items) => items.every((item) => item.length <= maxLength),
+          `Keep each ${label} under ${String(maxLength)} characters. Separate ${label}s with commas.`,
+        ),
     );
 
 /** The whole publication form. The summary is plain text shown with `FormattedText`. */

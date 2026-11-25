@@ -30,6 +30,7 @@ export interface StaffInstitutionListItem {
   status: InstitutionStatus;
   isPublic: boolean;
   agreementCount: number;
+  reviewCount: number;
   /** The soonest agreement renewal still ahead, as a day, or null. */
   nextRenewal: string | null;
   averageRating: number | null;
@@ -74,6 +75,7 @@ function toListItem(row: InstitutionRow, now: Date): StaffInstitutionListItem {
     status: row.status,
     isPublic: row.isPublic,
     agreementCount: row.agreements.length,
+    reviewCount: ratings.length,
     nextRenewal: renewals[0] ? toDay(renewals[0]) : null,
     averageRating:
       ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : null,
@@ -260,6 +262,35 @@ export async function updateInstitution(
     image ? { $set: { ...rest, image } } : { $set: rest, $unset: { image: 1 } },
   );
   return result.matchedCount === 1;
+}
+
+/**
+ * Deletes the institution while it is still as public as the caller saw and still has no
+ * agreements or reviews, and takes it off every program that lists it, in one transaction.
+ */
+export async function deleteInstitution(
+  id: string,
+  expectedIsPublic: boolean,
+  session: ClientSession,
+): Promise<boolean> {
+  const result = await InstitutionModel.deleteOne(
+    {
+      _id: id,
+      isPublic: expectedIsPublic,
+      agreements: mongoose.trusted({ $size: 0 }),
+      reviews: mongoose.trusted({ $size: 0 }),
+    },
+    { session },
+  );
+  if (result.deletedCount !== 1) {
+    return false;
+  }
+  await ProgramModel.updateMany(
+    { institutionIds: id },
+    { $pull: { institutionIds: id } },
+    { session },
+  );
+  return true;
 }
 
 export interface AgreementFields {

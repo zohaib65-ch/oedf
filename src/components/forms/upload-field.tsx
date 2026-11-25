@@ -4,6 +4,7 @@ import { FileCheck2Icon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
+import { fieldErrorMessage } from "@/components/forms/field-error-message";
 import { describedBy, fieldId } from "@/components/forms/field-ids";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
@@ -43,7 +44,8 @@ export function UploadField<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => {
         const uploaded = field.value as UploadedFile | undefined;
-        const errorMessage = uploadError ?? fieldState.error?.message;
+        const errorMessage =
+          uploadError ?? (fieldState.invalid ? fieldErrorMessage(fieldState.error) : undefined);
         const isUploading = progress !== undefined;
 
         const handleChange = async (file: File | undefined) => {

@@ -6,14 +6,24 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { CheckboxField } from "@/components/forms/checkbox-field";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { ImageFields } from "@/components/portal/image-fields";
 import { SaveButton } from "@/components/portal/save-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
+import { WebsiteVisibilityField } from "@/features/institution-management/website-visibility-field";
 import { applyApiErrors } from "@/lib/api/apply-api-errors";
 import { apiPatch, apiPost } from "@/lib/api/client";
 import {
@@ -57,13 +67,19 @@ export function InstitutionForm({
 }: InstitutionFormProps) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | undefined>();
+  /** A new institution's checked values, held while the website question is open. */
+  const [pendingValues, setPendingValues] = useState<InstitutionFormInput | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const form = useForm<InstitutionFormValues, unknown, InstitutionFormInput>({
     resolver: zodResolver(institutionFormSchema),
     defaultValues,
   });
+  // A new institution is always asked about the website; editing uses the box in the form.
+  const asksAboutWebsite = !institutionId && canPublish;
 
-  const handleSubmit = form.handleSubmit(async (values) => {
+  const save = async (values: InstitutionFormInput) => {
     setFormError(undefined);
+    setIsSaving(true);
     try {
       if (institutionId) {
         await apiPatch(`/institutions/${institutionId}`, values);
@@ -76,8 +92,26 @@ export function InstitutionForm({
       }
     } catch (error: unknown) {
       setFormError(applyApiErrors(error, form.setError, KNOWN_FIELDS));
+    } finally {
+      setIsSaving(false);
+      setPendingValues(null);
     }
+  };
+
+  const handleSubmit = form.handleSubmit(async (values) => {
+    if (asksAboutWebsite) {
+      setPendingValues(values);
+      return;
+    }
+    await save(values);
   });
+
+  const answer = (isPublic: boolean) => {
+    if (pendingValues) {
+      form.setValue("isPublic", isPublic);
+      void save({ ...pendingValues, isPublic });
+    }
+  };
 
   return (
     <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-6">
@@ -116,6 +150,9 @@ export function InstitutionForm({
           options={toOptions(INSTITUTION_STATUS_LABELS)}
         />
       </FieldGroup>
+      {asksAboutWebsite ? null : (
+        <WebsiteVisibilityField control={form.control} canPublish={canPublish} />
+      )}
       <FieldGroup>
         <TextField
           control={form.control}
@@ -134,13 +171,49 @@ export function InstitutionForm({
           rows={8}
           maxLength={10_000}
         />
-        <CheckboxField control={form.control} name="isPublic" isDisabled={!canPublish}>
-          Show on the public site while Active
-          {canPublish ? "" : " (a Director decides)"}
-        </CheckboxField>
         <ImageFields control={form.control} currentImage={currentImage ?? null} />
       </FieldGroup>
-      <SaveButton isPending={form.formState.isSubmitting}>Save institution</SaveButton>
+      <SaveButton isPending={form.formState.isSubmitting || isSaving}>Save institution</SaveButton>
+      <AlertDialog
+        open={pendingValues !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && !isSaving) {
+            setPendingValues(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="data-[size=default]:sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Show “{pendingValues?.name}” on the website?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingValues?.status === "ACTIVE"
+                ? "If yes, visitors see it on the Institutions page and the home page as soon as it is saved."
+                : "If yes, it shows on the website once its status is Active."}{" "}
+              You can change this later on the institution’s page.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:flex-wrap">
+            <AlertDialogCancel disabled={isSaving}>Back to the form</AlertDialogCancel>
+            <Button
+              variant="outline"
+              disabled={isSaving}
+              onClick={() => {
+                answer(false);
+              }}
+            >
+              No, keep it hidden
+            </Button>
+            <Button
+              disabled={isSaving}
+              onClick={() => {
+                answer(true);
+              }}
+            >
+              Yes, show it
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </form>
   );
 }

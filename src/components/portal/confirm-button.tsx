@@ -1,5 +1,6 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -14,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toastApiError, useApiAction } from "@/lib/api/use-api-action";
 
 interface ConfirmButtonProps {
@@ -23,6 +25,8 @@ interface ConfirmButtonProps {
   description: string;
   confirmLabel?: string;
   variant?: "default" | "outline" | "destructive";
+  /** Shows only this icon (for a table row), with `label` as its name and tooltip. */
+  icon?: LucideIcon;
   /** Runs after the person confirms. A failure is shown in a toast and the dialog stays open. */
   onConfirm: () => Promise<void>;
 }
@@ -34,6 +38,7 @@ export function ConfirmButton({
   description,
   confirmLabel = label,
   variant = "default",
+  icon: Icon,
   onConfirm,
 }: ConfirmButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,9 +46,29 @@ export function ConfirmButton({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant={variant === "destructive" ? "outline" : variant}>{label}</Button>
-      </AlertDialogTrigger>
+      {Icon ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={label}
+                className={
+                  variant === "destructive" ? "text-destructive hover:text-destructive" : ""
+                }
+              >
+                <Icon aria-hidden="true" />
+              </Button>
+            </AlertDialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
+      ) : (
+        <AlertDialogTrigger asChild>
+          <Button variant={variant}>{label}</Button>
+        </AlertDialogTrigger>
+      )}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

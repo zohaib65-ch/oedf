@@ -91,7 +91,10 @@
     linear-gradient(135deg, var(--color-navy), var(--color-ink) 52%, var(--color-navy-darkest));
 }
 
-:root {
+/* `.surface-light` brings the light tokens back inside a `.surface-dark` section, for a white
+   panel drawn in place there (the header's dropdowns), so its hover and focus colors stay light. */
+:root,
+.surface-light {
   --background: #f9fafb;
   --foreground: #111827;
   --card: #ffffff;

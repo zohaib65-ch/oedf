@@ -61,6 +61,11 @@ export default async function InstitutionsPage({
         <InstitutionsTable
           institutions={items}
           sorting={{ basePath: BASE_PATH, sort: query.sort, params }}
+          canDelete={
+            hasPermission(access.staff, "institutions:write") &&
+            hasPermission(access.staff, "content:delete")
+          }
+          canPublish={hasPermission(access.staff, "institutions:publish")}
         />
       )}
       <Pagination

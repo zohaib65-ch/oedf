@@ -1,5 +1,6 @@
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
+import { fieldErrorMessage } from "@/components/forms/field-error-message";
 import { describedBy, fieldId } from "@/components/forms/field-ids";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,7 +48,9 @@ export function TextareaField<T extends FieldValues>({
             <FieldDescription id={`${fieldId(name)}-description`}>{description}</FieldDescription>
           ) : null}
           {fieldState.invalid ? (
-            <FieldError id={`${fieldId(name)}-error`} errors={[fieldState.error]} />
+            <FieldError id={`${fieldId(name)}-error`}>
+              {fieldErrorMessage(fieldState.error)}
+            </FieldError>
           ) : null}
         </Field>
       )}

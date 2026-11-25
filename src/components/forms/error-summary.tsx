@@ -26,6 +26,24 @@ function flattenErrors(errors: FieldErrors, parent = ""): ErrorItem[] {
   });
 }
 
+/**
+ * Moves each error to the nearest field that has a label: a rule on one part of a value (such as
+ * `tags.0`, the first topic) is listed under its field ("Topics"). One line per field.
+ */
+function toLabelledItems(items: ErrorItem[], labels: Record<string, string>): ErrorItem[] {
+  const byPath = new Map<string, ErrorItem>();
+  for (const item of items) {
+    let path = item.path;
+    while (!labels[path] && path.includes(".")) {
+      path = path.slice(0, path.lastIndexOf("."));
+    }
+    if (labels[path] && !byPath.has(path)) {
+      byPath.set(path, { path, message: item.message });
+    }
+  }
+  return [...byPath.values()];
+}
+
 interface ErrorSummaryProps {
   errors: FieldErrors;
   /** The question's label for each field path, so a message says which field it is about. */
@@ -38,7 +56,7 @@ interface ErrorSummaryProps {
 export function ErrorSummary({ errors, labels, focusKey }: ErrorSummaryProps) {
   const ref = useRef<HTMLDivElement>(null);
   const handledFocusKey = useRef(0);
-  const items = flattenErrors(errors).filter((item) => labels[item.path]);
+  const items = toLabelledItems(flattenErrors(errors), labels);
   const hasItems = items.length > 0;
 
   // The errors can arrive one render after the request to focus, so focus once both are there.

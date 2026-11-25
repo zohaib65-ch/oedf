@@ -11,7 +11,7 @@ import type { PublicPublicationDetail } from "@/server/services/publication.serv
 const CONTEXT = "https://schema.org";
 
 export function organizationJsonLd(settings: PublicSiteSettingsRecord | null) {
-  const { phone, email, address } = settings?.contact ?? { phone: "", email: "", address: "" };
+  const { email, address } = settings?.contact ?? { email: "", address: "" };
   const sameAs = Object.values(settings?.social ?? {}).filter((url) => url !== "");
   return {
     "@context": CONTEXT,
@@ -25,7 +25,6 @@ export function organizationJsonLd(settings: PublicSiteSettingsRecord | null) {
       name: "SECP registration number",
       value: SECP_REGISTRATION_NUMBER,
     },
-    ...(phone ? { telephone: phone } : {}),
     ...(email ? { email } : {}),
     ...(address
       ? { address: { "@type": "PostalAddress", streetAddress: address, addressCountry: "PK" } }

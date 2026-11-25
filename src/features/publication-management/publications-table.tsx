@@ -8,6 +8,7 @@ import {
   type DataTableSorting,
 } from "@/components/portal/data-table";
 import { StatusBadge } from "@/components/portal/status-badge";
+import { DeletePublicationButton } from "@/features/publication-management/delete-publication-button";
 import { CONTENT_STATUS_LABELS, PUBLICATION_TYPE_LABELS } from "@/lib/constants/labels";
 import { formatDateTime, formatDay } from "@/lib/format";
 import type { StaffPublicationListItem } from "@/server/repositories/publication-management.repository";
@@ -55,16 +56,27 @@ const columns: DataTableColumn<StaffPublicationListItem>[] = [
   },
 ];
 
+const deleteColumn: DataTableColumn<StaffPublicationListItem> = {
+  id: "actions",
+  header: "Actions",
+  isActions: true,
+  cell: (publication) => (
+    <DeletePublicationButton publicationId={publication.id} title={publication.title} isCompact />
+  ),
+};
+
 interface PublicationsTableProps {
   publications: StaffPublicationListItem[];
   sorting: DataTableSorting;
+  /** May delete publications (a Director: `publications:publish` and `content:delete`). */
+  canDelete: boolean;
 }
 
-export function PublicationsTable({ publications, sorting }: PublicationsTableProps) {
+export function PublicationsTable({ publications, sorting, canDelete }: PublicationsTableProps) {
   return (
     <DataTable
       label="Publications"
-      columns={columns}
+      columns={canDelete ? [...columns, deleteColumn] : columns}
       rows={publications}
       getRowId={(publication) => publication.id}
       sorting={sorting}
