@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { PublicUploadPurpose } from "@/lib/constants/uploads";
+import type { UploadPurpose } from "@/lib/constants/uploads";
 import type { UploadedFile } from "@/lib/validations/common";
 import { AppError } from "@/server/http/errors";
 import { findSavedPublicIds } from "@/server/repositories/file-asset.repository";
@@ -24,7 +24,7 @@ export interface VerifiedUpload extends InspectedUpload {
  */
 export async function verifyUploads(
   uploads: readonly UploadToVerify[],
-  purpose: PublicUploadPurpose,
+  purpose: UploadPurpose,
 ): Promise<VerifiedUpload[]> {
   const publicIds = uploads.map(({ file }) => file.publicId);
   if (new Set(publicIds).size !== publicIds.length) {

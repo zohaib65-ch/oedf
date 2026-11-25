@@ -8,6 +8,7 @@ import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { ProseBlock } from "@/components/shared/prose-block";
+import { PublicImage } from "@/components/shared/public-image";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { INSTITUTION_TYPE_LABELS } from "@/lib/constants/labels";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
@@ -45,6 +46,7 @@ export async function InstitutionDetail({ params }: { params: Promise<{ slug: st
         backLabel="All institutions"
         aside={<FactsCard title="Institution details" facts={facts} />}
       >
+        {institution.image ? <PublicImage image={institution.image} /> : null}
         {institution.description ? (
           <ProseBlock title="About">
             <FormattedText text={institution.description} />

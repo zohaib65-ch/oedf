@@ -36,7 +36,7 @@ describe("institution repository", () => {
       ...base,
       slug: "a",
       name: "A",
-      agreements: [{ partner: "Secret partner" }],
+      agreements: [{ title: "MoU", partner: "Secret partner", startDate: new Date() }],
     });
     await ProgramModel.create([
       {

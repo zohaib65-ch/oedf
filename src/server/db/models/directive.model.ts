@@ -3,15 +3,17 @@ import { Schema } from "mongoose";
 
 import {
   ASSIGNMENT_STATUSES,
+  CLARIFICATION_DECISIONS,
   CLARIFICATION_REASONS,
   DIRECTIVE_PRIORITIES,
 } from "@/lib/constants/enums";
 import { defineModel } from "@/server/db/define-model";
-import { noteSchema } from "@/server/db/models/shared.schema";
+import { createStatusHistorySchema, noteSchema } from "@/server/db/models/shared.schema";
 
 const resolutionSchema = new Schema(
   {
-    decision: { type: String, required: true },
+    decision: { type: String, enum: CLARIFICATION_DECISIONS, required: true },
+    note: { type: String, default: "" },
     resolvedById: { type: Schema.Types.ObjectId, ref: "user", required: true },
     resolvedByName: { type: String, required: true },
     resolvedAt: { type: Date, default: () => new Date() },
@@ -31,7 +33,8 @@ const clarificationSchema = new Schema(
   { _id: false },
 );
 
-// One assignment per target office, with its own acknowledgement, owner and progress updates.
+// One assignment per target office, with its own acknowledgement, owner, status history and progress
+// updates. The latest clarification is kept in `clarification`; every one is also in `history`.
 const assignmentSchema = new Schema({
   departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
   status: { type: String, enum: ASSIGNMENT_STATUSES, default: "PENDING_ACKNOWLEDGEMENT" },
@@ -42,6 +45,7 @@ const assignmentSchema = new Schema({
   acknowledgedByName: { type: String, default: "" },
   clarification: clarificationSchema,
   completedAt: { type: Date },
+  history: { type: [createStatusHistorySchema(ASSIGNMENT_STATUSES)], default: [] },
   updates: { type: [noteSchema], default: [] },
 });
 

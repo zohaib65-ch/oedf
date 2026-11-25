@@ -10,6 +10,8 @@ import { FileAssetModel } from "@/server/db/models/file-asset.model";
 export const FILE_OWNER_TYPES = {
   application: "Application",
   jobApplication: "JobApplication",
+  institution: "Institution",
+  publication: "Publication",
 } as const;
 
 export interface NewFileAsset {
@@ -78,4 +80,9 @@ export async function findSavedPublicIds(publicIds: readonly string[]): Promise<
     { publicId: 1 },
   ).lean();
   return new Set(files.map((file) => file.publicId));
+}
+
+/** Deletes a file's record once the record it belonged to no longer uses it. */
+export async function deleteFileAsset(id: string, session: ClientSession): Promise<void> {
+  await FileAssetModel.deleteOne({ _id: id }, { session });
 }

@@ -1,4 +1,5 @@
 import { LayoutDashboardIcon } from "lucide-react";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/portal/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -32,6 +33,14 @@ export default async function PortalOverviewPage() {
                 {metric.value}
                 {metric.isAlert ? <span className="sr-only"> (needs attention)</span> : null}
               </CardTitle>
+              {metric.href ? (
+                <Link
+                  href={metric.href}
+                  className="text-sm font-semibold text-navy underline underline-offset-2"
+                >
+                  View<span className="sr-only"> {metric.label.toLowerCase()}</span>
+                </Link>
+              ) : null}
             </CardHeader>
           </Card>
         ))}

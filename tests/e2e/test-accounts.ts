@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import { getAuth } from "@/server/auth/auth";
 import { connectDb } from "@/server/db/connection";
 import { findDepartmentIdByCode } from "@/server/repositories/department.repository";
+import { deletePublicImage, deleteUploads } from "@/server/storage/cloudinary";
 
 import { assertTestDatabase } from "./test-database";
 
@@ -42,6 +43,63 @@ async function createAdmin(email: string, password: string): Promise<void> {
   });
 }
 
+type Db = NonNullable<typeof mongoose.connection.db>;
+
+/**
+ * Deletes from Cloudinary the files the real-upload tests saved: photos of test programs,
+ * institutions and publications, agreements' signed copies and publication PDFs (and those
+ * files' records).
+ */
+async function deleteTestFiles(db: Db): Promise<void> {
+  const programs = await db
+    .collection("programs")
+    .find({ title: /^E2E /, image: { $exists: true } }, { projection: { image: 1 } })
+    .toArray();
+  const institutions = await db
+    .collection("institutions")
+    .find({ name: /^E2E / }, { projection: { image: 1 } })
+    .toArray();
+  const photoIds = [...programs, ...institutions]
+    .map((record) => (record.image as { publicId?: string } | undefined)?.publicId)
+    .filter((publicId): publicId is string => typeof publicId === "string");
+  const publications = await db
+    .collection("publications")
+    .find({ title: /^E2E / }, { projection: { cover: 1 } })
+    .toArray();
+  const coverIds = publications
+    .map((record) => (record.cover as { publicId?: string } | undefined)?.publicId)
+    .filter((publicId): publicId is string => typeof publicId === "string");
+  photoIds.push(...coverIds);
+  const files = await db
+    .collection("fileAssets")
+    .find(
+      {
+        $or: [
+          {
+            "owner.type": "Institution",
+            "owner.id": { $in: institutions.map((item) => item._id) },
+          },
+          {
+            "owner.type": "Publication",
+            "owner.id": { $in: publications.map((item) => item._id) },
+          },
+        ],
+      },
+      { projection: { publicId: 1, resourceType: 1 } },
+    )
+    .toArray();
+  await Promise.all(photoIds.map((publicId) => deletePublicImage(publicId)));
+  if (files.length > 0) {
+    await deleteUploads(
+      files.map((file) => ({
+        publicId: String(file.publicId),
+        resourceType: file.resourceType === "raw" ? "raw" : "image",
+      })),
+    );
+    await db.collection("fileAssets").deleteMany({ _id: { $in: files.map((file) => file._id) } });
+  }
+}
+
 async function clean(): Promise<void> {
   const { db } = mongoose.connection;
   if (!db) {
@@ -52,6 +110,7 @@ async function clean(): Promise<void> {
     .find({ email: TEST_ACCOUNT_EMAIL }, { projection: { _id: 1 } })
     .toArray();
   const userIds = users.map((user) => user._id);
+  await deleteTestFiles(db);
   const applications = await db
     .collection("applications")
     .find({ referenceNumber: TEST_REFERENCE }, { projection: { _id: 1 } })
@@ -70,6 +129,10 @@ async function clean(): Promise<void> {
     db.collection("applications").deleteMany({ referenceNumber: TEST_REFERENCE }),
     db.collection("jobApplications").deleteMany({ referenceNumber: TEST_REFERENCE }),
     db.collection("vacancies").deleteMany({ $or: [{ title: /^E2E / }, { slug: /^e2e-/ }] }),
+    db.collection("programs").deleteMany({ title: /^E2E / }),
+    db.collection("institutions").deleteMany({ name: /^E2E / }),
+    db.collection("publications").deleteMany({ title: /^E2E / }),
+    db.collection("directives").deleteMany({ title: /^E2E / }),
     db.collection("contactMessages").deleteMany({ email: { $in: TEST_MESSAGE_EMAILS } }),
   ]);
   await db.collection("user").deleteMany({ _id: { $in: userIds } });

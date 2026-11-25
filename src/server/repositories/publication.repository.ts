@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 import type { PUBLICATION_TYPES } from "@/lib/constants/enums";
 import { PAGE_SIZE, type PublicationFilters } from "@/lib/validations/list-params";
 import { connectDb } from "@/server/db/connection";
+import { FileAssetModel } from "@/server/db/models/file-asset.model";
 import { PublicationModel } from "@/server/db/models/publication.model";
+import type { StoredImage } from "@/server/services/image.service";
 
 export interface PublicationSummary {
   id: string;
@@ -13,11 +15,14 @@ export interface PublicationSummary {
   type: (typeof PUBLICATION_TYPES)[number];
   summary: string;
   publishedOn: Date | null;
+  cover: StoredImage | null;
 }
 
 export interface PublicationDetail extends PublicationSummary {
   authors: string[];
   tags: string[];
+  /** Whether visitors can download the full PDF. */
+  hasPdf: boolean;
 }
 
 export interface PublicationPage {
@@ -25,7 +30,14 @@ export interface PublicationPage {
   total: number;
 }
 
-const SUMMARY_FIELDS = { slug: 1, title: 1, type: 1, summary: 1, publishedOn: 1 } as const;
+const SUMMARY_FIELDS = {
+  slug: 1,
+  title: 1,
+  type: 1,
+  summary: 1,
+  publishedOn: 1,
+  cover: 1,
+} as const;
 
 function toSummary(publication: {
   _id: { toString(): string };
@@ -34,6 +46,7 @@ function toSummary(publication: {
   type: (typeof PUBLICATION_TYPES)[number];
   summary: string;
   publishedOn?: Date | null;
+  cover?: StoredImage | null;
 }): PublicationSummary {
   return {
     id: publication._id.toString(),
@@ -42,6 +55,14 @@ function toSummary(publication: {
     type: publication.type,
     summary: publication.summary,
     publishedOn: publication.publishedOn ?? null,
+    cover: publication.cover
+      ? {
+          publicId: publication.cover.publicId,
+          width: publication.cover.width,
+          height: publication.cover.height,
+          alt: publication.cover.alt,
+        }
+      : null,
   };
 }
 
@@ -100,9 +121,40 @@ export async function findPublishedPublicationBySlug(
   await connectDb();
   const publication = await PublicationModel.findOne(
     { slug, status: "PUBLISHED" },
-    { ...SUMMARY_FIELDS, authors: 1, tags: 1 },
+    { ...SUMMARY_FIELDS, authors: 1, tags: 1, pdfFileId: 1 },
   ).lean();
   return publication
-    ? { ...toSummary(publication), authors: publication.authors, tags: publication.tags }
+    ? {
+        ...toSummary(publication),
+        authors: publication.authors,
+        tags: publication.tags,
+        hasPdf: publication.pdfFileId != null,
+      }
+    : null;
+}
+
+/** The stored PDF of a published publication, or null when it is not published or has none. */
+export async function findPublishedPdfBySlug(
+  slug: string,
+): Promise<{ publicId: string; resourceType: "image" | "raw"; format: string } | null> {
+  await connectDb();
+  const publication = await PublicationModel.findOne(
+    { slug, status: "PUBLISHED" },
+    { pdfFileId: 1 },
+  ).lean();
+  if (!publication?.pdfFileId) {
+    return null;
+  }
+  const file = await FileAssetModel.findById(publication.pdfFileId, {
+    publicId: 1,
+    resourceType: 1,
+    format: 1,
+  }).lean();
+  return file
+    ? {
+        publicId: file.publicId,
+        resourceType: file.resourceType === "raw" ? "raw" : "image",
+        format: file.format,
+      }
     : null;
 }

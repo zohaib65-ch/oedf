@@ -24,6 +24,8 @@ interface DashboardMetric {
   value: number;
   /** Set when the figure needs attention, for example overdue directives. */
   isAlert?: boolean;
+  /** The list behind the figure, when there is one. */
+  href?: string;
 }
 
 export interface DashboardSummary {
@@ -41,13 +43,19 @@ export async function getDashboardSummary(staff: StaffContext): Promise<Dashboar
   const can = (permission: Parameters<typeof hasPermission>[1]) => hasPermission(staff, permission);
 
   const lookups: Promise<DashboardMetric>[] = [];
-  const add = (key: string, label: string, count: Promise<number>, isAlertWhenPositive = false) =>
+  const add = (
+    key: string,
+    label: string,
+    count: Promise<number>,
+    options: { isAlertWhenPositive?: boolean; href?: string } = {},
+  ) =>
     lookups.push(
       count.then((value) => ({
         key,
         label,
         value,
-        ...(isAlertWhenPositive && value > 0 ? { isAlert: true } : {}),
+        ...(options.isAlertWhenPositive && value > 0 ? { isAlert: true } : {}),
+        ...(options.href ? { href: options.href } : {}),
       })),
     );
 
@@ -67,8 +75,12 @@ export async function getDashboardSummary(staff: StaffContext): Promise<Dashboar
       "awaitingAcknowledgement",
       "Directives awaiting acknowledgement",
       countAwaitingAcknowledgement(officeId),
+      { href: "/portal/directives?status=PENDING_ACKNOWLEDGEMENT" },
     );
-    add("overdueDirectives", "Overdue directives", countOverdueDirectives(officeId), true);
+    add("overdueDirectives", "Overdue directives", countOverdueDirectives(officeId), {
+      isAlertWhenPositive: true,
+      href: "/portal/directives?show=OVERDUE",
+    });
   }
   if (hasScope && can("messages:read")) {
     add("unreadMessages", "Unread messages", countUnreadMessages(officeId));

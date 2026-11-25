@@ -151,3 +151,25 @@ export const noteInputSchema = z.object({
     .min(1, "Write a note")
     .max(MAX_NOTE_LENGTH, "Keep the note under 2,000 characters"),
 });
+
+const MAX_ALT_LENGTH = 200;
+
+/** An optional image and its description, for forms that have one. */
+export const imageShape = {
+  image: uploadedFileSchema.optional(),
+  imageAlt: z.string().trim().max(MAX_ALT_LENGTH, "Keep the description under 200 characters"),
+};
+
+/** An image needs a description for people who cannot see it. */
+export function requireImageAlt(
+  value: { image?: unknown; imageAlt: string },
+  context: z.RefinementCtx,
+): void {
+  if (value.image && !value.imageAlt) {
+    context.addIssue({
+      code: "custom",
+      path: ["imageAlt"],
+      message: "Describe the image for people who cannot see it",
+    });
+  }
+}

@@ -96,6 +96,10 @@ test.describe("the API refuses people it should", () => {
       "/departments",
       "/vacancies",
       "/job-applications",
+      "/programs",
+      "/institutions",
+      "/publications",
+      "/directives",
     ]) {
       expect((await request.get(`/api/v1${path}`)).status(), path).toBe(401);
     }
@@ -113,6 +117,10 @@ test.describe("signed in as Super Admin", () => {
     ["/portal/profile", "Profile"],
     ["/portal/vacancies", "Vacancies"],
     ["/portal/job-applications", "Job applications"],
+    ["/portal/programs", "Programs"],
+    ["/portal/institutions", "Institutions"],
+    ["/portal/publications", "Publications"],
+    ["/portal/directives", "Directives"],
   ] as const) {
     test(`${path} opens and has no serious accessibility problems`, async ({ page }) => {
       await page.goto(path);
@@ -127,6 +135,10 @@ test.describe("signed in as Super Admin", () => {
     const sidebar = page.locator('[data-slot="sidebar"]');
     for (const name of [
       "Overview",
+      "Programs",
+      "Institutions",
+      "Publications",
+      "Directives",
       "Vacancies",
       "Job applications",
       "Users",
@@ -233,6 +245,8 @@ test.describe("invited staff", () => {
       "/scholarship-awards",
       "/vacancies",
       "/job-applications",
+      "/programs",
+      "/institutions",
     ]) {
       expect(
         (await staffContext.request.get(`${baseURL ?? ""}/api/v1${path}`)).status(),
@@ -242,6 +256,19 @@ test.describe("invited staff", () => {
     expect(
       (
         await staffContext.request.patch(`${baseURL ?? ""}/api/v1/settings`, {
+          headers: { origin: baseURL ?? "" },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+
+    // Research & Policy Staff read their office's publications, but only a Director issues directives.
+    expect((await staffContext.request.get(`${baseURL ?? ""}/api/v1/publications`)).status()).toBe(
+      200,
+    );
+    expect(
+      (
+        await staffContext.request.post(`${baseURL ?? ""}/api/v1/directives`, {
           headers: { origin: baseURL ?? "" },
           data: {},
         })

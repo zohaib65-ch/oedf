@@ -6,8 +6,9 @@ import { defineModel } from "@/server/db/define-model";
 import { imageSchema } from "@/server/db/models/shared.schema";
 
 const agreementSchema = new Schema({
+  title: { type: String, required: true },
   partner: { type: String, required: true },
-  startDate: { type: Date },
+  startDate: { type: Date, required: true },
   endDate: { type: Date },
   renewalDate: { type: Date },
   status: { type: String, enum: AGREEMENT_STATUSES, default: "DRAFT" },
@@ -20,6 +21,7 @@ const reviewSchema = new Schema({
   summary: { type: String, required: true },
   reviewerId: { type: Schema.Types.ObjectId, ref: "user", required: true },
   reviewerName: { type: String, required: true },
+  createdAt: { type: Date, default: () => new Date() },
 });
 
 const institutionSchema = new Schema(

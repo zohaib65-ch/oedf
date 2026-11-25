@@ -1,4 +1,5 @@
 import { ArrowRightIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -12,6 +13,8 @@ interface LinkCardProps {
   meta?: ReactNode;
   /** The text of the link at the bottom of the card. */
   cta?: string;
+  /** A photo across the top of the card. Without one the card is text only. */
+  image?: { url: string; width: number; height: number; alt: string } | null;
 }
 
 /** A whole-card link used by every list page: departments, programs, institutions, news, research. */
@@ -22,9 +25,20 @@ export function LinkCard({
   eyebrow,
   meta,
   cta = "Read more",
+  image,
 }: LinkCardProps) {
   return (
     <article className="group relative flex h-full flex-col rounded-xl border border-border bg-white p-8 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-soft">
+      {image ? (
+        <Image
+          src={image.url}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="-mx-8 -mt-8 mb-6 aspect-video w-[calc(100%+4rem)] max-w-none rounded-t-xl object-cover"
+        />
+      ) : null}
       {eyebrow ? (
         <p className="text-xs font-bold tracking-widest text-gold-text uppercase">{eyebrow}</p>
       ) : null}

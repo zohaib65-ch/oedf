@@ -9,6 +9,7 @@ import { FormattedText } from "@/components/shared/formatted-text";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { ProseBlock } from "@/components/shared/prose-block";
+import { PublicImage } from "@/components/shared/public-image";
 import { ClosingCta } from "@/components/site/closing-cta";
 import { PROGRAM_CATEGORY_LABELS } from "@/lib/constants/labels";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
@@ -57,6 +58,7 @@ export async function ProgramDetail({ params }: { params: Promise<{ slug: string
           </FactsCard>
         }
       >
+        {program.image ? <PublicImage image={program.image} /> : null}
         {program.description ? (
           <ProseBlock title="About this program">
             <FormattedText text={program.description} />

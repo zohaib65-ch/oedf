@@ -3,13 +3,13 @@ import {
   MAX_UPLOAD_BYTES,
   UPLOAD_RULES,
   getFileExtension,
-  type PublicUploadPurpose,
+  type UploadPurpose,
 } from "@/lib/constants/uploads";
 import type { UploadedFile } from "@/lib/validations/common";
 import type { UploadPermission } from "@/lib/validations/upload";
 
 /** Checks a chosen file in the browser, before anything is sent. Returns a message, or undefined when fine. */
-export function checkFile(file: File, purpose: PublicUploadPurpose): string | undefined {
+export function checkFile(file: File, purpose: UploadPurpose): string | undefined {
   const { formats, label } = UPLOAD_RULES[purpose];
   if (!(formats as readonly string[]).includes(getFileExtension(file.name))) {
     return `Choose a ${label} file.`;
@@ -71,7 +71,7 @@ function sendToCloudinary(
  */
 export async function uploadFile(
   file: File,
-  purpose: PublicUploadPurpose,
+  purpose: UploadPurpose,
   onProgress: (percent: number) => void,
 ): Promise<UploadedFile> {
   const permission = await apiPost<UploadPermission>("/uploads", {

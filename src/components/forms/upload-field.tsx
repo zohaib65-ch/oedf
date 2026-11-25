@@ -11,14 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ApiError } from "@/lib/api/client";
 import { checkFile, uploadFile } from "@/lib/api/upload-file";
-import { UPLOAD_RULES, type PublicUploadPurpose } from "@/lib/constants/uploads";
+import { UPLOAD_RULES, type UploadPurpose } from "@/lib/constants/uploads";
 import type { UploadedFile } from "@/lib/validations/common";
 
 interface UploadFieldProps<T extends FieldValues> {
   control: Control<T>;
   name: Path<T>;
   label: string;
-  purpose: PublicUploadPurpose;
+  purpose: UploadPurpose;
   description?: string;
 }
 

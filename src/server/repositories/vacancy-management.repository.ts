@@ -195,16 +195,6 @@ export async function findVacancyForStaff(
   };
 }
 
-/** The slugs already taken by `base` and its numbered versions (`base-2`, `base-3`, …). */
-export async function findTakenSlugs(base: string): Promise<Set<string>> {
-  await connectDb();
-  const rows = await VacancyModel.find(
-    { slug: new RegExp(String.raw`^${escapeRegExp(base)}(-\d+)?$`) },
-    { slug: 1 },
-  ).lean();
-  return new Set(rows.map((row) => row.slug));
-}
-
 export interface VacancyFields {
   title: string;
   departmentId: string;

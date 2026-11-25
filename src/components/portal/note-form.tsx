@@ -15,10 +15,20 @@ interface NoteFormProps {
   /** The API path that takes the note, for example `/applications/{id}/notes`. */
   endpoint: string;
   label: string;
+  /** Sent with the note, for example the office's part of a directive it belongs to. */
+  extraValues?: Record<string, string>;
+  submitLabel?: string;
+  successMessage?: string;
 }
 
 /** Adds an internal note (or a progress update) to a record's timeline. */
-export function NoteForm({ endpoint, label }: NoteFormProps) {
+export function NoteForm({
+  endpoint,
+  label,
+  extraValues,
+  submitLabel = "Add note",
+  successMessage = "Note added.",
+}: NoteFormProps) {
   const router = useRouter();
   const form = useForm<{ body: string }>({
     resolver: zodResolver(noteInputSchema),
@@ -27,8 +37,8 @@ export function NoteForm({ endpoint, label }: NoteFormProps) {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      await apiPost(endpoint, values);
-      toast.success("Note added.");
+      await apiPost(endpoint, { ...extraValues, ...values });
+      toast.success(successMessage);
       form.reset({ body: "" });
       router.refresh();
     } catch (error: unknown) {
@@ -40,7 +50,7 @@ export function NoteForm({ endpoint, label }: NoteFormProps) {
     <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-3">
       <TextareaField control={form.control} name="body" label={label} rows={3} maxLength={2000} />
       <SaveButton isPending={form.formState.isSubmitting} variant="outline">
-        Add note
+        {submitLabel}
       </SaveButton>
     </form>
   );

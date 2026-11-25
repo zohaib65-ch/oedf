@@ -58,7 +58,9 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 - **Mailpit** (`docker compose up -d`) catches every email locally: http://localhost:8025.
 - **Cleanup job:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `Authorization: Bearer <CRON_SECRET>` (a `GET` works too, for Vercel cron). It deletes uploads still `pending` after 24 hours and never touches saved files. Without `CRON_SECRET` the endpoint refuses everyone.
 - **Test records:** some e2e tests insert their own records straight into MongoDB (`tests/e2e/db.ts`, reference numbers in the year 2099) and delete them afterwards. `playwright.config.ts` loads `.env` for this, and the app server it starts inherits the same `MONGODB_URI`, so a `.env.local` cannot point the tests at another database.
-- **Real-upload tests:** `E2E_REAL_UPLOADS=1 MAILPIT_URL=<Mailpit web address> npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`) and reads the emails from Mailpit. The files stay until you delete that folder.
+- **Real-upload tests:** `E2E_REAL_UPLOADS=1 MAILPIT_URL=<Mailpit web address> npm run test:e2e` uploads real files to the Cloudinary account in `.env` (folder `oedf-dev`). The applicant flow reads the emails from Mailpit; its files stay until you delete that folder. The staff test (`real-uploads-staff.spec.ts`) publishes a program with a photo, checks it on the public page and card, adds a signed agreement PDF and opens it through the 5-minute staff link, then publishes a publication with a cover and a PDF and downloads the PDF through its public 5-minute link; the global teardown deletes those files from Cloudinary.
+- **Screenshots:** every page the accessibility check visits, and a few finished states (`capture()` in `tests/e2e/screenshots.ts`), are saved per device in `test-results/screenshots/` during the run, before the teardown removes the test records. Every review includes them.
+- **After fixing a failure, run the whole suite again**, not only the fixed spec, before reporting.
 - **Public forms in tests:** each test sends its own `x-forwarded-for` to `/api/v1`, so the 5-per-10-minutes limit never trips.
 
 ## Deployment (planned, Phase 7)
@@ -66,7 +68,7 @@ A phase is done only when `npm run check`, `npm run build` and `npm run test:e2e
 Default host: Vercel with MongoDB Atlas and Cloudinary. To be confirmed with the client and written up step by step in Phase 7. Checklist:
 
 - **MongoDB Atlas:** cluster, database user, network access for the host, backups on; run `npm run db:indexes` on every deploy.
-- **Cloudinary:** PDF and ZIP delivery on; **no unsigned upload preset** (every upload is signed); **Strict Transformations off, on purpose** (see architecture.md, "Files"); one folder per environment, derived from `NODE_ENV` (`oedf` in production, `oedf-dev` otherwise); personal documents stored as authenticated assets.
+- **Cloudinary:** PDF and ZIP delivery on; **no unsigned upload preset** (every upload is signed); **Strict Transformations off, on purpose** (see architecture.md, "Files"); one folder per environment, derived from `NODE_ENV` (`oedf` in production, `oedf-dev` otherwise); personal documents and signed agreements stored as authenticated assets; photos for the public site are ordinary (public) uploads, resized on delivery.
 - **Upload cleanup:** the host's daily cron calls `POST /api/v1/internal/cleanup-uploads` with `CRON_SECRET` (`vercel.json` when on Vercel).
 - **Turnstile and SMTP:** production keys and provider; **domain and SSL**; set every environment variable in the host.
 - **After deploy:** health probe on `/api/v1/health`, Super Admin can sign in, apply each monthly Next.js security release.

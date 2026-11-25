@@ -11,18 +11,21 @@ import {
   PENDING_MAX_AGE_HOURS,
   PENDING_TAG,
   UPLOAD_RULES,
-  type PublicUploadPurpose,
+  type DeliveryType,
+  type UploadPurpose,
   type UploadResourceType,
 } from "@/lib/constants/uploads";
 import type { UploadPermission } from "@/lib/validations/upload";
 import { AppError } from "@/server/http/errors";
 import { logger } from "@/server/lib/logger";
 
-// Every file in this app is a private, "authenticated" asset: it can only be fetched with a signed
-// link. This is the only file that talks to the Cloudinary SDK.
+// Personal documents and agreements are private, "authenticated" assets: they can only be fetched
+// with a signed link. Images for the public site are ordinary public uploads (`UPLOAD_RULES`).
+// This is the only file that talks to the Cloudinary SDK.
 
 const cloudinary = cloudinaryPackage.v2;
-const DELIVERY_TYPE = "authenticated";
+const PRIVATE_DELIVERY: DeliveryType = "authenticated";
+const DELIVERY_TYPES: readonly DeliveryType[] = ["authenticated", "upload"];
 const DOWNLOAD_LINK_LIFETIME_SECONDS = 5 * 60;
 const LIST_PAGE_SIZE = 500;
 const HOUR_MS = 60 * 60 * 1000;
@@ -55,7 +58,7 @@ function getRootFolder(): string {
   return getServerEnv().CLOUDINARY_FOLDER;
 }
 
-function getPurposePrefix(purpose: PublicUploadPurpose): string {
+function getPurposePrefix(purpose: UploadPurpose): string {
   return `${getRootFolder()}/${UPLOAD_RULES[purpose].folder}/`;
 }
 
@@ -63,19 +66,20 @@ function getPurposePrefix(purpose: PublicUploadPurpose): string {
  * Signed parameters for one browser upload. The server picks a random public ID, so the browser
  * cannot overwrite or guess another file. Format and size were already checked by the caller.
  */
-export function signUpload(purpose: PublicUploadPurpose, extension: string): UploadPermission {
+export function signUpload(purpose: UploadPurpose, extension: string): UploadPermission {
   const sdk = getCloudinary();
   const resourceType = getResourceType(extension);
   // Word files are raw files, and a raw file's public ID keeps its extension.
   const publicId = `${getPurposePrefix(purpose)}${randomUUID()}${resourceType === "raw" ? `.${extension}` : ""}`;
   const allowedFormats = UPLOAD_RULES[purpose].formats.join(",");
+  const deliveryType = UPLOAD_RULES[purpose].deliveryType;
   const timestamp = Math.round(Date.now() / 1000);
   const toSign = {
     allowed_formats: allowedFormats,
     public_id: publicId,
     tags: PENDING_TAG,
     timestamp,
-    type: DELIVERY_TYPE,
+    type: deliveryType,
   };
   const { cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret } = sdk.config();
 
@@ -85,7 +89,7 @@ export function signUpload(purpose: PublicUploadPurpose, extension: string): Upl
     timestamp,
     signature: sdk.utils.api_sign_request(toSign, apiSecret ?? ""),
     publicId,
-    type: DELIVERY_TYPE,
+    type: deliveryType,
     tags: PENDING_TAG,
     allowedFormats,
     resourceType,
@@ -95,16 +99,23 @@ export function signUpload(purpose: PublicUploadPurpose, extension: string): Upl
 export interface UploadReference {
   publicId: string;
   resourceType: UploadResourceType;
+  /** Private unless said otherwise; public images are `upload`. */
+  deliveryType?: DeliveryType;
 }
 
 export interface InspectedUpload {
   format: string;
   bytes: number;
+  /** Pixel size, for images. */
+  width?: number | undefined;
+  height?: number | undefined;
 }
 
 interface CloudinaryResource {
   format?: string;
   bytes: number;
+  width?: number;
+  height?: number;
   type: string;
   tags?: string[];
   created_at: string;
@@ -125,8 +136,9 @@ function invalidFile(message: string): AppError {
  */
 export async function inspectUpload(
   { publicId, resourceType }: UploadReference,
-  purpose: PublicUploadPurpose,
+  purpose: UploadPurpose,
 ): Promise<InspectedUpload> {
+  const { deliveryType } = UPLOAD_RULES[purpose];
   if (!publicId.startsWith(getPurposePrefix(purpose))) {
     throw invalidFile("One of the uploaded files is not valid. Please upload it again.");
   }
@@ -136,7 +148,7 @@ export async function inspectUpload(
   try {
     resource = (await sdk.api.resource(publicId, {
       resource_type: resourceType,
-      type: DELIVERY_TYPE,
+      type: deliveryType,
     })) as CloudinaryResource;
   } catch (error: unknown) {
     logger.warn({ err: error, publicId }, "Uploaded file could not be found on Cloudinary");
@@ -144,7 +156,7 @@ export async function inspectUpload(
   }
 
   const isPending = resource.tags?.includes(PENDING_TAG) ?? false;
-  if (resource.type !== DELIVERY_TYPE || !isPending) {
+  if (resource.type !== deliveryType || !isPending) {
     throw invalidFile("One of the uploaded files is not valid. Please upload it again.");
   }
 
@@ -152,25 +164,25 @@ export async function inspectUpload(
   const format = (resource.format ?? getFileExtension(publicId)).toLowerCase();
   const isAllowedFormat = (UPLOAD_RULES[purpose].formats as readonly string[]).includes(format);
   if (!isAllowedFormat || resource.bytes > MAX_UPLOAD_BYTES) {
-    await deleteUploads([{ publicId, resourceType }]);
+    await deleteUploads([{ publicId, resourceType, deliveryType }]);
     throw invalidFile(
       isAllowedFormat
         ? "One of the uploaded files is larger than 5 MB."
         : "One of the uploaded files is not an accepted type.",
     );
   }
-  return { format, bytes: resource.bytes };
+  return { format, bytes: resource.bytes, width: resource.width, height: resource.height };
 }
 
-/** Deletes files from Cloudinary. Callers pass only files that are ours and unconfirmed. Failures are logged, never thrown. */
+/** Deletes files from Cloudinary. Callers pass only files that are ours and no longer used. Failures are logged, never thrown. */
 export async function deleteUploads(references: readonly UploadReference[]): Promise<void> {
   const sdk = getCloudinary();
   await Promise.all(
-    references.map(async ({ publicId, resourceType }) => {
+    references.map(async ({ publicId, resourceType, deliveryType = PRIVATE_DELIVERY }) => {
       try {
         await sdk.uploader.destroy(publicId, {
           resource_type: resourceType,
-          type: DELIVERY_TYPE,
+          type: deliveryType,
           invalidate: true,
         });
       } catch (error: unknown) {
@@ -184,11 +196,11 @@ export async function deleteUploads(references: readonly UploadReference[]): Pro
 export async function markUploadsConfirmed(references: readonly UploadReference[]): Promise<void> {
   const sdk = getCloudinary();
   await Promise.all(
-    references.map(async ({ publicId, resourceType }) => {
+    references.map(async ({ publicId, resourceType, deliveryType = PRIVATE_DELIVERY }) => {
       try {
         await sdk.uploader.remove_tag(PENDING_TAG, [publicId], {
           resource_type: resourceType,
-          type: DELIVERY_TYPE,
+          type: deliveryType,
         });
       } catch (error: unknown) {
         logger.error({ err: error, publicId }, "Could not remove the pending tag");
@@ -200,6 +212,7 @@ export async function markUploadsConfirmed(references: readonly UploadReference[
 /** Pending files older than 24 hours: uploads that were started and never submitted. */
 async function listStalePendingUploads(
   resourceType: UploadResourceType,
+  deliveryType: DeliveryType,
 ): Promise<UploadReference[]> {
   const sdk = getCloudinary();
   const cutoff = Date.now() - PENDING_MAX_AGE_HOURS * HOUR_MS;
@@ -209,7 +222,7 @@ async function listStalePendingUploads(
   do {
     const page = (await sdk.api.resources({
       resource_type: resourceType,
-      type: DELIVERY_TYPE,
+      type: deliveryType,
       prefix: `${getRootFolder()}/`,
       tags: true,
       max_results: LIST_PAGE_SIZE,
@@ -219,7 +232,7 @@ async function listStalePendingUploads(
     for (const resource of page.resources) {
       const isPending = resource.tags?.includes(PENDING_TAG) ?? false;
       if (isPending && new Date(resource.created_at).getTime() < cutoff) {
-        stale.push({ publicId: resource.public_id, resourceType });
+        stale.push({ publicId: resource.public_id, resourceType, deliveryType });
       }
     }
     nextCursor = page.next_cursor;
@@ -228,10 +241,12 @@ async function listStalePendingUploads(
   return stale;
 }
 
-/** Every stale pending upload, across the file types the app accepts. */
+/** Every stale pending upload, across the file and delivery types the app uses. */
 export async function findStalePendingUploads(): Promise<UploadReference[]> {
   const lists = await Promise.all(
-    RESOURCE_TYPES_TO_CLEAN.map((type) => listStalePendingUploads(type)),
+    RESOURCE_TYPES_TO_CLEAN.flatMap((resourceType) =>
+      DELIVERY_TYPES.map((deliveryType) => listStalePendingUploads(resourceType, deliveryType)),
+    ),
   );
   return lists.flat();
 }
@@ -257,8 +272,28 @@ export function createPrivateDownloadUrl({
     resourceType === "raw" ? "" : format,
     {
       resource_type: resourceType,
-      type: DELIVERY_TYPE,
+      type: PRIVATE_DELIVERY,
       expires_at: Math.floor(Date.now() / 1000) + DOWNLOAD_LINK_LIFETIME_SECONDS,
     },
   );
+}
+
+/** The widths public images are served at: cards, page columns and wide banners. */
+export type PublicImageWidth = 480 | 960 | 1600;
+
+/**
+ * The address of a public image, resized by Cloudinary to at most `width` pixels and served in the
+ * best format for the browser. Only public (`upload`) images ever get such a link.
+ */
+export function publicImageUrl(publicId: string, width: PublicImageWidth): string {
+  return getCloudinary().url(publicId, {
+    secure: true,
+    type: "upload",
+    transformation: [{ width, crop: "limit", fetch_format: "auto", quality: "auto" }],
+  });
+}
+
+/** Deletes a public image that a record no longer uses (it was replaced or removed). Logged, never thrown. */
+export async function deletePublicImage(publicId: string): Promise<void> {
+  await deleteUploads([{ publicId, resourceType: "image", deliveryType: "upload" }]);
 }

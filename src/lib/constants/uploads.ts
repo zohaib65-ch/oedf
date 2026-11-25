@@ -1,26 +1,68 @@
 import type { FILE_PURPOSES } from "@/lib/constants/enums";
 
-/** Files an applicant or candidate may upload. Staff uploads (images, PDFs, agreements) come later. */
-export const PUBLIC_UPLOAD_PURPOSES = [
+/** Files an applicant or candidate may upload. */
+const PUBLIC_UPLOAD_PURPOSES = [
   "APPLICATION_DOCUMENT",
   "CV",
 ] as const satisfies readonly (typeof FILE_PURPOSES)[number][];
 
-export type PublicUploadPurpose = (typeof PUBLIC_UPLOAD_PURPOSES)[number];
+/**
+ * Files staff upload from the portal: public images, private agreement documents and publication
+ * PDFs (private on Cloudinary; visitors download a published one through a short-lived link).
+ */
+export const STAFF_UPLOAD_PURPOSES = [
+  "IMAGE",
+  "AGREEMENT",
+  "PUBLICATION_PDF",
+] as const satisfies readonly (typeof FILE_PURPOSES)[number][];
+
+export const UPLOAD_PURPOSES = [...PUBLIC_UPLOAD_PURPOSES, ...STAFF_UPLOAD_PURPOSES] as const;
+
+export type UploadPurpose = (typeof UPLOAD_PURPOSES)[number];
+
+/**
+ * How Cloudinary serves a file: `authenticated` only through a signed, expiring link (personal
+ * documents and agreements), `upload` openly (images shown on the public site).
+ */
+export type DeliveryType = "authenticated" | "upload";
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-/** The formats and the folder for each purpose. Checked before signing and again after the upload. */
+/** The formats, folder and delivery for each purpose. Checked before signing and again after the upload. */
 export const UPLOAD_RULES = {
   APPLICATION_DOCUMENT: {
     formats: ["pdf", "jpg", "jpeg", "png"],
     label: "PDF, JPG or PNG",
     folder: "applications",
+    deliveryType: "authenticated",
   },
-  CV: { formats: ["pdf", "docx"], label: "PDF or DOCX", folder: "cv" },
+  CV: {
+    formats: ["pdf", "docx"],
+    label: "PDF or DOCX",
+    folder: "cv",
+    deliveryType: "authenticated",
+  },
+  IMAGE: {
+    formats: ["jpg", "jpeg", "png", "webp"],
+    label: "JPG, PNG or WebP",
+    folder: "images",
+    deliveryType: "upload",
+  },
+  AGREEMENT: {
+    formats: ["pdf"],
+    label: "PDF",
+    folder: "agreements",
+    deliveryType: "authenticated",
+  },
+  PUBLICATION_PDF: {
+    formats: ["pdf"],
+    label: "PDF",
+    folder: "publications",
+    deliveryType: "authenticated",
+  },
 } as const satisfies Record<
-  PublicUploadPurpose,
-  { formats: readonly string[]; label: string; folder: string }
+  UploadPurpose,
+  { formats: readonly string[]; label: string; folder: string; deliveryType: DeliveryType }
 >;
 
 export const RESOURCE_TYPES = ["image", "raw"] as const;

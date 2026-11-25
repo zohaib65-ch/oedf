@@ -10,6 +10,7 @@ import {
   insertTestJobApplication,
   type TestJobApplication,
 } from "./db";
+import { capture } from "./screenshots";
 
 test.use({ storageState: ADMIN_STATE_FILE });
 
@@ -59,6 +60,7 @@ test.describe("vacancies", () => {
     await confirm(page, "Publish");
     await expect(page.getByText("Vacancy published.")).toBeVisible();
     await expect(page.getByText("Published", { exact: true })).toBeVisible();
+    await capture(page, "vacancy-published");
 
     const careersLink = page.getByRole("link", { name: /View on the careers page/ });
     const href = await careersLink.getAttribute("href");
@@ -150,6 +152,7 @@ test.describe("job applications", () => {
     await page.getByLabel("Internal note").fill("E2E: strong teaching demo.");
     await page.getByRole("button", { name: "Add note" }).click();
     await expect(page.getByText("E2E: strong teaching demo.")).toBeVisible();
+    await capture(page, "job-application-shortlisted");
 
     await confirm(page, "Archive");
     await expect(page.getByText(/^Archived on/)).toBeVisible();
